@@ -11,10 +11,10 @@
 Содержит структуру документации, мета-скиллы и инструкции для CC.
 Используется как основа при старте нового проекта.
 
-### Два файла CLAUDE
+### Два слоя
 
-- `CLAUDE.md` (этот файл) — инструкции для работы **внутри этого репо** (мейнтейнинг шаблона)
-- `CLAUDE.template.md` — заготовка для нового проекта (с `{ПЛЕЙСХОЛДЕРАМИ}`, копируется при создании проекта)
+- **Мейнтейнерский** (корень): `CLAUDE.md`, `CONTRIBUTION.md`, `docs/`, `.claude/`, `scripts/`
+- **Шаблонный** (`template/`): всё что уходит в новый проект при развёртывании через `scripts/init-project.sh`
 
 ---
 
@@ -22,19 +22,19 @@
 
 ```text
 CLAUDE.md                        ← инструкции мейнтейнера (этот файл)
-CLAUDE.template.md               ← шаблон для нового проекта
-WORKFLOW.md                      ← шпаргалка по рабочему процессу
-README-SETUP.md                  ← инструкция по развёртыванию шаблона
+CONTRIBUTION.md                  ← как работать с этим репо
+SETUP.md                  ← инструкция по развёртыванию
+scripts/
+  init-project.sh                ← скрипт инициализации нового проекта
 .claude/
-  skills/
-    meta/
-      cc-commit.md
-      cc-close-task.md
-      cc-status-report.md
-      cc-architect-sync.md
-      cc-export-chat.md
+  index.md                       ← навигатор CC (мейнтейнер)
+  skills/meta/
+    cc-commit.md
+    cc-close-task.md
+    cc-status-report.md
+    cc-architect-sync.md
+    cc-export-chat.md
 docs/
-  index.md
   blueprint.md
   plan.md
   to-do.md
@@ -42,6 +42,15 @@ docs/
   decisions.md
   history/          ← архив status.md
   discussions/      ← обсуждения
+template/                        ← шаблонный слой (уходит в новый проект)
+  CLAUDE.md
+  WORKFLOW.md
+  .claude/
+    index.md
+    skills/meta/   ← копия скиллов (независимая)
+  docs/
+    blueprint.md / plan.md / to-do.md / status.md / decisions.md
+    history/ / discussions/
 ```
 
 ---
@@ -50,10 +59,12 @@ docs/
 
 | Что нужно | Куда смотреть |
 | --- | --- |
-| Шаблон CLAUDE.md для нового проекта | `CLAUDE.template.md` |
-| Инструкция по развёртыванию | `README-SETUP.md` |
+| Шаблон для нового проекта | `template/` |
+| Инструкция по развёртыванию | `SETUP.md` |
+| Как работать с этим репо | `CONTRIBUTION.md` |
 | Что планируется улучшить | `docs/to-do.md` |
 | Что уже менялось | `docs/decisions.md` |
+| Навигатор документации | `.claude/index.md` |
 
 ---
 
@@ -69,7 +80,7 @@ docs/
 
 - Обсуждаешь улучшения шаблона
 - Задаёшь уточняющие вопросы прежде чем предлагать решение
-- Изменяешь: `CLAUDE.md`, `CLAUDE.template.md`, `WORKFLOW.md`, `.claude/skills/meta/*.md`
+- Изменяешь: `CLAUDE.md`, `CONTRIBUTION.md`, `template/CLAUDE.md`, `template/WORKFLOW.md`, `.claude/skills/meta/*.md`, `template/.claude/skills/meta/*.md`
 
 ### Режим Архитектора
 
@@ -130,7 +141,9 @@ docs/
 которое хочется перенести в шаблон:
 
 1. Открыть сессию с этим репо
-2. Вручную перенести изменение в нужный файл (`.claude/skills/meta/` или `CLAUDE.template.md`)
+2. Вручную перенести изменение:
+   - Скилл → `.claude/skills/meta/` и/или `template/.claude/skills/meta/`
+   - CLAUDE.md → `template/CLAUDE.md`
 3. Зафиксировать: `фиксируем`
 
 ### Версионирование скиллов
@@ -139,8 +152,8 @@ docs/
 
 ### Что НЕ трогать
 
-- `CLAUDE.template.md` сохраняет все `{ПЛЕЙСХОЛДЕРЫ}` — не заполнять реальными данными.
-- `docs/history/` — пустая папка (`.gitkeep`), нужна для структуры.
+- Все файлы в `template/` сохраняют `{ПЛЕЙСХОЛДЕРЫ}` — не заполнять реальными данными.
+- `docs/history/` и `template/docs/history/` — пустые папки (`.gitkeep`), нужны для структуры.
 
 ---
 

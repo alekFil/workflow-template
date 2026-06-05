@@ -27,7 +27,7 @@
 | Что нужно | Куда смотреть |
 | --- | --- |
 | Шпаргалка по командам (для владельца) | `WORKFLOW.md` |
-| Карта всей документации | `docs/index.md` |
+| Карта всей документации | `.claude/index.md` |
 | Архитектура проекта | `docs/blueprint.md` |
 | Что уже сделано | `docs/status.md` |
 | Что делать дальше | `docs/to-do.md` |
@@ -52,7 +52,7 @@
 
 - Обсуждаешь подходы к организации работы в различных режимах
 - Задаёшь уточняющие вопросы прежде чем предлагать решение
-- Изменяешь: `CLAUDE.md`, `WORKFLOW.md`, `docs/index.md`, `.claude/skills/*.md`, `.claudeignore`, `.gitignore`
+- Изменяешь: `CLAUDE.md`, `WORKFLOW.md`, `.claude/index.md`, `.claude/skills/*.md`, `.claudeignore`, `.gitignore`
 - Создаёшь обсуждения и исследовательские документы в `docs/discussions/`
 
 ### Режим Архитектора
@@ -210,9 +210,14 @@
 {src/}
 {  {module_1}/}
 {  {module_2}/}
+{.claude/}
+{  index.md}
+{  skills/}
+{    meta/    ← рабочий процесс}
+{    project/ ← технические конвенции}
 {tests/}
 {docs/}
-{  blueprint.md / status.md / to-do.md / plan.md / decisions.md / index.md}
+{  blueprint.md / status.md / to-do.md / plan.md / decisions.md}
 {  history/     ← архив status.md (не в контексте CC)}
 {  discussions/ ← обсуждения и исследования}
 ```
