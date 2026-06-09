@@ -1,96 +1,76 @@
-# Задача: Разделить мейнтейнерский и шаблонный слои
+# Задача: Добавить install.sh для установки через curl
 
 ## Контекст
 
-Реализация ADR-001 (два слоя в одном репо) и ADR-002 (перенос index.md в .claude/).
+Реализация ADR-005. Пользователь инициализирует свой репозиторий (`git init`),
+затем скачивает скрипт через curl — тот устанавливает шаблон без клонирования workflow-template.
+`init-project.sh` остаётся как есть (для мейнтейнера).
+
 Зависит от: —
 
 ## Что реализовать
 
-### 1. Создать структуру template/
+### 1. Создать `scripts/install.sh`
 
-- Создать `template/CLAUDE.md` — переместить содержимое `CLAUDE.template.md`
-- Создать `template/WORKFLOW.md` — шпаргалка для нового проекта (с плейсхолдерами)
-- Создать `template/.claude/index.md` — навигатор CC (с плейсхолдерами, ссылки на шаблонные docs/)
-- Создать `template/.claude/skills/meta/` — скопировать все скиллы из `.claude/skills/meta/`
-- Создать `template/docs/` — скопировать все файлы документации (blueprint, plan, to-do, status, decisions) с плейсхолдерами
+Логика:
 
-### 2. Перенести docs/index.md → .claude/index.md (мейнтейнерская версия)
+1. Проверить наличие `git`, `curl`, `tar`
+2. Проверить, что текущая директория — корень git-репозитория (`[ -d .git ]`)
+3. Проверить, что рабочий каталог пуст (кроме `.git`) — иначе предупредить и спросить подтверждение
+4. Запросить интерактивно: название проекта, remote URL (опционально)
+5. Скачать `template/` из репо:
 
-- Адаптировать под реальную структуру этого репо (убрать плейсхолдеры, обновить пути)
+```bash
+REPO="https://github.com/<GITHUB_USER>/workflow-template"
+curl -fsSL "${REPO}/archive/refs/heads/main.tar.gz" \
+  | tar xz --strip-components=2 "workflow-template-main/template"
+```
 
-### 3. Наполнить мейнтейнерскую документацию реальным содержимым
+6. Заполнить `{PROJECT_NAME}` во всех `.md`:
 
-- `docs/blueprint.md` — описание системы шаблона: что это, компоненты, как работает развёртывание
-- `docs/status.md` — актуальный срез: что реализовано, структура, что не реализовано
-- `docs/to-do.md` — реальный список задач по развитию шаблона
-- `docs/plan.md` — этот файл, заменить плейсхолдеры (уже сделано)
+```bash
+find . -name "*.md" -not -path "./.git/*" \
+  -exec sed -i "s|{PROJECT_NAME}|$PROJECT_NAME|g" {} +
+```
 
-### 4. Создать CONTRIBUTION.md
+7. Привязать remote (если указан)
+8. Сделать начальный коммит: `chore: init from workflow-template`
+9. Вывести следующие шаги (те же, что в `init-project.sh`)
 
-- Описать как работать с этим репо: роли CC, конвенции, как синхронизировать улучшения из рабочих проектов
+### 2. Обновить `SETUP.md`
 
-### 5. Создать scripts/init-project.sh (заглушка)
+Добавить раздел «Способ 2: через curl» перед текущим «Клонировать репозиторий».
+Оба способа — рядом, с пояснением когда какой использовать:
 
-- Файл с TODO-комментарием, скоуп определяется отдельной задачей
+- Через curl — стандартный для пользователей
+- Через клон — для мейнтейнера или если curl недоступен
 
-### 6. Обновить CLAUDE.md
+### 3. Уточнить `<GITHUB_USER>`
 
-- Заменить упоминание `docs/index.md` → `.claude/index.md`
-- Заменить `WORKFLOW.md` → `CONTRIBUTION.md` в разделе структуры
-- Убрать `CLAUDE.template.md` из структуры
-
-### 7. Удалить устаревшие файлы
-
-- `CLAUDE.template.md` — заменён на `template/CLAUDE.md`
-- `WORKFLOW.md` (корневой) — переехал в `template/WORKFLOW.md`
-- `docs/index.md` — переехал в `.claude/index.md`
+Перед реализацией запросить у пользователя GitHub username/org, чтобы захардкодить в скрипте.
 
 ## Файлы
 
 Создать:
-- `template/CLAUDE.md`
-- `template/WORKFLOW.md`
-- `template/.claude/index.md`
-- `template/.claude/skills/meta/cc-commit.md`
-- `template/.claude/skills/meta/cc-close-task.md`
-- `template/.claude/skills/meta/cc-status-report.md`
-- `template/.claude/skills/meta/cc-architect-sync.md`
-- `template/.claude/skills/meta/cc-export-chat.md`
-- `template/docs/blueprint.md`
-- `template/docs/plan.md`
-- `template/docs/to-do.md`
-- `template/docs/status.md`
-- `template/docs/decisions.md`
-- `template/docs/history/.gitkeep`
-- `template/docs/discussions/.gitkeep`
-- `CONTRIBUTION.md`
-- `scripts/init-project.sh`
-- `.claude/index.md`
+
+- `scripts/install.sh`
 
 Изменить:
-- `CLAUDE.md` — обновить пути и структуру
-- `docs/blueprint.md` — наполнить реальным содержимым
-- `docs/status.md` — наполнить реальным содержимым
-- `docs/to-do.md` — наполнить реальным содержимым
 
-Удалить:
-- `CLAUDE.template.md`
-- `WORKFLOW.md`
-- `docs/index.md`
+- `SETUP.md`
 
 ## Ограничения
 
-- Все `{ПЛЕЙСХОЛДЕРЫ}` в `template/` сохраняются — не заполнять реальными данными
-- `scripts/init-project.sh` — только заглушка, не реализовывать логику
-- Не трогать `docs/decisions.md` — уже содержит реальные ADR
+- `init-project.sh` не трогать
+- `install.sh` не должен содержать `rm -rf .git` — репозиторий уже инициализирован пользователем
+- Плейсхолдеры `{PROJECT_NAME}` в `template/` не трогать — скрипт заполняет их на лету
 
 ## Проверка
 
-- В корне нет `CLAUDE.template.md`, `WORKFLOW.md`, `docs/index.md`
-- `template/` содержит полноценную структуру нового проекта с плейсхолдерами
-- `.claude/index.md` отражает реальную структуру мейнтейнера
-- Все мейнтейнерские `docs/*.md` заполнены (без плейсхолдеров)
+- `curl ... | bash` в пустой директории с `git init` — скрипт выполняется без ошибок
+- После выполнения: структура совпадает с тем, что даёт `init-project.sh`
+- `git log` нового проекта содержит только один коммит (`chore: init from workflow-template`)
+- `SETUP.md` описывает оба способа
 
 ## Изменения по ходу
 
