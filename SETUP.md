@@ -4,6 +4,35 @@
 
 ---
 
+## Предварительные требования
+
+### Claude Code
+
+Если Claude Code ещё не установлен:
+
+1. Установить [Node.js](https://nodejs.org) (LTS)
+2. Установить Claude Code:
+
+   ```bash
+   npm install -g @anthropic-ai/claude-code
+   ```
+
+3. Авторизоваться — запустить `claude` и следовать инструкциям
+4. Проверить: `claude --version`
+
+### markdownlint (рекомендуется)
+
+Проект содержит `.markdownlint.json`. Установи расширение для VS Code:
+[davidanson.vscode-markdownlint](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint)
+
+Или CLI для проверки из терминала:
+
+```bash
+npm install -g markdownlint-cli
+```
+
+---
+
 ## Способ 1: через curl
 
 Стандартный способ для пользователей.
@@ -15,16 +44,6 @@ curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scri
 ```
 
 Скрипт интерактивно запросит название проекта и remote URL, скачает шаблон и сделает начальный коммит.
-
-## Способ 2: через клон репозитория
-
-Для мейнтейнера шаблона или если curl недоступен.
-
-```bash
-git clone https://github.com/alekFil/workflow-template.git my-project
-cd my-project
-./scripts/init-project.sh
-```
 
 ---
 
@@ -54,7 +73,7 @@ WORKFLOW.md                        ← шпаргалка по рабочему 
       cc-status-report.md          ← скилл "текущий статус"
       cc-architect-sync.md         ← скилл "синхронизируем"
       cc-export-chat.md            ← скилл "экспорт истории"
-docs/
+.context/
   blueprint.md                     ← архитектура проекта
   plan.md                          ← текущая задача
   to-do.md                         ← очередь задач
