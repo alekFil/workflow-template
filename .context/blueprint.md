@@ -8,8 +8,8 @@
 ## 1. Обзор системы
 
 `workflow-template` — шаблонный репозиторий рабочего процесса для Claude Code.
-Содержит структуру документации, мета-скиллы и скрипт инициализации.
-Используется как основа при старте нового проекта: клонируется, разворачивается скриптом.
+Содержит структуру документации, мета-скиллы и скрипт установки.
+Устанавливается через curl в новый git-репозиторий.
 
 **Ключевые принципы:**
 
@@ -24,9 +24,12 @@
 | ADR | Суть |
 | --- | --- |
 | ADR-001 | Два слоя в одном репо: мейнтейнерский (корень) и шаблонный (`template/`) |
-| ADR-002 | `index.md` перенесён из `.context/` в `.claude/` — навигатор CC, не документация проекта |
-| ADR-003 | `init-project.sh` заменяется на cookiecutter; первый стек — python-uv |
+| ADR-002 | `index.md` перенесён из `docs/` в `.claude/` — навигатор CC, не документация проекта |
+| ADR-003 | Cookiecutter; первый стек — python-uv (отложено) |
 | ADR-004 | Аудит `decisions.md` встроен в `cc-architect-sync`, не отдельным скиллом |
+| ADR-005 | `install.sh` для curl-установки; `init-project.sh` удалён |
+| ADR-006 | `docs/` переименована в `.context/` в обоих слоях |
+| ADR-007 | `scripts/init-project.sh` удалён; `install.sh` — единственный способ установки |
 
 ---
 
@@ -42,7 +45,7 @@
 - `.claude/index.md` — навигатор CC для мейнтейнерского контекста
 - `.claude/skills/meta/` — пять мета-скиллов рабочего процесса
 - `.context/` — рабочая документация мейнтейнера (blueprint, status, plan, to-do, decisions)
-- `scripts/init-project.sh` — скрипт инициализации нового проекта
+- `scripts/install.sh` — curl-установка шаблона для пользователей
 
 ### 3.2 Шаблонный слой
 
@@ -56,16 +59,16 @@
 
 ### 3.3 Инициализация нового проекта
 
-`scripts/init-project.sh` — текущий механизм развёртывания:
+`scripts/install.sh` — текущий механизм установки (ADR-005, ADR-007):
 
-1. Интерактивно заполняет ключевые плейсхолдеры
-2. Перемещает `template/` в корень
-3. Удаляет мейнтейнерский слой
-4. `rm -rf .git && git init`
-5. Привязывает новый remote
+1. Проверяет зависимости (`git`, `curl`, `tar`) и наличие `.git`
+2. Интерактивно запрашивает название проекта и remote URL
+3. Скачивает `template/` из репо через GitHub tar.gz
+4. Заполняет `{PROJECT_NAME}` во всех `.md`
+5. Привязывает remote (если указан)
 6. Делает init commit
 
-→ Будет заменён на cookiecutter (ADR-003): `uvx cookiecutter .` с выбором стека и post-gen хуком.
+Запуск: `curl -fsSL .../scripts/install.sh | bash` в пустом `git init`-репозитории.
 
 ---
 
@@ -74,21 +77,17 @@
 ### 4.1 Развёртывание нового проекта
 
 ```text
-git clone workflow-template new-project
-cd new-project
-./scripts/init-project.sh
+mkdir my-project && cd my-project
+git init
+curl -fsSL .../scripts/install.sh | bash
 → интерактивный ввод → готовый репозиторий
-
-# будет заменён (ADR-003):
-uvx cookiecutter path/to/workflow-template
-→ выбор стека → заполнение переменных → готовый репозиторий
 ```
 
 ### 4.2 Мейнтейнинг шаблона
 
 ```text
 сессия CC в workflow-template
-→ "что дальше" → "обсудим задачу" → "начинаем реализацию" → "фиксируем"
+→ "что дальше" → "обсудим" → "начинаем реализацию" → "фиксируем"
 ```
 
 ### 4.3 Синхронизация улучшений из рабочих проектов
@@ -107,7 +106,7 @@ CLAUDE.md ← .claude/skills/meta/ (ключевые фразы → скиллы
 CLAUDE.md ← .claude/index.md (навигация)
 template/CLAUDE.md ← template/.claude/skills/meta/
 template/CLAUDE.md ← template/.claude/index.md
-scripts/init-project.sh → template/ (разворачивает шаблонный слой)
+scripts/install.sh → template/ (скачивает и разворачивает шаблонный слой)
 ```
 
 ---
@@ -116,4 +115,5 @@ scripts/init-project.sh → template/ (разворачивает шаблонн
 
 - Мейнтейнинг шаблона через CC: роли, ключевые фразы, скиллы
 - Полная структура шаблонного слоя для нового проекта
-- Скрипт инициализации (`scripts/init-project.sh`) реализован
+- curl-установка через `scripts/install.sh` реализована (ADR-005, ADR-007)
+- Рабочая документация в `.context/` (ADR-006)

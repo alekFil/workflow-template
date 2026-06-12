@@ -103,7 +103,7 @@ curl -fsSL https://raw.githubusercontent.com/<GITHUB_USER>/workflow-template/mai
 
 ## ADR-003: Замена init-project.sh на cookiecutter
 
-**Статус:** Принято (к реализации)
+**Статус:** Принято, отложено — реализуется при появлении стек-специфичного кейса
 
 **Проблема:** `scripts/init-project.sh` — bash-скрипт с ручным заполнением плейсхолдеров и деструктивными операциями (`rm -rf .git`). Не поддерживает stack-специфичную структуру проекта (pyproject.toml, src layout и т.д.).
 
