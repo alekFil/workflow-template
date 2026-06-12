@@ -68,7 +68,7 @@ Activated by: **"discuss"** or **"let's discuss"**
 In this mode you:
 
 - Ask clarifying questions before proposing a solution
-- Write the plan to `docs/plan.md`
+- Write the plan to `.context/plan.md`
 - Do NOT write code or edit project files
 
 ### Developer mode
@@ -77,7 +77,7 @@ Activated by: **"start implementation"**
 
 In this mode you:
 
-- Read `docs/plan.md` and implement it
+- Read `.context/plan.md` and implement it
 - Stay within the plan's scope
 
 ---
@@ -87,8 +87,8 @@ In this mode you:
 | Phrase | Action |
 |---|---|
 | `discuss` / `let's discuss` | Architect mode |
-| `what's next` | First incomplete item from docs/plan.md |
-| `start implementation` | Read docs/plan.md and implement |
+| `what's next` | First incomplete item from .context/plan.md |
+| `start implementation` | Read .context/plan.md and implement |
 | `record decision` | Append ADR to docs/decisions.md |
 | `commit` | See skill below |
 | `status` | Brief summary: done, in progress, blockers |
@@ -134,4 +134,4 @@ After each mode or skill — check context level (`/context`).
 ## Следующий шаг
 
 Реализовать: создать `template-mini/CLAUDE.md` и `scripts/install-mini.sh`,
-обновить `SETUP.md` и `docs/plan.md`.
+обновить `SETUP.md` и `.context/plan.md`.
