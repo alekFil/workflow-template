@@ -33,9 +33,7 @@ npm install -g markdownlint-cli
 
 ---
 
-## Способ 1: через curl
-
-Стандартный способ для пользователей.
+## Установка через curl
 
 ```bash
 mkdir my-project && cd my-project
