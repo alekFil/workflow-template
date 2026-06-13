@@ -83,6 +83,9 @@ echo "Создаём начальный коммит..."
 git add .
 git commit -m "chore: init from workflow-template"
 
+# Создать ветку dev
+git checkout -b dev
+
 echo ""
 echo -e "${GREEN}Готово!${NC} Проект «$PROJECT_NAME» инициализирован."
 echo ""

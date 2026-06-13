@@ -72,7 +72,7 @@ WORKFLOW.md                        ← шпаргалка по рабочему 
       cc-close-task.md             ← скилл "закрываем задачу"
       cc-status-report.md          ← скилл "текущий статус"
       cc-architect-sync.md         ← скилл "синхронизируем"
-      cc-export-chat.md            ← скилл "экспорт истории"
+
 .context/
   blueprint.md                     ← архитектура проекта
   plan.md                          ← текущая задача

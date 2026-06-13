@@ -140,7 +140,6 @@
 | `текущий статус` | Читай `.claude/skills/meta/cc-status-report.md` и выполни |
 | `синхронизируем` | Читай `.claude/skills/meta/cc-architect-sync.md` и выполни |
 | `фиксируем` | Читай `.claude/skills/meta/cc-commit.md` и выполни |
-| `экспорт истории` | Читай `.claude/skills/meta/cc-export-chat.md` и выполни |
 
 ---
 

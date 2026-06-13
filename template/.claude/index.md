@@ -27,7 +27,6 @@
 | `.claude/skills/meta/cc-architect-sync.md` | "синхронизируем" и вариации |
 | `.claude/skills/meta/cc-commit.md` | "фиксируем" и вариации |
 | `.claude/skills/meta/cc-close-task.md` | "закрываем задачу" и вариации |
-| `.claude/skills/meta/cc-export-chat.md` | "экспорт истории" и вариации |
 
 ---
 

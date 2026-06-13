@@ -33,7 +33,6 @@ scripts/
     cc-close-task.md
     cc-status-report.md
     cc-architect-sync.md
-    cc-export-chat.md
 .context/
   blueprint.md
   plan.md
