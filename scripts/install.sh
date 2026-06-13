@@ -27,7 +27,7 @@ fi
 NON_GIT=$(find . -mindepth 1 -maxdepth 1 -not -name ".git" | wc -l)
 if [ "$NON_GIT" -gt 0 ]; then
     echo -e "${YELLOW}Предупреждение:${NC} директория не пустая — файлы могут быть перезаписаны."
-    read -p "Продолжить? [y/N]: " OVERWRITE_CONFIRM
+    read -p "Продолжить? [y/N]: " OVERWRITE_CONFIRM </dev/tty
     if [[ "$OVERWRITE_CONFIRM" != "y" && "$OVERWRITE_CONFIRM" != "Y" ]]; then
         echo "Отменено."
         exit 0
@@ -39,19 +39,19 @@ echo -e "${BLUE}workflow-template — инициализация нового п
 echo ""
 
 # Собрать данные
-read -p "Название проекта: " PROJECT_NAME
+read -p "Название проекта: " PROJECT_NAME </dev/tty
 if [ -z "$PROJECT_NAME" ]; then
     echo -e "${RED}Ошибка:${NC} название не может быть пустым."
     exit 1
 fi
 
-read -p "Remote URL (Enter — настроить позже): " REMOTE_URL
+read -p "Remote URL (Enter — настроить позже): " REMOTE_URL </dev/tty
 
 echo ""
 echo "  Проект: $PROJECT_NAME"
 [ -n "$REMOTE_URL" ] && echo "  Remote:  $REMOTE_URL"
 echo ""
-read -p "Продолжить? [y/N]: " CONFIRM
+read -p "Продолжить? [y/N]: " CONFIRM </dev/tty
 if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
     echo "Отменено."
     exit 0
