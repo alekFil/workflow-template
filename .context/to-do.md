@@ -11,14 +11,7 @@
 
 ## Следующее
 
-### Приоритет 1: template-mini
-
-- [ ] Создать `template-mini/CLAUDE.md` (драфт готов: `.context/discussions/2026-06-08-mini-claude-md-design.md`)
-- [ ] Написать `scripts/install-mini.sh` (скачивает один файл через curl)
-- [ ] Обновить `SETUP.md`: добавить оба способа mini-установки
-- [ ] English README с примером диалога «до/после»
-
-### Приоритет 2: Cookiecutter-инициализация (ADR-003)
+### Приоритет 1: Cookiecutter-инициализация (ADR-003)
 
 - [ ] Переструктурировать `template/` → `{{cookiecutter.project_slug}}/`
 - [ ] Создать `cookiecutter.json` (project_name, project_slug, stack, package_name)
@@ -27,20 +20,17 @@
 - [ ] Мигрировать плейсхолдеры `{PROJECT_NAME}` → `{{cookiecutter.project_name}}` во всех шаблонных файлах
 - [ ] Обновить `SETUP.md` под новый процесс (`uvx cookiecutter ...`)
 
-### Приоритет 3: Управление decisions.md (ADR-004)
+### Приоритет 2: Управление decisions.md (ADR-004)
 
 - [ ] Расширить `cc-architect-sync.md`: добавить шаг проверки ADR со статусом "Заменено" и предложения архивировать в `.context/history/decisions/`
 - [ ] То же для `template/.claude/skills/meta/cc-architect-sync.md`
 - [ ] Создать `.context/history/decisions/` (`.gitkeep`)
 
-### Приоритет 4: Полнота шаблона
+### Приоритет 3: Полнота шаблона
 
 - [ ] Добавить `.claudeignore` в `template/` (исключить `.context/history/` из контекста CC)
 - [ ] Добавить `template/.claude/skills/project/` — каталог для проектных скиллов (пустой, с README)
-
-### Приоритет 5: Улучшения рабочего процесса
-
-- [ ] Разобрать `cc-export-chat.md` — нужен ли скрипт в шаблоне или инструкция по настройке
+- [ ] Проверить что `template/.gitignore` корректно разворачивается через `install.sh`
 
 ---
 
@@ -58,6 +48,9 @@
 - [x] Упрощены ключевые фразы активации Архитектора (`обсудим задачу` → `обсудим`)
 - [x] Удалён `scripts/init-project.sh`, SETUP.md обновлён (ADR-007)
 - [x] Переименована `docs/` → `.context/` в обоих слоях, ссылки обновлены (ADR-006)
+- [x] Предпубликационный аудит: `cc-export-chat` удалён, `.gitignore` дополнен, `install.sh` создаёт `dev`-ветку (ADR-009)
+- [x] `template-mini` отклонён — поддерживать два параллельных шаблона нецелесообразно (ADR-010)
+- [x] `.context/notes/` исключена из git в обоих слоях, описана в WORKFLOW.md (ADR-011)
 
 ---
 
