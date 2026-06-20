@@ -27,7 +27,7 @@ If Claude Code is not yet installed:
 ```bash
 mkdir my-project && cd my-project
 git init
-curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/oss/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scripts/install.sh | bash
 ```
 
 The script will interactively ask for a project name and remote URL, download the template, and optionally create an initial commit.
@@ -39,7 +39,7 @@ The script will interactively ask for a project name and remote URL, download th
 To remove the assistant from a project:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/oss/scripts/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scripts/uninstall.sh | bash
 ```
 
 The script removes the assistant files and cleans up related entries from `.gitignore` and `.git/info/exclude`. No commit is created — stage and commit the changes manually.
@@ -69,7 +69,7 @@ WORKFLOW.md                        ← workflow quick reference
     meta/
       cc-commit.md                 ← /commit skill
       cc-close-task.md             ← /close skill
-      cc-status-report.md          ← /status skill
+      cc-status-report.md          ← /report skill
       cc-architect-sync.md         ← /sync skill
 
 .context/

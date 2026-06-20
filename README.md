@@ -70,7 +70,7 @@ mkdir my-project && cd my-project
 git init
 
 # 4. Install template
-curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/oss/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scripts/install.sh | bash
 
 # 5. Launch Claude Code
 claude
