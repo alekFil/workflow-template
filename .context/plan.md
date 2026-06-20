@@ -1,83 +1,80 @@
-## Задача: Переписать README и протестировать install.sh end-to-end
+## Task: Add demo walkthrough and contributing section to README.md
 
-### Контекст
+### Context
 
-README содержит баг — упомянута команда `/status`, переименованная в `/report` (ADR-017).
-Новому пользователю не понятна структура проекта после установки.
-install.sh с ветки `oss` ни разу не прогонялся end-to-end.
+Two remaining items from Priority 1 (OSS publication, to-do.md):
+1. Demo session — show the core workflow `/architect` → `/dev` → `/commit` as a text walkthrough
+2. Two-layer structure — explain maintainer vs template layers for contributors
 
-Зависит от: ADR-017, ADR-018 (выполнено); перевод шаблонного слоя (выполнено).
+The current README is user-facing and complete for end users. Two-layer structure is relevant
+for contributors only → add a brief "Contributing" block with a link to CONTRIBUTION.md.
 
-### Что реализовать
+Depends on: previous README rewrite (done), ADR-018 (done).
 
-1. Переписать `README.md` — исправить баг, добавить ASCII-структуру, реструктурировать разделы
-2. Протестировать `install.sh` локально с ветки `oss`; исправить всё что сломается
+### What to implement
 
-### README.md — целевая структура
+1. Add `## Demo` section to `README.md` — conversational walkthrough of a typical session
+2. Add `## Contributing` section to `README.md` — one paragraph, two-layer structure, link to `CONTRIBUTION.md`
 
-Оставить без изменений:
-- Заголовок + бейджи
-- Раздел «Why» (текст хороший)
-- Раздел «Quick start»
+### README.md — target additions
 
-Переписать / заменить:
-- Одна строка описания после бейджей — можно уточнить
-- «What's included» → заменить двумя разделами:
+**Demo section** (insert before `## Quick start`):
 
-**«What gets installed»** — ASCII-дерево проекта после установки, аннотация к каждому элементу:
+```markdown
+## Demo
 
-```text
-your-project/
-├── CLAUDE.md          ← CC читает при старте: контекст проекта, режимы, конвенции
-├── WORKFLOW.md        ← шпаргалка по слэш-командам
-├── .claude/
-│   ├── commands/      ← /architect, /dev, /commit, /close, /report, /sync…
-│   └── skills/meta/   ← реализации скиллов
-└── .context/
-    ├── blueprint.md   ← архитектура проекта
-    ├── plan.md        ← план текущей задачи
-    ├── to-do.md       ← очередь задач
-    ├── status.md      ← снимок состояния реализации
-    └── decisions.md   ← журнал архитектурных решений (ADR)
+You open a new project session and type:
+
+/architect add CSV export for the reports page
+
+CC asks clarifying questions — which data, which format, where the trigger lives.
+You answer. CC writes `.context/plan.md`.
+
+/dev
+
+CC reads the plan and implements strictly within its scope — no improvisation.
+
+/commit
+
+CC shows the diff, you confirm, commit is created.
+
+Decisions accumulate in `decisions.md` and persist across sessions.
 ```
 
-**«How it works»** — цикл рабочего процесса, 4–5 строк:
+**Contributing section** (append after `## Quick start`):
 
-```text
-/architect  →  CC задаёт вопросы, пишет .context/plan.md
-/dev        →  CC читает план, реализует в его границах
-/commit     →  показать diff → подтвердить → коммит
-/report     →  снимок текущего состояния → .context/status.md
-/sync       →  сравнить код с документацией, предложить обновления
+```markdown
+## Contributing
+
+This repo has two layers:
+
+- **Root** (maintainer layer) — `CLAUDE.md`, `CONTRIBUTION.md`, `.context/`, `.claude/`, `scripts/`
+- **`template/`** (template layer) — everything that gets installed into a new project via `install.sh`
+
+See [CONTRIBUTION.md](CONTRIBUTION.md) for how to work with this repo.
 ```
 
-Решения накапливаются в `decisions.md` и сохраняются между сессиями.
+### Files
 
-Аннотации в ASCII-дереве — на английском (файл публичный, аудитория международная).
-Текст разделов README — на английском.
+Edit:
+- `README.md` — insert Demo section before Quick start; append Contributing section at the end
 
-### Файлы
+### Constraints
 
-Изменить:
-- `README.md` — переписать по структуре выше
+- Text walkthrough only — no asciinema, no GIFs, no external services
+- Demo scenario must be concrete but generic (not tied to any specific tech stack)
+- Contributing section: one paragraph max, no duplication of CONTRIBUTION.md content
+- Do not change existing sections (Why, What gets installed, How it works, Quick start)
+- No placeholder text or TODO comments in the output
 
-Новых файлов нет. Если тест выявит баги install.sh — исправить те файлы; зафиксировать ниже.
+### Verification
 
-### Ограничения
+- `grep -n "## Demo" README.md` — section exists
+- `grep -n "## Contributing" README.md` — section exists
+- `grep -n "two layers" README.md` — mentioned in Contributing
+- `grep -n "CONTRIBUTION.md" README.md` — link present
+- README sections order: Why → What gets installed → How it works → Demo → Quick start → Contributing
 
-- Демо в этой итерации не делать — не добавлять placeholder и TODO на него
-- Только ASCII — без mermaid, без изображений
-- curl URL остаётся на ветке `oss` — переедет на `main` при мерже
-- Текст «Quick start» не менять без явного повода от теста
-- Если тест выявит баги install.sh → исправить, задокументировать в «Изменения по ходу»
+### Changes along the way
 
-### Проверка
-
-- `grep "/status" README.md` — нет совпадений
-- README содержит ASCII-дерево с `.claude/` и `.context/`
-- Тест: `mkdir /tmp/test-wf && cd /tmp/test-wf && git init && curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/oss/scripts/install.sh | bash` — завершается без ошибок
-- После установки в `/tmp/test-wf` присутствуют: CLAUDE.md, WORKFLOW.md, .claude/, .context/
-
-### Изменения по ходу
-
-- `scripts/install.sh` — исправлено определение TTY: `[ -e /dev/tty ]` заменено на `( </dev/tty ) 2>/dev/null`. Устройство может существовать как нода, но быть недоступным для открытия — в таком случае фолбэк на `/dev/stdin`. Проявляется в средах без реального TTY (CI, Docker, bash-инструмент CC).
+(none yet)
