@@ -11,14 +11,17 @@
 
 ## Следующее
 
-### Приоритет 1: Cookiecutter-инициализация (ADR-003)
+### Приоритет 1: OSS-публикация (ADR-014)
 
-- [ ] Переструктурировать `template/` → `{{cookiecutter.project_slug}}/`
-- [ ] Создать `cookiecutter.json` (project_name, project_slug, stack, package_name)
-- [ ] Добавить стек python-uv: `pyproject.toml`, `src/`, `tests/`, `.python-version`
-- [ ] Написать `hooks/post_gen_project.py` (git init, uv sync, удаление лишних файлов)
-- [ ] Мигрировать плейсхолдеры `{PROJECT_NAME}` → `{{cookiecutter.project_name}}` во всех шаблонных файлах
-- [ ] Обновить `SETUP.md` под новый процесс (`uvx cookiecutter ...`)
+- [ ] Перевести `template/CLAUDE.md` на английский
+- [ ] Перевести `template/WORKFLOW.md` на английский
+- [ ] Перевести `template/.claude/index.md` и все 4 мета-скилла на английский
+- [ ] Перевести `template/.context/*.md` (blueprint, plan, to-do, status, decisions) на английский
+- [ ] Перевести `README.md`, `SETUP.md` на английский
+- [ ] Перевести `scripts/install.sh` и `scripts/uninstall.sh` (вывод, подсказки) на английский
+- [ ] Заменить ключевые фразы на слэш-команды в `template/CLAUDE.md`
+- [ ] Снять демо: одна сессия от `/architect` до `/commit`
+- [ ] Переписать `README.md`: объяснить двухслойную структуру, добавить демо
 
 ### Приоритет 2: Управление decisions.md (ADR-004)
 
@@ -50,6 +53,7 @@
 - [x] Переименована `docs/` → `.context/` в обоих слоях, ссылки обновлены (ADR-006)
 - [x] Предпубликационный аудит: `cc-export-chat` удалён, `.gitignore` дополнен, `install.sh` создаёт `dev`-ветку (ADR-009)
 - [x] `template-mini` отклонён — поддерживать два параллельных шаблона нецелесообразно (ADR-010)
+- [x] Cookiecutter отклонён — продукт workflow-слой, не project starter (ADR-003 → ADR-014)
 - [x] `.context/notes/` исключена из git в обоих слоях, описана в WORKFLOW.md (ADR-011)
 
 ---
@@ -57,4 +61,5 @@
 ## После MVP (технический долг)
 
 - [ ] Тест: проверить что развёртывание через install.sh работает end-to-end
+- [ ] Тест: проверить curl-команду для uninstall.sh в SETUP.md
 - [ ] Changelog для отслеживания версий шаблона
