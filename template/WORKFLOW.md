@@ -5,26 +5,21 @@ Full instructions for CC — in `CLAUDE.md`. Skill details — in `.claude/skill
 
 ---
 
-## Modes and slash commands
+## Slash commands
 
-| Command | Mode | What happens |
-| --- | --- | --- |
-| `/organize` | Organizer | Discuss workflows, edit `.claude/index.md` and skills |
-| `/architect` | Architect | Discuss architecture → plan in `.context/plan.md` |
-| `/next` | Architect | First incomplete item from `.context/to-do.md` |
-| `/dev` | Developer | Reads `.context/plan.md`, creates branch, writes code |
-| `/record` | — | Adds ADR to `.context/decisions.md` |
+Type `/command` directly in the Claude Code prompt. Each command is defined by a file in `.claude/commands/`.
 
----
-
-## Workflow commands
-
-| Command | Skill | What happens |
-| --- | --- | --- |
-| `/commit` | `cc-commit.md` | Shows diff → waits for confirmation → commits |
-| `/close` | `cc-close-task.md` | Rebase + ff-merge into `dev`, deletes branch |
-| `/status` | `cc-status-report.md` | Archives old `status.md`, writes new one |
-| `/sync` | `cc-architect-sync.md` | Compares code with documentation, suggests changes |
+| Command | What happens |
+| --- | --- |
+| `/organize` | Switch to Organizer mode — discuss workflows, edit `.claude/index.md` and skills |
+| `/architect` | Switch to Architect mode — discuss architecture → write `.context/plan.md` |
+| `/next` | Architect mode: suggest first incomplete item from `.context/to-do.md` |
+| `/dev` | Switch to Developer mode — read `.context/plan.md`, create branch, write code |
+| `/record` | Add ADR to `.context/decisions.md` |
+| `/commit` | Show diff → wait for confirmation → commit |
+| `/close` | Rebase + ff-merge into `dev`, delete branch |
+| `/report` | Archive old `status.md`, write new one |
+| `/sync` | Compare code with documentation, suggest changes |
 
 ---
 
@@ -69,8 +64,8 @@ CC **never does `git push`** without explicit request.
    CC does rebase + ff-merge into dev, deletes branch
 
 6. Every few tasks — sync documentation
-   → /status   (update status.md)
-   → /sync     (check blueprint / code divergence)
+   → /report  (update status.md)
+   → /sync    (check blueprint / code divergence)
 ```
 
 ---

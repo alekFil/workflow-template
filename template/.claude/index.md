@@ -17,16 +17,34 @@ Load only the files needed for the current task.
 
 ---
 
-## Meta-skills (workflow)
+## Slash commands
 
-Read the corresponding skill when the developer triggers the slash command.
+Each file in `.claude/commands/` defines a CC slash command invoked by the project owner.
 
-| File | Trigger |
+| Command | File | Description |
+| --- | --- | --- |
+| `/organize` | `commands/organize.md` | Organizer mode |
+| `/architect` | `commands/architect.md` | Architect mode — plan |
+| `/next` | `commands/next.md` | First incomplete task |
+| `/record` | `commands/record.md` | Add ADR |
+| `/dev` | `commands/dev.md` | Developer mode — implement |
+| `/commit` | `commands/commit.md` | Commit changes |
+| `/close` | `commands/close.md` | Merge and close branch |
+| `/report` | `commands/report.md` | Update status.md |
+| `/sync` | `commands/sync.md` | Sync docs with code |
+
+---
+
+## Meta-skills (workflow algorithms)
+
+Detailed algorithms backing the workflow commands. Read via the corresponding command file.
+
+| File | Used by |
 | --- | --- |
-| `.claude/skills/meta/cc-status-report.md` | `/status` and variations |
-| `.claude/skills/meta/cc-architect-sync.md` | `/sync` and variations |
-| `.claude/skills/meta/cc-commit.md` | `/commit` and variations |
-| `.claude/skills/meta/cc-close-task.md` | `/close` and variations |
+| `.claude/skills/meta/cc-status-report.md` | `/report` |
+| `.claude/skills/meta/cc-architect-sync.md` | `/sync` |
+| `.claude/skills/meta/cc-commit.md` | `/commit` |
+| `.claude/skills/meta/cc-close-task.md` | `/close` |
 
 ---
 

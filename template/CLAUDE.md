@@ -135,13 +135,13 @@ If a problem outside the plan scope is found during implementation — two paths
 | --- | --- |
 | `/organize` | Switch to Organizer mode |
 | `/architect` | Switch to Architect mode |
-| `/next` | Architect mode: suggest first incomplete item from `.context/to-do.md` |
+| `/next` | Architect mode: first incomplete item from `.context/to-do.md` |
 | `/record` | Add ADR to `.context/decisions.md` |
-| `/dev` | Read `.context/plan.md` and implement |
-| `/close` | Read `.claude/skills/meta/cc-close-task.md` and execute |
-| `/status` | Read `.claude/skills/meta/cc-status-report.md` and execute |
-| `/sync` | Read `.claude/skills/meta/cc-architect-sync.md` and execute |
-| `/commit` | Read `.claude/skills/meta/cc-commit.md` and execute |
+| `/dev` | Switch to Developer mode — implement `.context/plan.md` |
+| `/close` | Merge feature branch, close the task |
+| `/report` | Archive and write new `.context/status.md` |
+| `/sync` | Compare code with documentation, suggest changes |
+| `/commit` | Show diff → confirm → commit |
 
 ---
 
