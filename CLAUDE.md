@@ -1,6 +1,6 @@
 # workflow-template — CLAUDE.md
 
-**Language:** Respond in the user's language.
+**Language:** Respond in the user's language. Write all `.context/` files (status.md, plan.md, to-do.md, decisions.md, discussions) in the user's language as well.
 
 Context for Claude Code when working with this repository.
 This is a **meta-repo**: a workflow template for new projects.

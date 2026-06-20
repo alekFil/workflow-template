@@ -3,7 +3,7 @@
 Project context for Claude Code.
 Read this file first. Details — follow the links below.
 
-**Language:** Respond in the user's language.
+**Language:** Respond in the user's language. Write all `.context/` files (status.md, plan.md, to-do.md, decisions.md, discussions) in the user's language as well.
 
 ## About this project
 
