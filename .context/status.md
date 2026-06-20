@@ -1,39 +1,37 @@
 # Статус реализации workflow-template
 
-Дата: 2026-06-20 (обновлено)
+Дата: 2026-06-20 12:00 (ветка `oss`)
 
 ---
 
 ## Что реализовано
 
-**Мейнтейнерский слой:**
+**Мейнтейнерский слой (на русском, ключевые фразы):**
 
-- `CLAUDE.md` — инструкции CC: роли, ключевые фразы, конвенции (ADR-008: удалён раздел «Управление контекстом»)
-- `CONTRIBUTION.md` — руководство мейнтейнера (исправлена фраза «обсудим задачу» → «обсудим», ADR-009)
-- `SETUP.md` — инструкция по развёртыванию (curl и клон); добавлен раздел «Удаление» (ADR-013)
-- `README.md` — описание репо для GitHub
-- `.gitignore` — добавлены `.claude/settings.local.json`, `.claude/chat_history/`, `.env`, `.context/notes/*.md` (ADR-009, ADR-011)
-- `.markdownlint.json` — конфигурация проверки Markdown
-- `.claude/index.md` — навигатор CC (убрано упоминание cc-export-chat, ADR-009)
-- `.claude/skills/meta/cc-commit.md` — скилл "фиксируем"
-- `.claude/skills/meta/cc-close-task.md` — скилл "закрываем задачу"
-- `.claude/skills/meta/cc-status-report.md` — скилл "текущий статус"
-- `.claude/skills/meta/cc-architect-sync.md` — скилл "синхронизируем"
-- `.context/blueprint.md`, `.context/plan.md`, `.context/to-do.md`, `.context/decisions.md` — заполнены
+- `CLAUDE.md` — инструкции CC: роли, ключевые фразы, конвенции (ADR-008, ADR-009)
+- `CONTRIBUTION.md` — руководство мейнтейнера (ADR-009)
+- `SETUP.md` — инструкция по развёртыванию на английском; curl и клон; раздел «Удаление» (ADR-013, ADR-014)
+- `README.md` — описание репо для GitHub на английском (ADR-014)
+- `.gitignore` — добавлены `.claude/settings.local.json`, `.claude/chat_history/`, `.env`, `.context/notes/*.md`
+- `.markdownlint.json` — конфигурация проверки Markdown (только мейнтейнерский слой)
+- `.claude/index.md` — навигатор CC (русский, ключевые фразы)
+- `.claude/skills/meta/` — четыре мета-скилла на русском: cc-commit, cc-close-task, cc-status-report, cc-architect-sync
+- `.context/blueprint.md`, `.context/plan.md`, `.context/to-do.md`, `.context/decisions.md` — заполнены, на русском
 - `.context/discussions/` — три обсуждения: curl-установка, mini-версия, локальный LLM-агент
 - `.context/notes/` — личные заметки владельца (исключены из git, ADR-011)
-- `scripts/install.sh` — curl-установка: скачивает `template/` как tar.gz, заполняет плейсхолдеры; безопасно дополняет `.gitignore` с маркером; управляет видимостью ассистента (exclude / settings.json); опциональные коммит и ветка `dev` (ADR-005, ADR-007, ADR-009, ADR-012, ADR-013)
-- `scripts/uninstall.sh` — удаление ассистента: перечисляет файлы, спрашивает про `.markdownlint.json`, очищает блоки `# workflow-template` из `.gitignore` и `.git/info/exclude` (ADR-013)
+- `scripts/install.sh` — curl-установка на английском: tar.gz, плейсхолдеры, .gitignore с маркером, видимость ассистента, опциональные коммит и dev-ветка (ADR-005, ADR-007, ADR-012, ADR-013, ADR-014)
+- `scripts/uninstall.sh` — удаление ассистента на английском: перечисляет файлы, очищает .gitignore и .git/info/exclude (ADR-013, ADR-014)
 
-**Шаблонный слой (`template/`):**
+**Шаблонный слой (`template/`) — переведён на английский, слэш-команды (ADR-014, ADR-015, ADR-016):**
 
-- `template/CLAUDE.md` — CLAUDE.md для нового проекта (плейсхолдеры; убрана строка «экспорт истории», ADR-009)
-- `template/WORKFLOW.md` — шпаргалка рабочего процесса (убрана строка «экспорт истории», исправлен code block «Ветки», ADR-009)
-- `template/.markdownlint.json` — конфигурация markdownlint
-- `template/.claude/index.md` — навигатор CC (убрана строка cc-export-chat, ADR-009)
-- `template/.claude/skills/meta/` — четыре мета-скилла (cc-export-chat удалён, ADR-009)
-- `template/.context/` — документация с плейсхолдерами: blueprint, plan, to-do, status, decisions
-- `template/.context/notes/` — пустая директория для личных заметок (`.gitkeep`; `.gitignore` исключает `*.md`, ADR-011)
+- `template/CLAUDE.md` — на английском; слэш-команды `/organize`, `/architect`, `/next`, `/record`, `/dev`, `/close`, `/status`, `/sync`, `/commit`; инструкция «Respond in the user's language»
+- `template/WORKFLOW.md` — шпаргалка рабочего процесса на английском
+- `template/.gitignore` — базовый .gitignore для нового проекта
+- `template/.claude/index.md` — навигатор CC на английском
+- `template/.claude/skills/meta/` — четыре мета-скилла на английском (cc-commit, cc-close-task, cc-status-report, cc-architect-sync)
+- `template/.context/blueprint.md`, `plan.md`, `to-do.md`, `status.md`, `decisions.md` — на английском, с плейсхолдерами
+- `template/.context/notes/` — пустая директория (`.gitkeep`; `.gitignore` исключает `*.md`, ADR-011)
+- `template/.markdownlint.json` — **удалён** (ADR-015)
 
 ---
 
@@ -50,7 +48,7 @@ workflow-template/
 ├── .markdownlint.json
 ├── .claude/
 │   ├── index.md
-│   ├── settings.local.json       ← в .gitignore; содержит локальные разрешения
+│   ├── settings.local.json       ← в .gitignore
 │   └── skills/meta/
 │       ├── cc-commit.md
 │       ├── cc-close-task.md
@@ -62,30 +60,19 @@ workflow-template/
 │   ├── to-do.md
 │   ├── status.md
 │   ├── decisions.md
-│   ├── history/
-│   │   ├── 001-status-2026-06-05.md
-│   │   ├── 002-status-2026-06-05.md
-│   │   ├── 003-status-2026-06-12.md
-│   │   ├── 004-status-2026-06-13.md
-│   │   ├── 005-status-2026-06-13.md
-│   │   ├── 006-status-2026-06-20.md
-│   │   └── 007-status-2026-06-20.md
-│   ├── discussions/
-│   │   ├── 2026-06-08-install-and-mini.md
-│   │   ├── 2026-06-08-mini-claude-md-design.md
-│   │   └── 2026-06-18-local-llm-agent.md
-│   └── notes/                    ← в .gitignore; личные патч-файлы владельца
+│   ├── history/         (008 архивов)
+│   ├── discussions/     (3 обсуждения)
+│   └── notes/           ← в .gitignore
 ├── scripts/
 │   ├── install.sh
-│   └── uninstall.sh              ← новый (ADR-013)
+│   └── uninstall.sh
 └── template/
     ├── CLAUDE.md
     ├── WORKFLOW.md
     ├── .gitignore
-    ├── .markdownlint.json
     ├── .claude/
     │   ├── index.md
-    │   └── skills/meta/ (4 скилла — cc-export-chat удалён)
+    │   └── skills/meta/ (4 скилла на английском)
     └── .context/
         ├── blueprint.md
         ├── plan.md
@@ -103,26 +90,29 @@ workflow-template/
 
 - **ADR-001**: Два слоя — мейнтейнерский (корень) и шаблонный (`template/`)
 - **ADR-002**: `index.md` в `.claude/`, не в `docs/`
-- **ADR-003**: Cookiecutter — принято, отложено (ADR-005 покрывает текущий сценарий)
+- **ADR-003**: Cookiecutter — Отклонено, заменено ADR-014
 - **ADR-004**: Аудит `decisions.md` встроен в `cc-architect-sync`, не отдельным скиллом
 - **ADR-005**: `install.sh` для curl-установки
 - **ADR-006**: `docs/` переименована в `.context/` в обоих слоях
 - **ADR-007**: `scripts/init-project.sh` удалён; `install.sh` — единственный способ установки
 - **ADR-008**: Раздел «Управление контекстом» удалён из обоих `CLAUDE.md`
-- **ADR-009**: Предпубликационный аудит — 6 исправлений (cc-export-chat удалён, .gitignore дополнен, install.sh + dev-ветка, CONTRIBUTION.md, template-файлы очищены)
-- **ADR-010**: Отказ от `template-mini` — поддерживать два параллельных шаблона нецелесообразно
-- **ADR-011**: `.context/notes/` — личные заметки владельца, исключены из git в обоих слоях
-- **ADR-012**: `install.sh` — безопасный `.gitignore` (дополнение с маркером), управление видимостью ассистента (exclude / settings.json)
-- **ADR-013**: `install.sh` — опциональные коммит и ветка `dev`; `uninstall.sh` — полное удаление ассистента; `SETUP.md` — раздел «Удаление»
+- **ADR-009**: Предпубликационный аудит — 6 исправлений
+- **ADR-010**: Отказ от `template-mini`
+- **ADR-011**: `.context/notes/` — личные заметки, исключены из git в обоих слоях
+- **ADR-012**: `install.sh` — безопасный `.gitignore`, управление видимостью ассистента
+- **ADR-013**: `install.sh` — опциональные коммит и dev-ветка; `uninstall.sh`; `SETUP.md` — раздел «Удаление»
+- **ADR-014**: OSS-публикация — перевод шаблонного слоя и публичных файлов на английский
+- **ADR-015**: Удалён `template/.markdownlint.json` из шаблонного слоя
+- **ADR-016**: Ветка `oss`; «Respond in the user's language»; слэш-команды в шаблоне реализованы вместе с переводом
 
 ---
 
 ## Зависимости между компонентами
 
 ```text
-CLAUDE.md ← .claude/skills/meta/ (скиллы по ключевым фразам)
+CLAUDE.md ← .claude/skills/meta/ (ключевые фразы → скиллы)
 CLAUDE.md ← .claude/index.md (навигация)
-template/CLAUDE.md ← template/.claude/skills/meta/
+template/CLAUDE.md ← template/.claude/skills/meta/ (слэш-команды)
 template/CLAUDE.md ← template/.claude/index.md
 scripts/install.sh → template/ (скачивает как tar.gz; единственный способ для пользователей)
 scripts/uninstall.sh → .claude/, .context/, CLAUDE.md, WORKFLOW.md, .gitignore, .git/info/exclude
@@ -132,7 +122,9 @@ scripts/uninstall.sh → .claude/, .context/, CLAUDE.md, WORKFLOW.md, .gitignore
 
 ## Что не реализовано из запланированного
 
-- **Cookiecutter-инициализация (ADR-003)** (Приоритет 1): отложено; стек python-uv запланирован первым
+- **Мейнтейнерский слой — слэш-команды** (Приоритет 0): `CLAUDE.md`, `.claude/index.md`, `.claude/skills/meta/*.md`, `CONTRIBUTION.md` на мейнтейнерском слое всё ещё используют ключевые фразы вместо слэш-команд
+- **Демо** (Приоритет 1): снять скринкаст одной сессии от `/architect` до `/commit` — не начато
+- **README** (Приоритет 1): переписать с позиции нового пользователя, объяснить двухслойную структуру — не начато
 - **Управление decisions.md (ADR-004)** (Приоритет 2): `cc-architect-sync` не расширен, история ADR не архивируется
 - **Полнота шаблона** (Приоритет 3): нет `.claudeignore` в `template/`, нет `template/.claude/skills/project/`
 - **Тест install.sh end-to-end**: технический долг, не начато
@@ -141,7 +133,7 @@ scripts/uninstall.sh → .claude/, .context/, CLAUDE.md, WORKFLOW.md, .gitignore
 
 ## Вопросы и неопределённости
 
-- `.context/notes/` — назначение нигде не зафиксировано публично (патч-файлы для переноса в другие проекты); описано только в WORKFLOW.md
-- Cookiecutter: первый стек — python-uv, но конкретный кейс для начала реализации ещё не появился
-- Обсуждение 2026-06-18: идея локального LLM-агента (Pydantic AI + vLLM + Qwen3-30B) как альтернативы CC для проектного рабочего процесса — где будет жить, не решено
+- Мейнтейнерский слой — обновлять ли на слэш-команды? Слой остаётся внутренним (русский, ключевые фразы работают), но ADR-016 зафиксировал имена команд. Решение не принято.
+- Демо: формат (GIF / скринкаст / ASCII), инструмент записи — не выбраны
 - `uninstall.sh` доступен через curl, но URL для `curl | bash` в `SETUP.md` не проверен — нужен тест
+- Обсуждение 2026-06-18: идея локального LLM-агента (Pydantic AI + vLLM + Qwen3-30B) как альтернативы CC — где будет жить, не решено

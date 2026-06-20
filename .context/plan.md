@@ -1,108 +1,87 @@
-# Задача: OSS-публикация (ADR-014, ADR-015, ADR-016)
+# Задача: Реальные слэш-команды в шаблонном слое
 
 ## Контекст
 
-Ветка: `oss` (создать от `main` перед началом реализации)
-Цель: перевести шаблонный слой на английский, заменить ключевые фразы на слэш-команды, убрать markdownlint.
-Мейнтейнерский слой (корень, `.context/`, `.claude/`) — не трогать, остаётся на русском.
+Фазы А и Б OSS-публикации выполнены. В `template/CLAUDE.md` прописана таблица команд (`/architect`, `/dev` и др.),
+но файлов команд нет. Claude Code распознаёт слэш-команды только если в `.claude/commands/` лежат `.md`-файлы.
+Без них `/architect` — просто текст в таблице, не настоящая команда.
 
-## Фаза А: Markdownlint (ADR-015)
+Зависит от: фаза Б (выполнена) — `template/CLAUDE.md` и скиллы переведены на английский.
 
-Технические правки, без переводов.
+## Что реализовать
 
-1. `template/.markdownlint.json` — удалить файл
-2. `scripts/install.sh` — убрать `.markdownlint.json` из предупреждения о перезаписи
-3. `scripts/uninstall.sh` — убрать отдельный вопрос про `.markdownlint.json`; убрать из списка файлов
-4. `README.md` — убрать упоминание markdownlint
+### 1. Создать `template/.claude/commands/` с 9 файлами
 
-## Фаза Б: Перевод и слэш-команды (ADR-014, ADR-016)
+**Команды-режимы** (содержат логику инлайн):
 
-### template/CLAUDE.md
+- `organize.md` — Organizer mode: что делать в режиме
+- `architect.md` — Architect mode: что делать + формат `plan.md`; `$ARGUMENTS` = тема обсуждения
+- `dev.md` — Developer mode: что делать + главное правило (два пути при встрече проблем вне скоупа)
 
-- Полный перевод на английский
-- Заменить ключевые фразы на слэш-команды (конкретные имена — решить при реализации, зафиксировать в decisions.md)
-- Добавить инструкцию: «Respond in the user's language»
-- `{ПЛЕЙСХОЛДЕРЫ}` не трогать
+**Команды-утилиты** (инлайн):
 
-### template/WORKFLOW.md
+- `next.md` — переключить в Architect mode, предложить первый незавершённый пункт из `.context/to-do.md`
+- `record.md` — добавить ADR в `.context/decisions.md`; содержит формат ADR
 
-- Полный перевод на английский
-- `{ПЛЕЙСХОЛДЕРЫ}` не трогать
+**Команды-скиллы** (тонкие: одна строка-ссылка на файл скилла):
 
-### template/.claude/index.md
+- `close.md` → читать `.claude/skills/meta/cc-close-task.md` и выполнить
+- `report.md` → читать `.claude/skills/meta/cc-status-report.md` и выполнить (переименовано с `/status`: конфликт со встроенной командой CC)
+- `sync.md` → читать `.claude/skills/meta/cc-architect-sync.md` и выполнить
+- `commit.md` → читать `.claude/skills/meta/cc-commit.md` и выполнить
 
-- Полный перевод на английский
+### 2. Обновить `template/WORKFLOW.md`
 
-### template/.claude/skills/meta/ (4 файла)
+- Добавить краткое объяснение в начало раздела «Modes and slash commands»: `/command` — реальная CC slash command, файл в `.claude/commands/`; вводится прямо в промпте CC
+- Убрать колонку «Skill» из таблицы «Workflow commands» — оставить только команду и описание поведения (вариант В)
+- Заменить `/status` на `/report` во всех таблицах и в разделе «Typical workday»
 
-- `cc-commit.md`
-- `cc-close-task.md`
-- `cc-status-report.md`
-- `cc-architect-sync.md`
-- Полный перевод на английский
+### 3. Обновить `template/CLAUDE.md`
 
-### template/.context/ (5 файлов)
+Таблица «Slash commands»: убрать колонку-инструкцию «Read ... and execute» — оставить только описание.
 
-- `blueprint.md`, `plan.md`, `to-do.md`, `status.md`, `decisions.md`
-- Перевести заголовки, инструкции и пояснения; `{ПЛЕЙСХОЛДЕРЫ}` не трогать
+### 4. Обновить `template/.claude/index.md`
 
-### README.md
+Добавить раздел про `commands/`; скорректировать раздел Meta-skills (они теперь вызываются через command files, не напрямую).
 
-- Базовый перевод на английский (глубокая переработка — в фазе В)
+### 5. Зафиксировать ADR-017 в `decisions.md`
 
-### SETUP.md
-
-- Полный перевод на английский
-- В curl-командах: `main` → `oss` (пока ветка не слита в main)
-
-### scripts/install.sh, scripts/uninstall.sh
-
-- Перевести весь пользовательский вывод: сообщения, вопросы, подсказки
-
-## Фаза В: README и демо (ADR-014)
-
-(после завершения фазы Б)
-
-1. Переписать `README.md`: объяснить двухслойную структуру, показать что устанавливается через `template/`
-2. Снять демо: одна сессия от `/architect` до `/commit`
+Переименование `/status` → `/report`: конфликт со встроенной командой CC UI.
 
 ## Файлы
 
-### Фаза А
+Создать:
 
-- `template/.markdownlint.json` — удалить
-- `scripts/install.sh` — правка
-- `scripts/uninstall.sh` — правка
-- `README.md` — правка
+- `template/.claude/commands/organize.md`
+- `template/.claude/commands/architect.md`
+- `template/.claude/commands/dev.md`
+- `template/.claude/commands/next.md`
+- `template/.claude/commands/record.md`
+- `template/.claude/commands/close.md`
+- `template/.claude/commands/report.md`
+- `template/.claude/commands/sync.md`
+- `template/.claude/commands/commit.md`
 
-### Фаза Б
+Обновить:
 
-- `template/CLAUDE.md`
-- `template/WORKFLOW.md`
-- `template/.claude/index.md`
-- `template/.claude/skills/meta/cc-commit.md`
-- `template/.claude/skills/meta/cc-close-task.md`
-- `template/.claude/skills/meta/cc-status-report.md`
-- `template/.claude/skills/meta/cc-architect-sync.md`
-- `template/.context/blueprint.md`
-- `template/.context/plan.md`
-- `template/.context/to-do.md`
-- `template/.context/status.md`
-- `template/.context/decisions.md`
-- `README.md`
-- `SETUP.md`
-- `scripts/install.sh`
-- `scripts/uninstall.sh`
-
-### Фаза В
-
-- `README.md` — полная переработка
+- `template/WORKFLOW.md` — объяснение команд, `/status` → `/report`, убрать колонку Skill
+- `template/CLAUDE.md` — таблица Slash commands: `/status` → `/report`, упростить описания
+- `template/.claude/index.md` — добавить раздел commands, скорректировать Meta-skills
+- `.context/decisions.md` — добавить ADR-017
 
 ## Ограничения
 
-- `{ПЛЕЙСХОЛДЕРЫ}` в `template/` — не заполнять и не переименовывать
-- Мейнтейнерский слой (корень, `.context/`, `.claude/`) — не переводить
-- Имена слэш-команд — зафиксировать в decisions.md при реализации фазы Б
+- `{ПЛЕЙСХОЛДЕРЫ}` в `template/` — не трогать
+- Мейнтейнерский слой — не трогать
+- Команды-скиллы — только тонкая ссылка, не копировать алгоритм внутрь
+- Не дублировать логику между `commands/` и `CLAUDE.md`; CLAUDE.md — ссылочный документ, детали — в command files
+
+## Проверка
+
+- `ls template/.claude/commands/` показывает 9 файлов (без `status.md`)
+- В `template/.claude/commands/architect.md` присутствует `$ARGUMENTS`
+- В `template/CLAUDE.md` нет `/status` и нет «Read ... and execute»
+- В `template/WORKFLOW.md` нет `/status`, есть `/report` и объяснение что команды — реальные CC slash commands
 
 ## Изменения по ходу
 
