@@ -23,10 +23,13 @@ if [ ! -d ".git" ]; then
     exit 1
 fi
 
-# Проверка: директория пустая (кроме .git)
+# Проверка: директория не пустая
 NON_GIT=$(find . -mindepth 1 -maxdepth 1 -not -name ".git" | wc -l)
 if [ "$NON_GIT" -gt 0 ]; then
-    echo -e "${YELLOW}Предупреждение:${NC} директория не пустая — файлы могут быть перезаписаны."
+    echo -e "${YELLOW}Предупреждение:${NC} директория не пустая."
+    echo "  Будут перезаписаны: CLAUDE.md, WORKFLOW.md, .markdownlint.json, .claude/, .context/"
+    echo "  .gitignore будет дополнен (не перезаписан)."
+    echo ""
     read -p "Продолжить? [y/N]: " OVERWRITE_CONFIRM </dev/tty
     if [[ "$OVERWRITE_CONFIRM" != "y" && "$OVERWRITE_CONFIRM" != "Y" ]]; then
         echo "Отменено."
@@ -48,8 +51,22 @@ fi
 read -p "Remote URL (Enter — настроить позже): " REMOTE_URL </dev/tty
 
 echo ""
-echo "  Проект: $PROJECT_NAME"
-[ -n "$REMOTE_URL" ] && echo "  Remote:  $REMOTE_URL"
+read -p "Скрыть файлы ассистента из репозитория? (CLAUDE.md, WORKFLOW.md, .claude/, .context/ → .git/info/exclude) [y/N]: " HIDE_FILES </dev/tty
+read -p "Скрыть ассистента из сообщений коммитов? [y/N]: " HIDE_COMMITS </dev/tty
+
+echo ""
+echo "  Проект:    $PROJECT_NAME"
+[ -n "$REMOTE_URL" ] && echo "  Remote:    $REMOTE_URL"
+if [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
+    echo "  Ассистент: скрыт (exclude)"
+else
+    echo "  Ассистент: виден в репо"
+fi
+if [[ "$HIDE_COMMITS" == "y" || "$HIDE_COMMITS" == "Y" ]]; then
+    echo "  Коммиты:   без атрибуции"
+else
+    echo "  Коммиты:   со атрибуцией"
+fi
 echo ""
 read -p "Продолжить? [y/N]: " CONFIRM </dev/tty
 if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
@@ -59,15 +76,53 @@ fi
 
 echo ""
 
+# Сохранить существующий .gitignore
+EXISTING_GITIGNORE=""
+[ -f ".gitignore" ] && EXISTING_GITIGNORE=$(cat .gitignore)
+
 # Скачать template/ из репо
 echo "Скачиваем шаблон..."
 curl -fsSL "${REPO}/archive/refs/heads/main.tar.gz" \
     | tar xz --strip-components=2 "workflow-template-main/template"
 
+# Обработать .gitignore: дополнить, не перезаписать
+TEMPLATE_GITIGNORE=$(cat .gitignore)
+if [ -n "$EXISTING_GITIGNORE" ]; then
+    echo "$EXISTING_GITIGNORE" > .gitignore
+    echo "" >> .gitignore
+    echo "# workflow-template" >> .gitignore
+    while IFS= read -r line; do
+        if [ -n "$line" ] && [[ "$line" != \#* ]] && ! grep -qxF "$line" .gitignore; then
+            echo "$line" >> .gitignore
+        fi
+    done <<< "$TEMPLATE_GITIGNORE"
+fi
+
 # Заполнить {PROJECT_NAME} во всех .md
 echo "Заполняем плейсхолдеры..."
 find . -name "*.md" -not -path "./.git/*" \
     -exec sed -i "s|{PROJECT_NAME}|$PROJECT_NAME|g" {} +
+
+# Скрыть файлы ассистента через .git/info/exclude
+if [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
+    mkdir -p .git/info
+    {
+        echo ""
+        echo "# workflow-template"
+        echo "CLAUDE.md"
+        echo "WORKFLOW.md"
+        echo ".claude/"
+        echo ".context/"
+    } >> .git/info/exclude
+fi
+
+# Отключить атрибуцию в коммитах
+if [[ "$HIDE_COMMITS" == "y" || "$HIDE_COMMITS" == "Y" ]]; then
+    mkdir -p .claude
+    echo '{
+  "attribution": { "commit": "", "pr": "" }
+}' > .claude/settings.json
+fi
 
 # Привязать remote
 if [ -n "$REMOTE_URL" ]; then
