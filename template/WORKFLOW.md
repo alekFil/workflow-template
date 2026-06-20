@@ -1,104 +1,103 @@
-# WORKFLOW.md — Шпаргалка по работе с Claude Code
+# WORKFLOW.md — Claude Code Quick Reference
 
-Этот файл — быстрая справка для владельца проекта.
-Полные инструкции для CC — в `CLAUDE.md`. Детали скиллов — в `.claude/skills/meta/`.
-
----
-
-## Режимы и триггерные фразы
-
-| Фраза                    | Режим       | Что происходит                                          |
-| ------------------------ | ----------- | ------------------------------------------------------- |
-| `организуем работу`      | Организатор | Обсуждение процессов, правка `.claude/index.md` и скиллов |
-| `уточним порядок работы` | Организатор | То же                                                   |
-| `обсудим`                | Архитектор  | Обсуждение архитектуры → план в `.context/plan.md`          |
-| `что дальше`             | Архитектор  | Первый незавершённый пункт из `.context/to-do.md`           |
-| `начинаем реализацию`    | Разработчик | Читает `.context/plan.md`, создаёт ветку, пишет код         |
-| `записываем решение`     | —           | Добавляет ADR в `.context/decisions.md`                     |
+This file is a quick reference for the project owner.
+Full instructions for CC — in `CLAUDE.md`. Skill details — in `.claude/skills/meta/`.
 
 ---
 
-## Команды рабочего процесса
+## Modes and slash commands
 
-| Фраза              | Скилл                  | Что происходит                                    |
-| ------------------ | ---------------------- | ------------------------------------------------- |
-| `фиксируем`        | `cc-commit.md`         | Показывает diff → ждёт подтверждения → коммит     |
-| `закрываем задачу` | `cc-close-task.md`     | Rebase + ff-merge в `dev`, удаляет ветку          |
-| `текущий статус`   | `cc-status-report.md`  | Архивирует старый `status.md`, пишет новый        |
-| `синхронизируем`   | `cc-architect-sync.md` | Сравнивает код с документацией, предлагает правки |
+| Command | Mode | What happens |
+| --- | --- | --- |
+| `/organize` | Organizer | Discuss workflows, edit `.claude/index.md` and skills |
+| `/architect` | Architect | Discuss architecture → plan in `.context/plan.md` |
+| `/next` | Architect | First incomplete item from `.context/to-do.md` |
+| `/dev` | Developer | Reads `.context/plan.md`, creates branch, writes code |
+| `/record` | — | Adds ADR to `.context/decisions.md` |
 
 ---
 
-## Ветки
+## Workflow commands
+
+| Command | Skill | What happens |
+| --- | --- | --- |
+| `/commit` | `cc-commit.md` | Shows diff → waits for confirmation → commits |
+| `/close` | `cc-close-task.md` | Rebase + ff-merge into `dev`, deletes branch |
+| `/status` | `cc-status-report.md` | Archives old `status.md`, writes new one |
+| `/sync` | `cc-architect-sync.md` | Compares code with documentation, suggests changes |
+
+---
+
+## Branches
 
 ```text
-main          ← релизы (dev → main вручную)
-  └── dev     ← интеграция
-        └── feature/<название>   ← вся работа здесь
-        └── hotfix/<название>    ← срочные правки → main
+main          ← releases (dev → main manually)
+  └── dev     ← integration
+        └── feature/<name>   ← all work goes here
+        └── hotfix/<name>    ← urgent fixes → main
 ```
 
-CC **никогда не делает `git push`** без явной просьбы.
+CC **never does `git push`** without explicit request.
 
 ---
 
-## Типичный рабочий день
+## Typical workday
 
-```
-0. Начало сессии — CC читает автоматически:
+```text
+0. Session start — CC reads automatically:
    .context/blueprint.md → .context/to-do.md → .context/status.md
 
-1. Выбор задачи
-   → "что дальше"
-   CC читает to-do.md, предлагает первый незавершённый пункт
+1. Pick a task
+   → /next
+   CC reads to-do.md, suggests first incomplete item
 
-2. Обсуждение
-   → "обсудим"
-   CC задаёт вопросы, фиксирует решения, пишет .context/plan.md
-   Если нужно зафиксировать архитектурное решение: "записываем решение"
+2. Discuss
+   → /architect
+   CC asks questions, records decisions, writes .context/plan.md
+   To record an architecture decision: /record
 
-3. Реализация
-   → "начинаем реализацию"
-   CC создаёт ветку feature/..., читает plan.md, пишет код + тесты
+3. Implement
+   → /dev
+   CC creates branch feature/..., reads plan.md, writes code + tests
 
-4. В процессе — коммиты
-   → "фиксируем"
-   CC показывает что войдёт, ждёт подтверждения, коммитит
+4. During work — commits
+   → /commit
+   CC shows what will be included, waits for confirmation, commits
 
-5. Задача готова
-   → "закрываем задачу"
-   CC делает rebase + ff-merge в dev, удаляет ветку
+5. Task done
+   → /close
+   CC does rebase + ff-merge into dev, deletes branch
 
-6. Раз в несколько задач — синхронизация документации
-   → "текущий статус"   (обновить status.md)
-   → "синхронизируем"   (проверить расхождения blueprint / код)
+6. Every few tasks — sync documentation
+   → /status   (update status.md)
+   → /sync     (check blueprint / code divergence)
 ```
 
 ---
 
-## Коммиты
+## Commits
 
-Формат: `тип: описание`
+Format: `type: description`
 
-| Тип | Когда |
-|---|---|
-| `feat:` | новый функциональный код |
-| `fix:` | исправление бага |
-| `docs:` | только документация |
-| `refactor:` | рефакторинг без изменения поведения |
-| `test:` | тесты |
-| `chore:` | инфраструктура, конфигурация, зависимости |
+| Type | When |
+| --- | --- |
+| `feat:` | new functional code |
+| `fix:` | bug fix |
+| `docs:` | documentation only |
+| `refactor:` | refactoring without behavior change |
+| `test:` | tests |
+| `chore:` | infrastructure, configuration, dependencies |
 
 ---
 
-## Документация проекта
+## Project documentation
 
-| Файл | Назначение |
-|---|---|
-| `CLAUDE.md` | Инструкции для CC (читает CC, не трогать руками) |
-| `.context/blueprint.md` | Архитектура проекта |
-| `.context/to-do.md` | Очередь задач |
-| `.context/plan.md` | Текущая задача |
-| `.context/status.md` | Актуальное состояние реализации |
-| `.context/decisions.md` | История архитектурных решений |
-| `.context/notes/` | Личные заметки владельца — не коммитятся, CC не читает |
+| File | Purpose |
+| --- | --- |
+| `CLAUDE.md` | Instructions for CC (read by CC, do not edit manually) |
+| `.context/blueprint.md` | Project architecture |
+| `.context/to-do.md` | Task queue |
+| `.context/plan.md` | Current task |
+| `.context/status.md` | Current implementation state |
+| `.context/decisions.md` | Architecture decision history |
+| `.context/notes/` | Owner's personal notes — not committed, CC does not read |

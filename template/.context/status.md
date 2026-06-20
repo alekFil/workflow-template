@@ -1,24 +1,24 @@
-# Статус реализации {PROJECT_NAME}
+# Implementation status {PROJECT_NAME}
 
-Дата: {YYYY-MM-DD} (актуализировано)
+Date: {YYYY-MM-DD} (updated)
 
 ---
 
-## Что реализовано
+## What's implemented
 
 **{COMPONENT_GROUP_1}:**
 
-- `{file_path}` — {что делает}
+- `{file_path}` — {what it does}
 
 **{COMPONENT_GROUP_2}:**
 
-- `{file_path}` — {что делает}
+- `{file_path}` — {what it does}
 
-**Итого: {N} тестов, все проходят.**
+**Total: {N} tests, all passing.**
 
 ---
 
-### Структура проекта
+### Project structure
 
 ```text
 {PROJECT_STRUCTURE_TREE}
@@ -26,13 +26,13 @@
 
 ---
 
-### Ключевые технические решения
+### Key technical decisions
 
-- **{DECISION_KEY}**: {описание решения и причина}
+- **{DECISION_KEY}**: {decision description and reason}
 
 ---
 
-### Зависимости между компонентами
+### Dependencies between components
 
 ```text
 {COMPONENT_A} <- {COMPONENT_B}
@@ -41,12 +41,12 @@
 
 ---
 
-### Что не реализовано из запланированного
+### What's not implemented from planned
 
-- {компонент}: {причина — не приступал / заблокировано / изменено решение}
+- {component}: {reason — not started / blocked / decision changed}
 
 ---
 
-### Вопросы и неопределённости
+### Questions and uncertainties
 
-- {конкретный вопрос или нерешённая проблема}
+- {specific question or unresolved issue}

@@ -1,33 +1,33 @@
-# Задача: {глагол + существительное, конкретно}
+# Task: {verb + noun, specific}
 
-## Контекст
+## Context
 
-{что это за компонент, зачем нужен}
-Зависит от: {список уже реализованных компонентов или "—"}
+{what this component is, why it's needed}
+Depends on: {list of already-implemented components or "—"}
 
-## Что реализовать
+## What to implement
 
-1. {атомарная единица работы}
-2. {атомарная единица работы}
+1. {atomic unit of work}
+2. {atomic unit of work}
 
-## Файлы
+## Files
 
-Создать:
+Create:
 
-- {путь}
+- {path}
 
-Изменить:
+Edit:
 
-- {путь} — {что изменить}
+- {path} — {what to change}
 
-## Ограничения
+## Constraints
 
-- {явный запрет или правило}
+- {explicit prohibition or rule}
 
-## Проверка
+## Verification
 
-- {команда или конкретный ожидаемый результат}
+- {command or specific expected result}
 
-## Изменения по ходу
+## Changes along the way
 
-- (заполняется в ходе реализации)
+- (filled in during implementation)

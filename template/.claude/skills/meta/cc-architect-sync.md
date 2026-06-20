@@ -1,116 +1,116 @@
-# Скилл: Синхронизация архитектуры
+# Skill: Architecture sync
 
-Реагирует на фразы: "синхронизируем", "синхронизируй документацию", "обнови blueprint" и вариации.
-
----
-
-## Что делает
-
-Сравнивает текущую реализацию с документацией.
-Формирует предложения по обновлению — **без самостоятельного внесения правок**.
-Правки вносятся только после явного согласования с разработчиком.
+Triggered by: `/sync`, "sync documentation", "update blueprint" and variations.
 
 ---
 
-## Алгоритм
+## What it does
 
-### 1. Прочитать актуальный контекст
+Compares the current implementation with the documentation.
+Produces proposed changes — **without making edits independently**.
+Edits are made only after explicit agreement with the developer.
 
-- `.context/blueprint.md` — текущая документация
-- `.context/status.md` — текущее состояние реализации
-- `.context/to-do.md` — очередь задач
-- `.claude/skills/project/*.md` — технические конвенции (если директория существует)
-- `CLAUDE.md` — входной файл
+---
 
-Если `.context/status.md` отсутствует или устарел — сообщить:
-> "Нет актуального status.md. Сначала выполни: 'текущий статус'"
+## Algorithm
 
-### 2. Проанализировать расхождения
+### 1. Read the current context
 
-По каждому документу найти:
+- `.context/blueprint.md` — current documentation
+- `.context/status.md` — current implementation state
+- `.context/to-do.md` — task queue
+- `.claude/skills/project/*.md` — technical conventions (if directory exists)
+- `CLAUDE.md` — entry file
+
+If `.context/status.md` is missing or outdated — report:
+> "No current status.md. First run: `/status`"
+
+### 2. Analyze divergences
+
+For each document find:
 
 **blueprint.md:**
 
-- Разделы где реализация отличается от описания
-- Архитектурные решения принятые в процессе, не зафиксированные в ADR
-- Устаревшие части (описывают то, от чего отказались)
+- Sections where the implementation differs from the description
+- Architectural decisions made during implementation not recorded as ADRs
+- Outdated parts (describe something that was abandoned)
 
 **.context/to-do.md:**
 
-- Задачи из раздела "Следующее" которые уже реализованы по status.md — предложить перенести в "Готово"
-- Задачи в "В работе" которые фактически завершены — предложить перенести в "Готово"
+- Tasks from "Next" that are already implemented per status.md — suggest moving to "Done"
+- Tasks in "In progress" that are actually complete — suggest moving to "Done"
 
-**.claude/skills/project/*.md** (если директория существует)**:**
+**.claude/skills/project/*.md** (if directory exists):
 
-- Инструкции не совпадающие с реальным кодом (библиотеки, паттерны, пути)
-- Новые повторяющиеся паттерны которые стоит оформить в скилл
-- Устаревшие инструкции
+- Instructions that don't match the actual code (libraries, patterns, paths)
+- New recurring patterns worth capturing as a skill
+- Outdated instructions
 
 **CLAUDE.md:**
 
-- Структура проекта если изменилась
-- Ссылки на несуществующие файлы
+- Project structure if it has changed
+- Links to non-existent files
 
-### 3. Сформировать предложения
+### 3. Produce proposals
 
-Вывести конкретные правки — не "нужно обновить", а что именно изменить:
+Output concrete changes — not "needs updating", but exactly what to change:
 
 ```text
-## Предложения по синхронизации
+## Sync proposals
 
 ### .context/to-do.md
-- Перенести в "Готово": {задача}
-  Причина: реализовано в {компонент/файл}
+- Move to "Done": {task}
+  Reason: implemented in {component/file}
 
 ### blueprint.md
-- Раздел 3.5: заменить "{старый текст}" на "{новый текст}"
-  Причина: в реализации используется X, а не Y
-- Добавить ADR-005: {название}
-  Причина: было принято решение Z, не зафиксированное в документации
+- Section 3.5: replace "{old text}" with "{new text}"
+  Reason: implementation uses X, not Y
+- Add ADR-005: {title}
+  Reason: decision Z was made but not recorded in documentation
 
 ### .claude/skills/project/new-git-check.md
-- В шаге 2 заменить путь "checks/base.py" на "checks/_base.py"
-  Причина: реальный файл называется иначе
+- In step 2 replace path "checks/base.py" with "checks/_base.py"
+  Reason: the actual file has a different name
 
 ### CLAUDE.md
-- Обновить структуру проекта: добавить backend/events/
+- Update project structure: add backend/events/
 ```
 
-### 4. Задать вопросы по неопределённостям
+### 4. Ask questions about uncertainties
 
-Из раздела "Вопросы и неопределённости" в status.md выделить те,
-которые требуют архитектурного решения (не технического):
+From the "Questions and uncertainties" section in status.md, extract those
+that require an architectural decision (not technical):
 
 ```text
-## Вопросы для архитектора
+## Questions for the architect
 
-1. {конкретный вопрос}
-   Контекст: {почему возник, что уже попробовали}
+1. {specific question}
+   Context: {why it arose, what was already tried}
 ```
 
-### 5. Ждать согласования
+### 5. Wait for agreement
 
-После вывода предложений — остановиться.
-Не вносить правки самостоятельно.
-Ждать явного подтверждения: "принято", "вноси" или уточнений по каждому пункту.
+After outputting proposals — stop.
+Do not make edits independently.
+Wait for explicit confirmation: "accepted", "apply" or clarifications per item.
 
-### 6. После согласования — внести правки
+### 6. After agreement — apply changes
 
-Когда разработчик подтвердил список правок:
+When the developer has confirmed the list of changes:
 
-- Внести изменения в указанные файлы
-- Сообщить: "Готово. Зафиксировать? ('фиксируем')"
+- Apply changes to the specified files
+- Report: "Done. Commit? (`/commit`)"
 
 ---
 
-## Принципы
+## Principles
 
-**Blueprint отражает реальность, не план.**
-Если реализация осознанно разошлась с документацией — обновляем документацию.
-Если расхождение случайное — фиксируем и планируем исправление реализации.
+**Blueprint reflects reality, not plans.**
+If the implementation has intentionally diverged from the documentation — update the documentation.
+If the divergence is accidental — record it and plan to fix the implementation.
 
-**ADR не удаляются.**
-Если решение изменилось — добавляем новый ADR с пометкой "заменяет ADR-XXX".
+**ADRs are never deleted.**
+If a decision has changed — add a new ADR with a note "replaces ADR-XXX".
 
-**Скиллы должны совпадать с реальным кодом.**
-Расхождение скилла и реализации — всегда ошибка. Одно из двух неверно.
+**Skills must match the actual code.**
+A divergence between a skill and the implementation is always an error. One of them is wrong.

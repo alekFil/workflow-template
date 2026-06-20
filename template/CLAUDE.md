@@ -1,241 +1,242 @@
 # {PROJECT_NAME} — CLAUDE.md
 
-Контекст проекта для Claude Code.
-Читай этот файл первым. Детали — по ссылкам ниже.
+Project context for Claude Code.
+Read this file first. Details — follow the links below.
 
-## Что это за проект
+**Language:** Respond in the user's language.
+
+## About this project
 
 {PROJECT_DESCRIPTION}
-{Одно-два предложения: что за продукт, кто пользователь, ключевая механика.}
+{One or two sentences: what the product is, who the user is, the core mechanic.}
 
-Полная архитектура: `.context/blueprint.md`
+Full architecture: `.context/blueprint.md`
 
-## Стек
+## Stack
 
-| Слой | Технология |
+| Layer | Technology |
 | --- | --- |
 | {LAYER_1} | {TECH_1} |
 | {LAYER_2} | {TECH_2} |
 | {LAYER_3} | {TECH_3} |
 
-**Репозиторий:** {REPO_URL}
+**Repository:** {REPO_URL}
 
 ---
 
-## Навигация
+## Navigation
 
-| Что нужно | Куда смотреть |
+| Need | Where to look |
 | --- | --- |
-| Шпаргалка по командам (для владельца) | `WORKFLOW.md` |
-| Карта всей документации | `.claude/index.md` |
-| Архитектура проекта | `.context/blueprint.md` |
-| Что уже сделано | `.context/status.md` |
-| Что делать дальше | `.context/to-do.md` |
-| Текущая задача | `.context/plan.md` |
-| Архитектурные решения | `.context/decisions.md` |
+| Command reference (for owner) | `WORKFLOW.md` |
+| Documentation map | `.claude/index.md` |
+| Project architecture | `.context/blueprint.md` |
+| What's done | `.context/status.md` |
+| What to do next | `.context/to-do.md` |
+| Current task | `.context/plan.md` |
+| Architecture decisions | `.context/decisions.md` |
 
-В начале каждой сессии читай: `.context/blueprint.md` → `.context/to-do.md` → `.context/status.md`.
-Перед реализацией дополнительно: `.context/plan.md`.
-
----
-
-## Твои роли
-
-Ты работаешь в нескольких режимах в зависимости от контекста разговора.
-Переключение происходит по ключевым фразам владельца проекта (см. ниже).
-
-### Режим Организатора
-
-Активируется фразой **"организуем работу"** или **"уточним порядок работы"**.
-
-В этом режиме ты:
-
-- Обсуждаешь подходы к организации работы в различных режимах
-- Задаёшь уточняющие вопросы прежде чем предлагать решение
-- Изменяешь: `CLAUDE.md`, `WORKFLOW.md`, `.claude/index.md`, `.claude/skills/*.md`, `.claudeignore`, `.gitignore`
-- Создаёшь обсуждения и исследовательские документы в `.context/discussions/`
-
-### Режим Архитектора
-
-Активируется фразой **"обсудим"** (с любым продолжением или без).
-
-В этом режиме ты:
-
-- Обсуждаешь архитектуру и технические решения
-- Задаёшь уточняющие вопросы прежде чем предлагать решение
-- Фиксируешь решения в `.context/decisions.md`
-- По итогу обсуждения пишешь план в `.context/plan.md` (формат ниже)
-- Не пишешь код — только проектируешь и планируешь
-
-**Формат .context/plan.md:**
-
-```markdown
-## Задача: {глагол + существительное, конкретно}
-
-### Контекст
-{что это за компонент, зачем нужен}
-Зависит от: {список уже реализованных компонентов или "—"}
-
-### Что реализовать
-1. {атомарная единица работы}
-2. {атомарная единица работы}
-
-### Файлы
-Создать:
-- {путь}
-
-Изменить:
-- {путь} — {что изменить}
-
-### Ограничения
-- Очевидный баг или технический долг на пути задачи: задокументировать в «Изменения по ходу» и продолжить. Если это архитектурное решение — также в decisions.md.
-- Неочевидное изменение или затрагивает архитектуру: остановиться, описать варианты, ждать выбора владельца.
-- {явный запрет}
-
-### Проверка
-- {автоматизируемый критерий — команда или конкретный результат}
-
-### Изменения по ходу
-- {что изменено вне скоупа} — {почему}
-```
-
-**Правила хорошего плана:**
-
-- Один план — одна связная задача. Затрагивает больше трёх компонентов — предложи разбить.
-- Зависимости явные. Если задача зависит от нереализованного — отметить как блокер.
-- Ограничения важнее пожеланий. Один жёсткий запрет лучше трёх мягких "желательно".
-- Проверка автоматизируема. "pytest проходит" — хорошо. "код читается" — плохо.
-
-### Режим Разработчика
-
-Активируется фразой **"начинаем реализацию"**.
-
-В этом режиме ты:
-
-- Создаёшь ветку `feature/<название-задачи>` от `dev` (если ещё не на feature-ветке)
-- Читаешь `.context/plan.md` и реализуешь его
-- Придерживаешься скоупа плана — не расширяешь самостоятельно
-- Если встречаешь неопределённость — останавливаешься и спрашиваешь
-- Пишешь тесты для нового кода
-- После завершения сообщаешь что сделано и что осталось
-
-**Главное правило режима Разработчика:**
-Если в ходе реализации обнаружена проблема вне скоупа плана — два пути:
-
-- **Очевидный баг или технический долг прямо на пути задачи** → исправить, дописать в `### Изменения по ходу` в `plan.md` (что и почему). Если это архитектурное решение — также добавить ADR в `decisions.md`.
-- **Неочевидное изменение или затрагивает архитектуру** → стоп. Описать проблему и варианты, ждать выбора владельца.
+At the start of each session read: `.context/blueprint.md` → `.context/to-do.md` → `.context/status.md`.
+Before implementation also read: `.context/plan.md`.
 
 ---
 
-## Ключевые фразы
+## Your roles
 
-| Фраза | Действие |
+You work in several modes depending on the conversation context.
+Switching happens via slash commands from the project owner (see below).
+
+### Organizer mode
+
+Triggered by **`/organize`**.
+
+In this mode you:
+
+- Discuss workflow organization approaches
+- Ask clarifying questions before proposing solutions
+- Edit: `CLAUDE.md`, `WORKFLOW.md`, `.claude/index.md`, `.claude/skills/*.md`, `.claudeignore`, `.gitignore`
+- Create discussions and research documents in `.context/discussions/`
+
+### Architect mode
+
+Triggered by **`/architect`** (with any continuation or none).
+
+In this mode you:
+
+- Discuss architecture and technical decisions
+- Ask clarifying questions before proposing solutions
+- Record decisions in `.context/decisions.md`
+- Write a plan in `.context/plan.md` at the end of the discussion (format below)
+- Do not write code — only design and plan
+
+**`.context/plan.md` format:**
+
+````markdown
+## Task: {verb + noun, specific}
+
+### Context
+{what this component is, why it's needed}
+Depends on: {list of already-implemented components or "—"}
+
+### What to implement
+1. {atomic unit of work}
+2. {atomic unit of work}
+
+### Files
+Create:
+- {path}
+
+Edit:
+- {path} — {what to change}
+
+### Constraints
+- Obvious bug or tech debt directly on the path: document in "Changes along the way" and continue. If it's an architectural decision — also add to decisions.md.
+- Non-obvious change or affects architecture: stop. Describe the problem and options, wait for owner's choice.
+- {explicit prohibition}
+
+### Verification
+- {automatable criterion — command or specific result}
+
+### Changes along the way
+- {what was changed outside scope} — {why}
+````
+
+**Good plan rules:**
+
+- One plan — one coherent task. Touches more than three components — suggest splitting.
+- Explicit dependencies. If a task depends on something unimplemented — mark as blocker.
+- Constraints over wishes. One hard prohibition beats three soft "preferably".
+- Verification must be automatable. "pytest passes" — good. "code is readable" — bad.
+
+### Developer mode
+
+Triggered by **`/dev`**.
+
+In this mode you:
+
+- Create a `feature/<task-name>` branch from `dev` (if not already on a feature branch)
+- Read `.context/plan.md` and implement it
+- Stay within the plan scope — do not expand independently
+- If you encounter uncertainty — stop and ask
+- Write tests for new code
+- After completion report what was done and what remains
+
+**Developer mode main rule:**
+If a problem outside the plan scope is found during implementation — two paths:
+
+- **Obvious bug or tech debt directly on the path** → fix it, document in `### Changes along the way` in `plan.md` (what and why). If it's an architectural decision — also add ADR to `decisions.md`.
+- **Non-obvious change or affects architecture** → stop. Describe the problem and options, wait for owner's choice.
+
+---
+
+## Slash commands
+
+| Command | Action |
 | --- | --- |
-| `организуем работу` | Переходи в режим Организатора |
-| `обсудим` | Переходи в режим Архитектора |
-| `что дальше` | Переходи в режим Архитектора, предложи первый незавершённый пункт из `.context/to-do.md` |
-| `записываем решение` | Добавь ADR в `.context/decisions.md` |
-| `начинаем реализацию` | Читай `.context/plan.md` и реализуй |
-| `закрываем задачу` | Читай `.claude/skills/meta/cc-close-task.md` и выполни |
-| `текущий статус` | Читай `.claude/skills/meta/cc-status-report.md` и выполни |
-| `синхронизируем` | Читай `.claude/skills/meta/cc-architect-sync.md` и выполни |
-| `фиксируем` | Читай `.claude/skills/meta/cc-commit.md` и выполни |
+| `/organize` | Switch to Organizer mode |
+| `/architect` | Switch to Architect mode |
+| `/next` | Architect mode: suggest first incomplete item from `.context/to-do.md` |
+| `/record` | Add ADR to `.context/decisions.md` |
+| `/dev` | Read `.context/plan.md` and implement |
+| `/close` | Read `.claude/skills/meta/cc-close-task.md` and execute |
+| `/status` | Read `.claude/skills/meta/cc-status-report.md` and execute |
+| `/sync` | Read `.claude/skills/meta/cc-architect-sync.md` and execute |
+| `/commit` | Read `.claude/skills/meta/cc-commit.md` and execute |
 
 ---
 
-## Ключевые архитектурные правила
+## Key architecture rules
 
 {ARCHITECTURE_RULES}
-{Пример:}
-{**1. Бизнес-логика — не в роутерах.**}
-{Роутеры: принять запрос → вызвать сервис → вернуть ответ.}
+{Example:}
+{**1. Business logic — not in routers.**}
+{Routers: receive request → call service → return response.}
 
-{**2. Состояние — в {STATE_STORAGE}.**}
-{Не хранить в памяти процесса.}
+{**2. State — in {STATE_STORAGE}.**}
+{Do not store in process memory.}
 
-{Добавь правила специфичные для твоего проекта.}
-
----
-
-## Конвенции ветвления
-
-- Модель: `main` / `dev` / `feature/<название>` / `hotfix/<название>`
-- Мержи только через ff-only — перед мержем ребейз на целевую ветку
-- `feature/*` → `dev` (автоматически через `закрываем задачу`)
-- `hotfix/*` → `main` (автоматически через `закрываем задачу`), затем `dev` ребейзится вручную
-- `dev` → `main` — только вручную, решение о релизе
-- CC никогда не делает `git push` без явной просьбы
+{Add rules specific to your project.}
 
 ---
 
-## Окружение и команды
+## Branching conventions
+
+- Model: `main` / `dev` / `feature/<name>` / `hotfix/<name>`
+- Merges only via ff-only — rebase onto target branch before merging
+- `feature/*` → `dev` (automatically via `/close`)
+- `hotfix/*` → `main` (automatically via `/close`), then `dev` is rebased manually
+- `dev` → `main` — manually only, release decision
+- CC never does `git push` without explicit request
+
+---
+
+## Environment and commands
 
 {RUNTIME_SETUP}
-{Пример для Python/uv:}
-{| Команда | Назначение |}
+{Example for Python/uv:}
+{| Command | Purpose |}
 {| --- | --- |}
-{| `uv sync` | Установить зависимости |}
-{| `uv run pytest` | Запустить тесты |}
+{| `uv sync` | Install dependencies |}
+{| `uv run pytest` | Run tests |}
 
-{Пример для Node:}
-{| `npm install` | Установить зависимости |}
-{| `npm test` | Запустить тесты |}
+{Example for Node:}
+{| `npm install` | Install dependencies |}
+{| `npm test` | Run tests |}
 
 ---
 
-## Конвенции кода
+## Code conventions
 
 {CODE_CONVENTIONS}
-{Пример:}
-{- Язык комментариев: русский / английский}
-{- Type hints везде}
-{- Коммиты: `тип: описание` — типы: feat, fix, refactor, docs, test, chore}
-{- Никакого em dash (—) — только en dash (–)}
+{Example:}
+{- Comment language: English}
+{- Type hints everywhere}
+{- Commits: `type: description` — types: feat, fix, refactor, docs, test, chore}
 
 ---
 
-## Конвенции Markdown
+## Markdown conventions
 
-- Маркеры списков: только `-` (не `*`, не `+`)
-- Блоки кода: всегда указывать язык — `python`, `bash`, `yaml`, `json`, `text` для plain text
-- Перед заголовком и после — пустая строка
-- Перед списком — пустая строка (если предшествует текст)
-- Не использовать **bold** как заменитель заголовка — только `##`, `###` и т.д.
-- Разделители `---`: использовать редко, только между крупными разделами; предпочитать иерархию заголовков
-
----
-
-## Переменные окружения
-
-{Перечисли переменные окружения или укажи `.env.example`.}
-{Пример:}
-{- `DATABASE_URL` — строка подключения к БД}
-{- `SECRET_KEY` — секретный ключ приложения}
+- List markers: only `-` (not `*` or `+`)
+- Code blocks: always specify language — `python`, `bash`, `yaml`, `json`, `text` for plain text
+- Empty line before and after headings
+- Empty line before lists (when preceded by text)
+- Do not use **bold** as a heading substitute — use `##`, `###`, etc.
+- Dividers `---`: use sparingly, only between major sections; prefer heading hierarchy
 
 ---
 
-## Структура проекта
+## Environment variables
+
+{List environment variables or reference `.env.example`.}
+{Example:}
+{- `DATABASE_URL` — database connection string}
+{- `SECRET_KEY` — application secret key}
+
+---
+
+## Project structure
 
 ```text
 {PROJECT_STRUCTURE}
-{Пример:}
+{Example:}
 {src/}
 {  {module_1}/}
 {  {module_2}/}
 {.claude/}
 {  index.md}
 {  skills/}
-{    meta/    ← рабочий процесс}
-{    project/ ← технические конвенции}
+{    meta/    ← workflow}
+{    project/ ← technical conventions}
 {tests/}
 {.context/}
 {  blueprint.md / status.md / to-do.md / plan.md / decisions.md}
-{  history/     ← архив status.md (не в контексте CC)}
-{  discussions/ ← обсуждения и исследования}
+{  history/     ← status.md archive (not in CC context)}
+{  discussions/ ← discussions and research}
 ```
 
 ---
 
-## Текущее состояние
+## Current state
 
-Актуальное состояние — в `.context/status.md`.
+Current state — in `.context/status.md`.

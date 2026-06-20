@@ -1,101 +1,101 @@
-# Скилл: Текущий статус проекта
+# Skill: Project status report
 
-Реагирует на фразы: "текущий статус", "что сделано", "покажи статус" и вариации.
-
----
-
-## Что делает
-
-Формирует актуальный срез состояния реализации проекта.
-Архивирует предыдущую версию. Сохраняет новую.
+Triggered by: `/status`, "what's done", "show status" and variations.
 
 ---
 
-## Алгоритм
+## What it does
 
-### 1. Архивировать предыдущий status.md
+Generates an up-to-date snapshot of the project implementation state.
+Archives the previous version. Saves the new one.
 
-Если `.context/status.md` существует:
+---
 
-- Определить следующий порядковый номер: найти все файлы `.context/history/*-status-*.md`, взять максимальный номер и инкрементировать. Если файлов нет — начать с `001`.
-- Скопировать `.context/status.md` → `.context/history/{N}-status-{timestamp}.md`
-  - N — трёхзначный номер с ведущими нулями: `001`, `002`, `003`...
-  - timestamp — формат `YYYY-MM-DD`
-  - Пример: `.context/history/003-status-2025-08-14.md`
+## Algorithm
 
-### 2. Собрать информацию
+### 1. Archive the previous status.md
 
-Пройтись по проекту и собрать:
+If `.context/status.md` exists:
+
+- Determine the next sequential number: find all files `.context/history/*-status-*.md`, take the maximum number and increment. If no files exist — start with `001`.
+- Copy `.context/status.md` → `.context/history/{N}-status-{timestamp}.md`
+  - N — three-digit number with leading zeros: `001`, `002`, `003`...
+  - timestamp — format `YYYY-MM-DD`
+  - Example: `.context/history/003-status-2025-08-14.md`
+
+### 2. Collect information
+
+Go through the project and collect:
 
 ```markdown
-## Статус реализации GitDojo
-Дата: {YYYY-MM-DD hh:mm:ss}
+## Implementation status {PROJECT_NAME}
+Date: {YYYY-MM-DD hh:mm:ss}
 
-### Что реализовано
-Для каждого реализованного компонента:
-- `путь/к/файлу` — одна строка: что делает
-- Отклонения от blueprint.md (если есть и почему)
+### What's implemented
+For each implemented component:
+- `path/to/file` — one line: what it does
+- Deviations from blueprint.md (if any and why)
 
-### Структура проекта
-{дерево реальных файлов, без __pycache__, .venv, .git, node_modules}
+### Project structure
+{tree of real files, without __pycache__, .venv, .git, node_modules}
 
-### Ключевые технические решения
-Решения принятые в процессе реализации, которые не отражены
-в blueprint.md или отличаются от него.
+### Key technical decisions
+Decisions made during implementation that are not reflected
+in blueprint.md or differ from it.
 
-### Зависимости между компонентами
-Что от чего зависит — только реализованное.
+### Dependencies between components
+What depends on what — implemented components only.
 
-### Что не реализовано из запланированного
-- {компонент}: {причина — не приступал / заблокировано / изменено решение}
+### What's not implemented from planned
+- {component}: {reason — not started / blocked / decision changed}
 
-### Вопросы и неопределённости
-Места где была неясность и как разрешена.
-Места где неясность остаётся.
+### Questions and uncertainties
+Places where there was ambiguity and how it was resolved.
+Places where ambiguity remains.
 ```
 
-### 3. Обновить .context/to-do.md
+### 3. Update .context/to-do.md
 
-Сверить собранную информацию с `.context/to-do.md`:
+Cross-reference the collected information with `.context/to-do.md`:
 
-- Задачи из раздела "Следующее" которые уже реализованы — отметить `[x]` и перенести в "Готово"
-- Задачи в "В работе" которые фактически завершены — отметить `[x]` и перенести в "Готово"
+- Tasks from "Next" that are already implemented — mark `[x]` and move to "Done"
+- Tasks in "In progress" that are actually complete — mark `[x]` and move to "Done"
 
-### 4. Записать .context/status.md
+### 4. Write .context/status.md
 
-Сохранить собранный отчёт в `.context/status.md`.
+Save the collected report to `.context/status.md`.
 
-Сообщить результат:
+Report the result:
 
 ```text
-Статус обновлён.
-Предыдущая версия → .context/history/{N}-status-{date}.md
-Текущая версия → .context/status.md
+Status updated.
+Previous version → .context/history/{N}-status-{date}.md
+Current version → .context/status.md
 ```
 
 ---
 
-## Ограничения
+## Constraints
 
-- Только факты — не додумывать что "планировалось"
-- Отклонения от blueprint описывать нейтрально, с технической причиной
-- Вопросы формулировать конкретно, не абстрактно
-- Не писать код, не вносить правки — только собирать информацию
+- Facts only — do not infer what was "planned"
+- Describe deviations from blueprint neutrally, with technical reason
+- Formulate questions concretely, not abstractly
+- Do not write code, do not make edits — only collect information
 
 ---
 
-## Работа с архивом истории
+## Working with the history archive
 
-`.context/history/` **не читается по умолчанию** — она исключена из контекста через `.claudeignore`.
+`.context/history/` **is not read by default** — it is excluded from context via `.claudeignore`.
 
-Читать архив только по явному запросу владельца:
+Read the archive only on explicit request from the owner:
 
-- "что делали в начале мая"
-- "посмотри архив статусов"
-- "что было до X"
+- "what were we doing in early May"
+- "check the status archive"
+- "what happened before X"
 
-Для всех рабочих задач достаточно:
+For all regular work, these are sufficient:
 
-- `.context/status.md` — текущее состояние
-- `.context/decisions.md` — принятые решения
-- `.context/to-do.md` — задачи
+- `.context/status.md` — current state
+- `.context/decisions.md` — recorded decisions
+- `.context/to-do.md` — task queue

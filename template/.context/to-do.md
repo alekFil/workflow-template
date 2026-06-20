@@ -1,15 +1,15 @@
 # To-Do: {PROJECT_NAME}
 
-> Обновляется командой "синхронизируем" после каждой реализации.
-> Цель MVP: {MVP_GOAL}
+> Updated via `/sync` after each implementation.
+> MVP goal: {MVP_GOAL}
 
 ---
 
-## В работе
+## In progress
 
-(нет активных задач)
+(no active tasks)
 
-## Следующее
+## Next
 
 ### {PHASE_1}: {PHASE_NAME}
 
@@ -24,14 +24,14 @@
 
 ---
 
-## Готово
+## Done
 
-- [x] Репозиторий создан
-- [x] Рабочий процесс с Claude Code настроен
+- [x] Repository created
+- [x] Claude Code workflow set up
 
 ---
 
-## После MVP (технический долг)
+## After MVP (technical debt)
 
 - [ ] {DEBT_ITEM_1}
 - [ ] {DEBT_ITEM_2}

@@ -1,68 +1,68 @@
 # {PROJECT_NAME} — Blueprint
 
-> Живой технический референс. Отражает фактическую реализацию, не планы.
-> Обновляется командой "синхронизируем".
+> Living technical reference. Reflects the actual implementation, not plans.
+> Updated via `/sync`.
 
 ---
 
-## 1. Обзор системы
+## 1. System overview
 
 {PROJECT_DESCRIPTION_FULL}
-{Опиши что делает система, кто пользователь, ключевые принципы.}
+{Describe what the system does, who the user is, key principles.}
 
-**Ключевые принципы:**
+**Key principles:**
 
 - {PRINCIPLE_1}
 - {PRINCIPLE_2}
 
 ---
 
-## 2. Ключевые архитектурные решения
+## 2. Key architectural decisions
 
-Все решения с обоснованием — в `.context/decisions.md`.
+All decisions with rationale — in `.context/decisions.md`.
 
-| ADR | Суть |
+| ADR | Summary |
 | --- | --- |
 | ADR-001 | {FIRST_KEY_DECISION} |
 
 ---
 
-## 3. Компоненты
+## 3. Components
 
 ### 3.1 {COMPONENT_1}
 
-{Описание компонента, его ответственность, ключевые классы/модули.}
+{Component description, its responsibilities, key classes/modules.}
 
 ---
 
 ### 3.2 {COMPONENT_2}
 
-{Описание компонента.}
+{Component description.}
 
 ---
 
-## 4. Потоки данных
+## 4. Data flows
 
 ### 4.1 {MAIN_FLOW}
 
 ```text
-{Опиши основной поток данных через систему.}
+{Describe the main data flow through the system.}
 ```
 
 ---
 
-## 5. Модели данных
+## 5. Data models
 
-{Опиши ключевые модели: структуры данных, схемы БД, Pydantic-модели и т.д.}
-
----
-
-## 6. Инфраструктура
-
-{Docker Compose, переменные окружения, зависимости, деплой.}
+{Describe key models: data structures, DB schemas, Pydantic models, etc.}
 
 ---
 
-## 7. Реализованные сценарии / фичи
+## 6. Infrastructure
 
-{Перечисли реализованные ключевые сценарии с кратким описанием.}
+{Docker Compose, environment variables, dependencies, deployment.}
+
+---
+
+## 7. Implemented scenarios / features
+
+{List implemented key scenarios with brief descriptions.}

@@ -1,18 +1,18 @@
 # {PROJECT_NAME} — Decisions (ADR)
 
-> Архив архитектурных решений. Пополняется командой "записываем решение".
-> ADR не удаляются. Если решение изменилось — добавляется новый ADR с пометкой "заменяет ADR-XXX".
+> Architecture decision log. Updated via `/record`.
+> ADRs are never deleted. If a decision changed — add a new ADR with a note "replaces ADR-XXX".
 
 ---
 
 ## ADR-001: {FIRST_DECISION_TITLE}
 
-**Статус:** Принято
+**Status:** Accepted
 
-**Проблема:** {Что не устраивало, какой выбор стоял.}
+**Problem:** {What was unsatisfactory, what choice had to be made.}
 
-**Решение:** {Что выбрали и почему.}
+**Decision:** {What was chosen and why.}
 
-**Последствия:** {Что это означает для реализации, какие компромиссы.}
+**Consequences:** {What this means for implementation, what trade-offs were made.}
 
 ---

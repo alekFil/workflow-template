@@ -1,39 +1,39 @@
-# .claude/index.md — Карта документации {PROJECT_NAME}
+# .claude/index.md — {PROJECT_NAME} Documentation Map
 
-Этот файл — точка входа в документацию. Читай его первым.
-Загружай только те файлы, которые нужны для текущей задачи.
+This file is the entry point for documentation. Read it first.
+Load only the files needed for the current task.
 
 ---
 
-## Архитектура и состояние проекта
+## Architecture and project state
 
-| Файл | Когда читать |
+| File | When to read |
 | --- | --- |
-| `.context/blueprint.md` | Перед задачей затрагивающей архитектуру, компоненты, инфраструктуру |
-| `.context/status.md` | Когда нужно понять что уже реализовано |
-| `.context/to-do.md` | Когда нужно понять что делать дальше |
-| `.context/plan.md` | Перед реализацией — текущая задача |
-| `.context/decisions.md` | Когда нужно понять почему принято то или иное решение |
+| `.context/blueprint.md` | Before a task touching architecture, components, or infrastructure |
+| `.context/status.md` | When you need to understand what has been implemented |
+| `.context/to-do.md` | When you need to understand what to do next |
+| `.context/plan.md` | Before implementation — the current task |
+| `.context/decisions.md` | When you need to understand why a decision was made |
 
 ---
 
-## Мета-скиллы (рабочий процесс)
+## Meta-skills (workflow)
 
-Читай соответствующий скилл когда разработчик произносит триггерную фразу.
+Read the corresponding skill when the developer triggers the slash command.
 
-| Файл | Триггер |
+| File | Trigger |
 | --- | --- |
-| `.claude/skills/meta/cc-status-report.md` | "текущий статус" и вариации |
-| `.claude/skills/meta/cc-architect-sync.md` | "синхронизируем" и вариации |
-| `.claude/skills/meta/cc-commit.md` | "фиксируем" и вариации |
-| `.claude/skills/meta/cc-close-task.md` | "закрываем задачу" и вариации |
+| `.claude/skills/meta/cc-status-report.md` | `/status` and variations |
+| `.claude/skills/meta/cc-architect-sync.md` | `/sync` and variations |
+| `.claude/skills/meta/cc-commit.md` | `/commit` and variations |
+| `.claude/skills/meta/cc-close-task.md` | `/close` and variations |
 
 ---
 
-## Скиллы проекта (технические конвенции)
+## Project skills (technical conventions)
 
-Читай соответствующий скилл перед реализацией нового элемента.
+Read the corresponding skill before implementing a new element.
 
-| Файл | Когда читать |
+| File | When to read |
 | --- | --- |
 | — | — |
