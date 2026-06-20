@@ -45,6 +45,18 @@ curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scri
 
 ---
 
+## Удаление
+
+Чтобы удалить ассистента из проекта:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scripts/uninstall.sh | bash
+```
+
+Скрипт удалит файлы ассистента и вычистит связанные записи из `.gitignore` и `.git/info/exclude`. Коммит не создаётся — зафиксируй изменения вручную.
+
+---
+
 ## Начать работу с CC
 
 После развёртывания любым способом:
