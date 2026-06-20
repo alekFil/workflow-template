@@ -1,73 +1,73 @@
-# Скилл: Закрываем задачу
+# Skill: Close task
 
-Реагирует на фразы: "закрываем задачу", "закончили задачу" и вариации.
+Triggered by: `/close`
 
 ---
 
-## Алгоритм
+## Algorithm
 
-### 1. Проверить текущую ветку
+### 1. Check the current branch
 
 ```bash
 git branch --show-current
 ```
 
-- Если `feature/*` — целевая ветка: `dev`
-- Если `hotfix/*` — целевая ветка: `main`
-- Если `main` или `dev` — сообщить: "Закрытие задачи невозможно — ты на защищённой ветке. Переключись на feature/*или hotfix/*."
+- If `feature/*` — target branch: `dev`
+- If `hotfix/*` — target branch: `main`
+- If `main` or `dev` — report: "Cannot close task — you are on a protected branch. Switch to feature/* or hotfix/*."
 
-### 2. Убедиться что коммитить нечего
+### 2. Make sure there is nothing to commit
 
 ```bash
 git status
 ```
 
-Если есть незафиксированные изменения — предложить сначала выполнить `фиксируем`.
+If there are uncommitted changes — suggest running `/commit` first.
 
-### 3. Перебазировать на целевую ветку
+### 3. Rebase onto the target branch
 
 ```bash
 git fetch origin
-git rebase <целевая ветка>
+git rebase <target branch>
 ```
 
-Если возникают конфликты — остановиться и сообщить:
+If conflicts arise — stop and report:
 
 ```text
-Конфликт при rebase. Разрешить вручную, затем:
+Conflict during rebase. Resolve manually, then:
   git rebase --continue
-После этого повтори "закрываем задачу".
+After that repeat /close.
 ```
 
-### 4. Смержить в целевую ветку (ff-only)
+### 4. Merge into the target branch (ff-only)
 
 ```bash
-git checkout <целевая ветка>
-git merge --ff-only <feature/hotfix ветка>
+git checkout <target branch>
+git merge --ff-only <feature/hotfix branch>
 ```
 
-### 5. Удалить feature/hotfix ветку
+### 5. Delete the feature/hotfix branch
 
 ```bash
-git branch -d <feature/hotfix ветка>
+git branch -d <feature/hotfix branch>
 ```
 
-### 6. Сообщить результат
+### 6. Report the result
 
 ```text
-Задача закрыта: <ветка> → <целевая ветка>
+Task closed: <branch> → <target branch>
 ```
 
-Если была `hotfix/*` — добавить напоминание:
+If it was `hotfix/*` — add a reminder:
 
 ```text
-Hotfix смержен в main. Не забудь перебазировать dev:
+Hotfix merged into main. Don't forget to rebase dev:
   git checkout dev && git rebase main
 ```
 
 ---
 
-## Ограничения
+## Constraints
 
-- Не делать `git push` без явной просьбы
-- Не мержить `dev → main` — это решение о релизе, выполняется вручную
+- Do not do `git push` without explicit request
+- Do not merge `dev → main` — that is a release decision, done manually

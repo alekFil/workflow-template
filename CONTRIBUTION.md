@@ -1,55 +1,55 @@
-# CONTRIBUTION.md — Как работать с этим репо
+# CONTRIBUTION.md — How to work with this repo
 
-Инструкция для мейнтейнера шаблона.
-Полный контекст для CC — в `CLAUDE.md`.
-
----
-
-## Что здесь делается
-
-`workflow-template` — мета-репо: развитие шаблона рабочего процесса для Claude Code.
-Задача мейнтейнера — улучшать шаблон, синхронизировать изменения из рабочих проектов.
-
-Два независимых слоя:
-
-- **Мейнтейнерский** (корень) — `CLAUDE.md`, `CONTRIBUTION.md`, `.context/`, `.claude/`, `scripts/`
-- **Шаблонный** (`template/`) — всё что уходит в новый проект при развёртывании
+Maintainer instructions.
+Full context for CC — in `CLAUDE.md`.
 
 ---
 
-## Типичный рабочий цикл
+## What's done here
 
-1. `"что дальше"` — выбрать задачу из `.context/to-do.md`
-2. `"обсудим"` — спроектировать, записать план в `.context/plan.md`
-3. `"начинаем реализацию"` — реализовать план
-4. `"фиксируем"` — зафиксировать изменения
-5. `"закрываем задачу"` — смержить в `dev`
+`workflow-template` — a meta-repo: developing the workflow template for Claude Code.
+The maintainer's task — improve the template, sync changes from working projects.
 
----
+Two independent layers:
 
-## Синхронизация улучшений из рабочих проектов
-
-Если в рабочем проекте появилось улучшение скилла или процесса:
-
-1. Открыть сессию с этим репо
-2. Перенести изменение вручную:
-   - Улучшение скилла → в `.claude/skills/meta/` и/или `template/.claude/skills/meta/`
-   - Улучшение `CLAUDE.md` → в `template/CLAUDE.md`
-3. `"фиксируем"`
-
-`.claude/skills/meta/` и `template/.claude/skills/meta/` — независимые копии.
-Решение о синхронизации между ними — всегда осознанное.
+- **Maintainer** (root) — `CLAUDE.md`, `CONTRIBUTION.md`, `.context/`, `.claude/`, `scripts/`
+- **Template** (`template/`) — everything that goes into a new project when deployed
 
 ---
 
-## Что НЕ трогать
+## Typical work cycle
 
-- Все `{ПЛЕЙСХОЛДЕРЫ}` в `template/` — не заполнять реальными данными
-- `.context/history/` и `template/.context/history/` — пустые папки (`.gitkeep`), нужны для структуры
+1. `/next` — pick a task from `.context/to-do.md`
+2. `/architect` — design, write a plan in `.context/plan.md`
+3. `/dev` — implement the plan
+4. `/commit` — commit changes
+5. `/close` — merge into `dev`
 
 ---
 
-## Версионирование
+## Syncing improvements from working projects
 
-Скиллы не версионируются явно.
-История изменений — в `git log` и `.context/decisions.md`.
+If a skill or process improvement appeared in a working project:
+
+1. Open a session with this repo
+2. Transfer the change manually:
+   - Skill → `.claude/skills/meta/` and/or `template/.claude/skills/meta/`
+   - `CLAUDE.md` improvement → `template/CLAUDE.md`
+3. `/commit`
+
+`.claude/skills/meta/` and `template/.claude/skills/meta/` — independent copies.
+The decision to sync between them is always intentional.
+
+---
+
+## What NOT to touch
+
+- All `{PLACEHOLDERS}` in `template/` — do not fill with real data
+- `.context/history/` and `template/.context/history/` — empty folders (`.gitkeep`), needed for structure
+
+---
+
+## Versioning
+
+Skills are not explicitly versioned.
+Change history — in `git log` and `.context/decisions.md`.

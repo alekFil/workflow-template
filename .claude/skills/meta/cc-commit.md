@@ -1,97 +1,97 @@
-# Скилл: Фиксируем результаты
+# Skill: Commit changes
 
-Реагирует на фразы: "фиксируем", "закоммить", "сделай коммит" и вариации.
+Triggered by: `/commit`
 
 ---
 
-## Алгоритм
+## Algorithm
 
-### 1. Убедиться что plan.md актуален
+### 1. Make sure plan.md is up to date
 
-Проверить: все изменения вне скоупа плана задокументированы в `### Изменения по ходу` в `.context/plan.md`.
-Если раздела нет — значит реализация точно соответствует плану.
+Check: all changes outside the plan scope are documented in `### Changes along the way` in `.context/plan.md`.
+If that section is absent — the implementation matches the plan exactly.
 
-### 2. Проверить что есть что коммитить
+### 2. Check there is something to commit
 
 ```bash
 git status
 ```
 
-Если рабочая директория чистая — сообщить: "Нечего коммитить, рабочая директория чистая."
+If the working directory is clean — report: "Nothing to commit, working directory is clean."
 
-### 3. Показать список изменений и запросить подтверждение
+### 3. Show the list of changes and ask for confirmation
 
 ```bash
 git diff --stat
 ```
 
 ```text
-Буду коммитить:
+Will commit:
   M  .context/blueprint.md
   A  src/model/trainer.py
 
-Подтверди или уточни что включить.
+Confirm or clarify what to include.
 ```
 
-Ждать явного подтверждения перед выполнением.
+Wait for explicit confirmation before proceeding.
 
-### 4. Определить тип коммита и порядок
+### 4. Determine commit type and order
 
-| Prefix | Когда использовать |
+| Prefix | When to use |
 | --- | --- |
-| `feat:` | новый функциональный код |
-| `fix:` | исправление бага |
-| `docs:` | только документация |
-| `refactor:` | рефакторинг без изменения поведения |
-| `test:` | добавление или изменение тестов |
-| `chore:` | инфраструктура, конфигурация, зависимости |
+| `feat:` | new functional code |
+| `fix:` | bug fix |
+| `docs:` | documentation only |
+| `refactor:` | refactoring without behavior change |
+| `test:` | adding or changing tests |
+| `chore:` | infrastructure, configuration, dependencies |
 
-Если изменения смешанные — разбить на несколько коммитов.
+If changes are mixed — split into multiple commits.
 
-**Порядок коммитов при завершении задачи:**
+**Commit order when closing a task:**
 
-1. Сначала `.context/plan.md` (если изменён)
-2. Затем все коммиты реализации
+1. First `.context/plan.md` (if changed)
+2. Then all implementation commits
 
-**Отсылка к плану в коммитах реализации:**
-Каждый коммит реализации (любого типа) должен содержать ссылку на задачу из плана.
-Формат — вторая строка сообщения:
+**Task reference in commits:**
+Each implementation commit (of any type) must contain a reference to the task from the plan.
+Format — second line of the message:
 
 ```text
-feat: короткое описание что сделано
+feat: short description of what was done
 
-Реализует: .context/plan.md — «{название задачи из ## Задача:}»
+Implements: .context/plan.md — "{task name from ## Task:}"
 ```
 
-### 5. Выполнить коммит
+### 5. Execute the commit
 
 ```bash
-git add {согласованные файлы}
-git commit -m "{prefix}: {что сделано, одной строкой, в настоящем времени}
+git add {agreed files}
+git commit -m "{prefix}: {what was done, one line, present tense}
 
-Реализует: .context/plan.md — «{название задачи}»"
+Implements: .context/plan.md — \"{task name}\""
 ```
 
-### 6. Сообщить результат
+### 6. Report the result
 
 ```text
-Зафиксировано: {сообщение коммита}
+Committed: {commit message}
 ```
 
 ---
 
-## Промежуточные коммиты
+## Intermediate commits
 
-После создания или изменения файлов в рамках задачи предложить:
+After creating or modifying files within a task, offer:
 
-> Создан/обновлён `<путь>`. Зафиксировать сейчас или группой в конце задачи?
+> Created/updated `<path>`. Commit now or group at the end of the task?
 
-- **"сейчас"** — коммитить сразу
-- **"группой"** или молчание — накопить, зафиксировать в финальном коммите
+- **"now"** — commit immediately
+- **"group"** or silence — accumulate, commit in the final commit
 
 ---
 
-## Ограничения
+## Constraints
 
-- Не делать `git push` без явной просьбы
-- Всегда ждать подтверждения перед коммитом
+- Do not do `git push` without explicit request
+- Always wait for confirmation before committing

@@ -1,39 +1,59 @@
-# .claude/index.md — Навигатор документации workflow-template
+# .claude/index.md — workflow-template Documentation Navigator
 
-Точка входа для CC при работе с этим репо. Читай первым.
-Загружай только те файлы, которые нужны для текущей задачи.
-
----
-
-## Документация мейнтейнера
-
-| Файл | Когда читать |
-| --- | --- |
-| `.context/blueprint.md` | Перед задачей, затрагивающей архитектуру шаблона |
-| `.context/status.md` | Когда нужно понять что уже реализовано |
-| `.context/to-do.md` | Когда нужно понять что делать дальше |
-| `.context/plan.md` | Перед реализацией — текущая задача |
-| `.context/decisions.md` | Когда нужно понять почему принято то или иное решение |
+Entry point for CC when working with this repo. Read first.
+Load only the files needed for the current task.
 
 ---
 
-## Шаблонный слой
+## Maintainer documentation
 
-| Файл/папка | Назначение |
+| File | When to read |
 | --- | --- |
-| `template/CLAUDE.md` | CLAUDE.md для нового проекта (с плейсхолдерами) |
-| `template/WORKFLOW.md` | Шпаргалка рабочего процесса для нового проекта |
-| `template/.claude/` | Скиллы и навигатор для нового проекта |
-| `template/.context/` | Документация для нового проекта (с плейсхолдерами) |
-| `scripts/install.sh` | curl-установка шаблона |
+| `.context/blueprint.md` | Before a task touching template architecture |
+| `.context/status.md` | When you need to understand what has been implemented |
+| `.context/to-do.md` | When you need to understand what to do next |
+| `.context/plan.md` | Before implementation — the current task |
+| `.context/decisions.md` | When you need to understand why a decision was made |
 
 ---
 
-## Мета-скиллы
+## Template layer
 
-| Файл | Триггер |
+| File/folder | Purpose |
 | --- | --- |
-| `.claude/skills/meta/cc-status-report.md` | "текущий статус" |
-| `.claude/skills/meta/cc-architect-sync.md` | "синхронизируем" |
-| `.claude/skills/meta/cc-commit.md` | "фиксируем" |
-| `.claude/skills/meta/cc-close-task.md` | "закрываем задачу" |
+| `template/CLAUDE.md` | CLAUDE.md for a new project (with placeholders) |
+| `template/WORKFLOW.md` | Workflow quick reference for a new project |
+| `template/.claude/` | Commands, skills, and navigator for a new project |
+| `template/.context/` | Documentation for a new project (with placeholders) |
+| `scripts/install.sh` | curl template installation |
+
+---
+
+## Slash commands
+
+Each file in `.claude/commands/` defines a CC slash command.
+
+| Command | File | Description |
+| --- | --- | --- |
+| `/organize` | `commands/organize.md` | Organizer mode |
+| `/architect` | `commands/architect.md` | Architect mode — plan |
+| `/next` | `commands/next.md` | First incomplete task |
+| `/record` | `commands/record.md` | Add ADR |
+| `/dev` | `commands/dev.md` | Developer mode — implement |
+| `/commit` | `commands/commit.md` | Commit changes |
+| `/close` | `commands/close.md` | Merge and close branch |
+| `/report` | `commands/report.md` | Update status.md |
+| `/sync` | `commands/sync.md` | Sync docs with code |
+
+---
+
+## Meta-skills (workflow algorithms)
+
+Detailed algorithms backing the workflow commands.
+
+| File | Used by |
+| --- | --- |
+| `.claude/skills/meta/cc-status-report.md` | `/report` |
+| `.claude/skills/meta/cc-architect-sync.md` | `/sync` |
+| `.claude/skills/meta/cc-commit.md` | `/commit` |
+| `.claude/skills/meta/cc-close-task.md` | `/close` |
