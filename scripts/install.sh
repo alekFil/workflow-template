@@ -8,6 +8,14 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+# Use /dev/tty for interactive input when running via curl | bash;
+# fall back to stdin in non-TTY environments (CI, Docker, testing).
+if ( </dev/tty ) 2>/dev/null; then
+    TTY=/dev/tty
+else
+    TTY=/dev/stdin
+fi
+
 # Check dependencies
 for cmd in git curl tar; do
     if ! command -v "$cmd" &>/dev/null; then
@@ -30,7 +38,7 @@ if [ "$NON_GIT" -gt 0 ]; then
     echo "  Will be overwritten: CLAUDE.md, WORKFLOW.md, .claude/, .context/"
     echo "  .gitignore will be appended (not overwritten)."
     echo ""
-    read -p "Continue? [y/N]: " OVERWRITE_CONFIRM </dev/tty
+    read -p "Continue? [y/N]: " OVERWRITE_CONFIRM <"$TTY"
     if [[ "$OVERWRITE_CONFIRM" != "y" && "$OVERWRITE_CONFIRM" != "Y" ]]; then
         echo "Cancelled."
         exit 0
@@ -42,26 +50,26 @@ echo -e "${BLUE}workflow-template — initializing new project${NC}"
 echo ""
 
 # Collect data
-read -p "Project name: " PROJECT_NAME </dev/tty
+read -p "Project name: " PROJECT_NAME <"$TTY"
 if [ -z "$PROJECT_NAME" ]; then
     echo -e "${RED}Error:${NC} project name cannot be empty."
     exit 1
 fi
 
-read -p "Remote URL (Enter — configure later): " REMOTE_URL </dev/tty
+read -p "Remote URL (Enter — configure later): " REMOTE_URL <"$TTY"
 
 echo ""
-read -p "Hide assistant files from repository? (CLAUDE.md, WORKFLOW.md, .claude/, .context/ → .git/info/exclude) [y/N]: " HIDE_FILES </dev/tty
-read -p "Hide assistant from commit messages? [y/N]: " HIDE_COMMITS </dev/tty
+read -p "Hide assistant files from repository? (CLAUDE.md, WORKFLOW.md, .claude/, .context/ → .git/info/exclude) [y/N]: " HIDE_FILES <"$TTY"
+read -p "Hide assistant from commit messages? [y/N]: " HIDE_COMMITS <"$TTY"
 
 echo ""
 DO_COMMIT="n"
-read -p "Create initial commit? [y/N]: " DO_COMMIT </dev/tty
+read -p "Create initial commit? [y/N]: " DO_COMMIT <"$TTY"
 
 DO_DEV="n"
 DEV_QUESTION_ASKED=false
 if [[ "$DO_COMMIT" == "y" || "$DO_COMMIT" == "Y" ]] || git rev-parse HEAD &>/dev/null 2>&1; then
-    read -p "Create dev branch? [y/N]: " DO_DEV </dev/tty
+    read -p "Create dev branch? [y/N]: " DO_DEV <"$TTY"
     DEV_QUESTION_ASKED=true
 fi
 
@@ -91,7 +99,7 @@ if [ "$DEV_QUESTION_ASKED" = true ]; then
     fi
 fi
 echo ""
-read -p "Continue? [y/N]: " CONFIRM </dev/tty
+read -p "Continue? [y/N]: " CONFIRM <"$TTY"
 if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
     echo "Cancelled."
     exit 0
