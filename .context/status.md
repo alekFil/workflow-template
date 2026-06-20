@@ -1,6 +1,6 @@
 # Статус реализации workflow-template
 
-Дата: 2026-06-20
+Дата: 2026-06-20 (обновлено)
 
 ---
 
@@ -10,7 +10,7 @@
 
 - `CLAUDE.md` — инструкции CC: роли, ключевые фразы, конвенции (ADR-008: удалён раздел «Управление контекстом»)
 - `CONTRIBUTION.md` — руководство мейнтейнера (исправлена фраза «обсудим задачу» → «обсудим», ADR-009)
-- `SETUP.md` — инструкция по развёртыванию (curl и клон)
+- `SETUP.md` — инструкция по развёртыванию (curl и клон); добавлен раздел «Удаление» (ADR-013)
 - `README.md` — описание репо для GitHub
 - `.gitignore` — добавлены `.claude/settings.local.json`, `.claude/chat_history/`, `.env`, `.context/notes/*.md` (ADR-009, ADR-011)
 - `.markdownlint.json` — конфигурация проверки Markdown
@@ -22,7 +22,8 @@
 - `.context/blueprint.md`, `.context/plan.md`, `.context/to-do.md`, `.context/decisions.md` — заполнены
 - `.context/discussions/` — три обсуждения: curl-установка, mini-версия, локальный LLM-агент
 - `.context/notes/` — личные заметки владельца (исключены из git, ADR-011)
-- `scripts/install.sh` — curl-установка: скачивает `template/` как tar.gz, заполняет плейсхолдеры, делает init commit, создаёт ветку `dev` (ADR-005, ADR-007, ADR-009)
+- `scripts/install.sh` — curl-установка: скачивает `template/` как tar.gz, заполняет плейсхолдеры; безопасно дополняет `.gitignore` с маркером; управляет видимостью ассистента (exclude / settings.json); опциональные коммит и ветка `dev` (ADR-005, ADR-007, ADR-009, ADR-012, ADR-013)
+- `scripts/uninstall.sh` — удаление ассистента: перечисляет файлы, спрашивает про `.markdownlint.json`, очищает блоки `# workflow-template` из `.gitignore` и `.git/info/exclude` (ADR-013)
 
 **Шаблонный слой (`template/`):**
 
@@ -67,14 +68,16 @@ workflow-template/
 │   │   ├── 003-status-2026-06-12.md
 │   │   ├── 004-status-2026-06-13.md
 │   │   ├── 005-status-2026-06-13.md
-│   │   └── 006-status-2026-06-20.md
+│   │   ├── 006-status-2026-06-20.md
+│   │   └── 007-status-2026-06-20.md
 │   ├── discussions/
 │   │   ├── 2026-06-08-install-and-mini.md
 │   │   ├── 2026-06-08-mini-claude-md-design.md
-│   │   └── 2026-06-18-local-llm-agent.md    ← новое
+│   │   └── 2026-06-18-local-llm-agent.md
 │   └── notes/                    ← в .gitignore; личные патч-файлы владельца
 ├── scripts/
-│   └── install.sh
+│   ├── install.sh
+│   └── uninstall.sh              ← новый (ADR-013)
 └── template/
     ├── CLAUDE.md
     ├── WORKFLOW.md
@@ -109,6 +112,8 @@ workflow-template/
 - **ADR-009**: Предпубликационный аудит — 6 исправлений (cc-export-chat удалён, .gitignore дополнен, install.sh + dev-ветка, CONTRIBUTION.md, template-файлы очищены)
 - **ADR-010**: Отказ от `template-mini` — поддерживать два параллельных шаблона нецелесообразно
 - **ADR-011**: `.context/notes/` — личные заметки владельца, исключены из git в обоих слоях
+- **ADR-012**: `install.sh` — безопасный `.gitignore` (дополнение с маркером), управление видимостью ассистента (exclude / settings.json)
+- **ADR-013**: `install.sh` — опциональные коммит и ветка `dev`; `uninstall.sh` — полное удаление ассистента; `SETUP.md` — раздел «Удаление»
 
 ---
 
@@ -120,6 +125,7 @@ CLAUDE.md ← .claude/index.md (навигация)
 template/CLAUDE.md ← template/.claude/skills/meta/
 template/CLAUDE.md ← template/.claude/index.md
 scripts/install.sh → template/ (скачивает как tar.gz; единственный способ для пользователей)
+scripts/uninstall.sh → .claude/, .context/, CLAUDE.md, WORKFLOW.md, .gitignore, .git/info/exclude
 ```
 
 ---
@@ -138,3 +144,4 @@ scripts/install.sh → template/ (скачивает как tar.gz; единст
 - `.context/notes/` — назначение нигде не зафиксировано публично (патч-файлы для переноса в другие проекты); описано только в WORKFLOW.md
 - Cookiecutter: первый стек — python-uv, но конкретный кейс для начала реализации ещё не появился
 - Обсуждение 2026-06-18: идея локального LLM-агента (Pydantic AI + vLLM + Qwen3-30B) как альтернативы CC для проектного рабочего процесса — где будет жить, не решено
+- `uninstall.sh` доступен через curl, но URL для `curl | bash` в `SETUP.md` не проверен — нужен тест
