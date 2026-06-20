@@ -1,101 +1,90 @@
-# Инструкция по развёртыванию workflow-template
+# workflow-template — Setup guide
 
-Этот шаблон переносит организацию работы с Claude Code в новый проект.
+This template brings Claude Code workflow structure to your new project.
 
 ---
 
-## Предварительные требования
+## Prerequisites
 
 ### Claude Code
 
-Если Claude Code ещё не установлен:
+If Claude Code is not yet installed:
 
-1. Установить [Node.js](https://nodejs.org) (LTS)
-2. Установить Claude Code:
+1. Install [Node.js](https://nodejs.org) (LTS)
+2. Install Claude Code:
 
    ```bash
    npm install -g @anthropic-ai/claude-code
    ```
 
-3. Авторизоваться — запустить `claude` и следовать инструкциям
-4. Проверить: `claude --version`
-
-### markdownlint (рекомендуется)
-
-Проект содержит `.markdownlint.json`. Установи расширение для VS Code:
-[davidanson.vscode-markdownlint](https://marketplace.visualstudio.com/items?itemName=DavidAnson.vscode-markdownlint)
-
-Или CLI для проверки из терминала:
-
-```bash
-npm install -g markdownlint-cli
-```
+3. Authorize — run `claude` and follow the instructions
+4. Verify: `claude --version`
 
 ---
 
-## Установка через curl
+## Install via curl
 
 ```bash
 mkdir my-project && cd my-project
 git init
-curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scripts/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/oss/scripts/install.sh | bash
 ```
 
-Скрипт интерактивно запросит название проекта и remote URL, скачает шаблон и сделает начальный коммит.
+The script will interactively ask for a project name and remote URL, download the template, and optionally create an initial commit.
 
 ---
 
-## Удаление
+## Uninstall
 
-Чтобы удалить ассистента из проекта:
+To remove the assistant from a project:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scripts/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/oss/scripts/uninstall.sh | bash
 ```
 
-Скрипт удалит файлы ассистента и вычистит связанные записи из `.gitignore` и `.git/info/exclude`. Коммит не создаётся — зафиксируй изменения вручную.
+The script removes the assistant files and cleans up related entries from `.gitignore` and `.git/info/exclude`. No commit is created — stage and commit the changes manually.
 
 ---
 
-## Начать работу с CC
+## Getting started with CC
 
-После развёртывания любым способом:
+After setup:
 
 ```text
-Прочитай CLAUDE.md и подготовь проект к работе. Помоги заполнить оставшиеся плейсхолдеры.
+Read CLAUDE.md and help me fill in the remaining placeholders.
 ```
 
 ---
 
-## Что входит в шаблон
+## What the template includes
 
-После развёртывания в новом проекте окажется:
+After installation your project will contain:
 
 ```text
-CLAUDE.md                          ← инструкции для CC (с плейсхолдерами → заполняются скриптом)
-WORKFLOW.md                        ← шпаргалка по рабочему процессу
+CLAUDE.md                          ← CC instructions (with placeholders → fill in with CC)
+WORKFLOW.md                        ← workflow quick reference
 .claude/
-  index.md                         ← навигатор CC
+  index.md                         ← CC documentation map
   skills/
     meta/
-      cc-commit.md                 ← скилл "фиксируем"
-      cc-close-task.md             ← скилл "закрываем задачу"
-      cc-status-report.md          ← скилл "текущий статус"
-      cc-architect-sync.md         ← скилл "синхронизируем"
+      cc-commit.md                 ← /commit skill
+      cc-close-task.md             ← /close skill
+      cc-status-report.md          ← /status skill
+      cc-architect-sync.md         ← /sync skill
 
 .context/
-  blueprint.md                     ← архитектура проекта
-  plan.md                          ← текущая задача
-  to-do.md                         ← очередь задач
-  status.md                        ← состояние реализации
-  decisions.md                     ← ADR
-  history/                         ← архив status.md (заполняется автоматически)
-  discussions/                     ← обсуждения и исследования
+  blueprint.md                     ← project architecture
+  plan.md                          ← current task
+  to-do.md                         ← task queue
+  status.md                        ← implementation state
+  decisions.md                     ← ADR log
+  history/                         ← status.md archive (filled automatically)
+  discussions/                     ← discussions and research
 ```
 
 ---
 
-## Если хочешь улучшить шаблон
+## Want to improve the template?
 
-Работай прямо в этом репо — здесь свой `CLAUDE.md` с инструкциями мейнтейнера.
-Подробнее — в `CONTRIBUTION.md`.
+Work directly in this repo — it has its own `CLAUDE.md` with maintainer instructions.
+See `CONTRIBUTION.md` for details.

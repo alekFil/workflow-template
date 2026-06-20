@@ -11,15 +11,26 @@
 
 ## Следующее
 
-### Приоритет 1: OSS-публикация (ADR-014)
+### Приоритет 0: Обновление мейнтейнерского слоя (новый способ работы)
 
-- [ ] Перевести `template/CLAUDE.md` на английский
-- [ ] Перевести `template/WORKFLOW.md` на английский
-- [ ] Перевести `template/.claude/index.md` и все 4 мета-скилла на английский
-- [ ] Перевести `template/.context/*.md` (blueprint, plan, to-do, status, decisions) на английский
-- [ ] Перевести `README.md`, `SETUP.md` на английский
-- [ ] Перевести `scripts/install.sh` и `scripts/uninstall.sh` (вывод, подсказки) на английский
-- [ ] Заменить ключевые фразы на слэш-команды в `template/CLAUDE.md`
+- [ ] Обновить `CLAUDE.md` (мейнтейнерский) — заменить ключевые фразы на слэш-команды (`/architect`, `/dev`, `/commit` и др.)
+- [ ] Обновить `.claude/index.md` (мейнтейнерский) — обновить триггеры скиллов
+- [ ] Обновить `.claude/skills/meta/*.md` (мейнтейнерские копии) — обновить строки «Реагирует на фразы»
+- [ ] Обновить `CONTRIBUTION.md` — заменить упоминания ключевых фраз на слэш-команды
+
+### Приоритет 1: OSS-публикация (ADR-014, ADR-015, ADR-016)
+
+- [x] Удалить `template/.markdownlint.json`
+- [x] Убрать `.markdownlint.json` из предупреждения в `scripts/install.sh`
+- [x] Убрать вопрос про `.markdownlint.json` из `scripts/uninstall.sh`
+- [x] Убрать упоминание markdownlint из `README.md`
+- [x] Перевести `template/CLAUDE.md` на английский
+- [x] Перевести `template/WORKFLOW.md` на английский
+- [x] Перевести `template/.claude/index.md` и все 4 мета-скилла на английский
+- [x] Перевести `template/.context/*.md` (blueprint, plan, to-do, status, decisions) на английский
+- [x] Перевести `README.md`, `SETUP.md` на английский
+- [x] Перевести `scripts/install.sh` и `scripts/uninstall.sh` (вывод, подсказки) на английский
+- [x] Заменить ключевые фразы на слэш-команды в `template/CLAUDE.md`
 - [ ] Снять демо: одна сессия от `/architect` до `/commit`
 - [ ] Переписать `README.md`: объяснить двухслойную структуру, добавить демо
 

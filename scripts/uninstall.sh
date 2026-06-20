@@ -5,74 +5,65 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Проверка зависимостей
+# Check dependencies
 if ! command -v git &>/dev/null; then
-    echo -e "${RED}Ошибка:${NC} требуется git, но не найден."
+    echo -e "${RED}Error:${NC} git is required but not found."
     exit 1
 fi
 
-# Проверка: текущая директория — корень git-репозитория
+# Check: current directory is the root of a git repository
 if [ ! -d ".git" ]; then
-    echo -e "${RED}Ошибка:${NC} текущая директория не является корнем git-репозитория."
+    echo -e "${RED}Error:${NC} current directory is not the root of a git repository."
     exit 1
 fi
 
-# Определить какие файлы ассистента существуют
+# Determine which assistant files exist
 TO_DELETE=()
 [ -d ".claude" ]     && TO_DELETE+=(".claude/")
 [ -d ".context" ]    && TO_DELETE+=(".context/")
 [ -f "CLAUDE.md" ]   && TO_DELETE+=("CLAUDE.md")
 [ -f "WORKFLOW.md" ] && TO_DELETE+=("WORKFLOW.md")
 
-if [ ${#TO_DELETE[@]} -eq 0 ] && [ ! -f ".markdownlint.json" ]; then
-    echo "Файлы ассистента не найдены — нечего удалять."
+if [ ${#TO_DELETE[@]} -eq 0 ]; then
+    echo "No assistant files found — nothing to remove."
     exit 0
 fi
 
-echo -e "${YELLOW}workflow-template — удаление ассистента${NC}"
+echo -e "${YELLOW}workflow-template — removing assistant${NC}"
 echo ""
 
-# Спросить про .markdownlint.json отдельно
-DELETE_MARKDOWNLINT="n"
-if [ -f ".markdownlint.json" ]; then
-    read -p "Удалить .markdownlint.json? [y/N]: " DELETE_MARKDOWNLINT </dev/tty
-fi
-
-# Показать полный список перед подтверждением
-echo ""
-echo "Будут удалены:"
+# Show full list before confirmation
+echo "Will be removed:"
 for item in "${TO_DELETE[@]}"; do
     echo "  $item"
 done
-[[ "$DELETE_MARKDOWNLINT" == "y" || "$DELETE_MARKDOWNLINT" == "Y" ]] && echo "  .markdownlint.json"
 [ -f ".gitignore" ] && echo ""
-[ -f ".gitignore" ] && echo "Из .gitignore будет вычищен блок # workflow-template."
-[ -f ".git/info/exclude" ] && echo "Из .git/info/exclude будет вычищен блок # workflow-template."
+[ -f ".gitignore" ] && echo "The # workflow-template block will be removed from .gitignore."
+[ -f ".git/info/exclude" ] && echo "The # workflow-template block will be removed from .git/info/exclude."
 
 echo ""
-read -p "Продолжить? [y/N]: " CONFIRM </dev/tty
+read -p "Continue? [y/N]: " CONFIRM </dev/tty
 if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
-    echo "Отменено."
+    echo "Cancelled."
     exit 0
 fi
 
 echo ""
 
-# Удалить файлы и директории
+# Remove files and directories
 for item in "${TO_DELETE[@]}"; do
     rm -rf "$item"
 done
-[[ "$DELETE_MARKDOWNLINT" == "y" || "$DELETE_MARKDOWNLINT" == "Y" ]] && rm -f .markdownlint.json
 
-# Вычистить блок workflow-template из .gitignore
+# Clean workflow-template block from .gitignore
 if [ -f ".gitignore" ]; then
     sed -i '/^# workflow-template:start$/,/^# workflow-template:end$/d' .gitignore
 fi
 
-# Вычистить блок workflow-template из .git/info/exclude
+# Clean workflow-template block from .git/info/exclude
 if [ -f ".git/info/exclude" ]; then
     sed -i '/^# workflow-template:start$/,/^# workflow-template:end$/d' .git/info/exclude
 fi
 
-echo -e "${GREEN}Готово.${NC} Файлы ассистента удалены."
-echo "Изменения не закоммичены — зафиксируй вручную если нужно."
+echo -e "${GREEN}Done.${NC} Assistant files removed."
+echo "Changes are not committed — stage and commit manually if needed."

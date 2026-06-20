@@ -1,156 +1,108 @@
-# Задача: Управление жизненным циклом ассистента (ADR-013)
+# Задача: OSS-публикация (ADR-014, ADR-015, ADR-016)
 
 ## Контекст
 
-Две части: правка `install.sh` и новый `uninstall.sh`.
-`SETUP.md` обновляется в части «Удаление».
-Зависит от: ADR-012 (install.sh уже обновлён)
+Ветка: `oss` (создать от `main` перед началом реализации)
+Цель: перевести шаблонный слой на английский, заменить ключевые фразы на слэш-команды, убрать markdownlint.
+Мейнтейнерский слой (корень, `.context/`, `.claude/`) — не трогать, остаётся на русском.
 
-**Важное уточнение к ADR-012:** маркер в `.gitignore` и `.git/info/exclude` заменить на парные: `# workflow-template:start` / `# workflow-template:end`. Это позволяет `uninstall.sh` удалять блок независимо от его позиции в файле — пользователь может дописывать в `.gitignore` что угодно до и после нашего блока.
+## Фаза А: Markdownlint (ADR-015)
 
-## Что реализовать
+Технические правки, без переводов.
 
-### Часть 1: install.sh — опциональные коммит и ветка dev
+1. `template/.markdownlint.json` — удалить файл
+2. `scripts/install.sh` — убрать `.markdownlint.json` из предупреждения о перезаписи
+3. `scripts/uninstall.sh` — убрать отдельный вопрос про `.markdownlint.json`; убрать из списка файлов
+4. `README.md` — убрать упоминание markdownlint
 
-Добавить два вопроса после вопросов HIDE_FILES / HIDE_COMMITS, перед финальным confirm.
+## Фаза Б: Перевод и слэш-команды (ADR-014, ADR-016)
 
-**Вопрос C:**
+### template/CLAUDE.md
 
-```text
-Создать начальный коммит? [y/N]:
-```
+- Полный перевод на английский
+- Заменить ключевые фразы на слэш-команды (конкретные имена — решить при реализации, зафиксировать в decisions.md)
+- Добавить инструкцию: «Respond in the user's language»
+- `{ПЛЕЙСХОЛДЕРЫ}` не трогать
 
-**Вопрос D** — задавать только если C=y ИЛИ в репо уже есть коммиты (`git log` не пуст):
+### template/WORKFLOW.md
 
-```text
-Создать ветку dev? [y/N]:
-```
+- Полный перевод на английский
+- `{ПЛЕЙСХОЛДЕРЫ}` не трогать
 
-Проверка наличия коммитов:
+### template/.claude/index.md
 
-```bash
-git rev-parse HEAD &>/dev/null 2>&1
-```
+- Полный перевод на английский
 
-В сводке перед финальным confirm добавить строки:
+### template/.claude/skills/meta/ (4 файла)
 
-```text
-  Коммит:    создать / пропустить
-  Ветка dev: создать / пропустить
-```
+- `cc-commit.md`
+- `cc-close-task.md`
+- `cc-status-report.md`
+- `cc-architect-sync.md`
+- Полный перевод на английский
 
-Блок в конце скрипта заменить на условный:
+### template/.context/ (5 файлов)
 
-```bash
-if [[ "$DO_COMMIT" == "y" || "$DO_COMMIT" == "Y" ]]; then
-    git add .
-    git commit -m "chore: init from workflow-template"
-fi
+- `blueprint.md`, `plan.md`, `to-do.md`, `status.md`, `decisions.md`
+- Перевести заголовки, инструкции и пояснения; `{ПЛЕЙСХОЛДЕРЫ}` не трогать
 
-if [[ "$DO_DEV" == "y" || "$DO_DEV" == "Y" ]]; then
-    git checkout -b dev
-fi
-```
+### README.md
 
-### Часть 2: uninstall.sh — новый скрипт
+- Базовый перевод на английский (глубокая переработка — в фазе В)
 
-Файл: `scripts/uninstall.sh`
+### SETUP.md
 
-**Алгоритм:**
+- Полный перевод на английский
+- В curl-командах: `main` → `oss` (пока ветка не слита в main)
 
-1. Проверить зависимости: `git`
-2. Проверить что текущая директория — корень git-репозитория
-3. Определить какие файлы/директории ассистента существуют из списка:
-   `.claude/`, `.context/`, `CLAUDE.md`, `WORKFLOW.md`, `.markdownlint.json`
-4. Если ничего не найдено — сообщить и выйти
-5. Показать список того, что будет удалено (только существующее)
-6. Спросить отдельно про `.markdownlint.json` (если существует):
+### scripts/install.sh, scripts/uninstall.sh
 
-   ```text
-   Удалить .markdownlint.json? [y/N]:
-   ```
+- Перевести весь пользовательский вывод: сообщения, вопросы, подсказки
 
-7. Запросить финальное подтверждение:
+## Фаза В: README и демо (ADR-014)
 
-   ```text
-   Продолжить удаление? [y/N]:
-   ```
+(после завершения фазы Б)
 
-8. Удалить файлы и директории (только существующие):
-   - `rm -rf .claude/ .context/ CLAUDE.md WORKFLOW.md`
-   - `.markdownlint.json` — только если пользователь согласился
-
-9. Вычистить блок из `.gitignore` (если файл существует):
-
-   ```bash
-   sed -i '/^# workflow-template:start$/,/^# workflow-template:end$/d' .gitignore
-   ```
-
-10. Вычистить блок из `.git/info/exclude` (если файл существует):
-
-    ```bash
-    sed -i '/^# workflow-template:start$/,/^# workflow-template:end$/d' .git/info/exclude
-    ```
-
-11. Сообщить результат:
-
-    ```text
-    Готово. Файлы ассистента удалены.
-    Изменения не закоммичены — зафиксируй вручную если нужно.
-    ```
-
-### Часть 3: SETUP.md — раздел «Удаление»
-
-Добавить раздел после «Установки через curl»:
-
-```markdown
-## Удаление
-
-Для удаления ассистента из проекта:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scripts/uninstall.sh | bash
-```
-
-Скрипт удалит файлы ассистента и вычистит связанные записи из `.gitignore`
-и `.git/info/exclude`. Коммит не создаётся — зафиксируй изменения вручную.
-```
+1. Переписать `README.md`: объяснить двухслойную структуру, показать что устанавливается через `template/`
+2. Снять демо: одна сессия от `/architect` до `/commit`
 
 ## Файлы
 
-Изменить:
+### Фаза А
 
-- `scripts/install.sh` — добавить вопросы C и D, сделать коммит и ветку условными
+- `template/.markdownlint.json` — удалить
+- `scripts/install.sh` — правка
+- `scripts/uninstall.sh` — правка
+- `README.md` — правка
 
-Создать:
+### Фаза Б
 
+- `template/CLAUDE.md`
+- `template/WORKFLOW.md`
+- `template/.claude/index.md`
+- `template/.claude/skills/meta/cc-commit.md`
+- `template/.claude/skills/meta/cc-close-task.md`
+- `template/.claude/skills/meta/cc-status-report.md`
+- `template/.claude/skills/meta/cc-architect-sync.md`
+- `template/.context/blueprint.md`
+- `template/.context/plan.md`
+- `template/.context/to-do.md`
+- `template/.context/status.md`
+- `template/.context/decisions.md`
+- `README.md`
+- `SETUP.md`
+- `scripts/install.sh`
 - `scripts/uninstall.sh`
 
-Изменить:
+### Фаза В
 
-- `SETUP.md` — добавить раздел «Удаление»
+- `README.md` — полная переработка
 
 ## Ограничения
 
-- В `install.sh`: блоки в `.gitignore` и `.git/info/exclude` обрамлять маркерами `# workflow-template:start` / `# workflow-template:end` (заменяет одиночный `# workflow-template` из ADR-012)
-- Вопрос D задавать только если C=y ИЛИ `git rev-parse HEAD` успешен
-- `uninstall.sh` не делает коммит ни при каких условиях
-- `uninstall.sh` удаляет только то, что реально существует — не падать на отсутствующих файлах
-- `sed` для очистки `.gitignore` и `exclude` — убедиться что trailing пустые строки не накапливаются
-- В `uninstall.sh` — `set -e` не использовать, чтобы отсутствие файлов не прерывало скрипт; или использовать `rm -f`
-
-## Проверка
-
-**install.sh:**
-- C=n: коммит не создаётся, ветка не создаётся (вопрос D не задаётся если нет коммитов)
-- C=y, D=n: коммит есть, ветка не создаётся
-- C=y, D=y: поведение как раньше
-
-**uninstall.sh:**
-- Все файлы присутствуют, markdownlint=y: всё удалено, `.gitignore` и `exclude` вычищены
-- Часть файлов отсутствует: удаляет только существующие, не падает
-- Нет блока `# workflow-template` в `.gitignore`: скрипт не падает
-- Нет `.git`: выход с ошибкой
+- `{ПЛЕЙСХОЛДЕРЫ}` в `template/` — не заполнять и не переименовывать
+- Мейнтейнерский слой (корень, `.context/`, `.claude/`) — не переводить
+- Имена слэш-команд — зафиксировать в decisions.md при реализации фазы Б
 
 ## Изменения по ходу
 

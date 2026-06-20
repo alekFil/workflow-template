@@ -8,107 +8,107 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Проверка зависимостей
+# Check dependencies
 for cmd in git curl tar; do
     if ! command -v "$cmd" &>/dev/null; then
-        echo -e "${RED}Ошибка:${NC} требуется $cmd, но не найден."
+        echo -e "${RED}Error:${NC} $cmd is required but not found."
         exit 1
     fi
 done
 
-# Проверка: текущая директория — корень git-репозитория
+# Check: current directory is the root of a git repository
 if [ ! -d ".git" ]; then
-    echo -e "${RED}Ошибка:${NC} текущая директория не является корнем git-репозитория."
-    echo "Сначала выполни: git init"
+    echo -e "${RED}Error:${NC} current directory is not the root of a git repository."
+    echo "Run first: git init"
     exit 1
 fi
 
-# Проверка: директория не пустая
+# Check: directory is not empty
 NON_GIT=$(find . -mindepth 1 -maxdepth 1 -not -name ".git" | wc -l)
 if [ "$NON_GIT" -gt 0 ]; then
-    echo -e "${YELLOW}Предупреждение:${NC} директория не пустая."
-    echo "  Будут перезаписаны: CLAUDE.md, WORKFLOW.md, .markdownlint.json, .claude/, .context/"
-    echo "  .gitignore будет дополнен (не перезаписан)."
+    echo -e "${YELLOW}Warning:${NC} directory is not empty."
+    echo "  Will be overwritten: CLAUDE.md, WORKFLOW.md, .claude/, .context/"
+    echo "  .gitignore will be appended (not overwritten)."
     echo ""
-    read -p "Продолжить? [y/N]: " OVERWRITE_CONFIRM </dev/tty
+    read -p "Continue? [y/N]: " OVERWRITE_CONFIRM </dev/tty
     if [[ "$OVERWRITE_CONFIRM" != "y" && "$OVERWRITE_CONFIRM" != "Y" ]]; then
-        echo "Отменено."
+        echo "Cancelled."
         exit 0
     fi
     echo ""
 fi
 
-echo -e "${BLUE}workflow-template — инициализация нового проекта${NC}"
+echo -e "${BLUE}workflow-template — initializing new project${NC}"
 echo ""
 
-# Собрать данные
-read -p "Название проекта: " PROJECT_NAME </dev/tty
+# Collect data
+read -p "Project name: " PROJECT_NAME </dev/tty
 if [ -z "$PROJECT_NAME" ]; then
-    echo -e "${RED}Ошибка:${NC} название не может быть пустым."
+    echo -e "${RED}Error:${NC} project name cannot be empty."
     exit 1
 fi
 
-read -p "Remote URL (Enter — настроить позже): " REMOTE_URL </dev/tty
+read -p "Remote URL (Enter — configure later): " REMOTE_URL </dev/tty
 
 echo ""
-read -p "Скрыть файлы ассистента из репозитория? (CLAUDE.md, WORKFLOW.md, .claude/, .context/ → .git/info/exclude) [y/N]: " HIDE_FILES </dev/tty
-read -p "Скрыть ассистента из сообщений коммитов? [y/N]: " HIDE_COMMITS </dev/tty
+read -p "Hide assistant files from repository? (CLAUDE.md, WORKFLOW.md, .claude/, .context/ → .git/info/exclude) [y/N]: " HIDE_FILES </dev/tty
+read -p "Hide assistant from commit messages? [y/N]: " HIDE_COMMITS </dev/tty
 
 echo ""
 DO_COMMIT="n"
-read -p "Создать начальный коммит? [y/N]: " DO_COMMIT </dev/tty
+read -p "Create initial commit? [y/N]: " DO_COMMIT </dev/tty
 
 DO_DEV="n"
 DEV_QUESTION_ASKED=false
 if [[ "$DO_COMMIT" == "y" || "$DO_COMMIT" == "Y" ]] || git rev-parse HEAD &>/dev/null 2>&1; then
-    read -p "Создать ветку dev? [y/N]: " DO_DEV </dev/tty
+    read -p "Create dev branch? [y/N]: " DO_DEV </dev/tty
     DEV_QUESTION_ASKED=true
 fi
 
 echo ""
-echo "  Проект:    $PROJECT_NAME"
+echo "  Project:   $PROJECT_NAME"
 [ -n "$REMOTE_URL" ] && echo "  Remote:    $REMOTE_URL"
 if [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
-    echo "  Ассистент: скрыт (exclude)"
+    echo "  Assistant: hidden (exclude)"
 else
-    echo "  Ассистент: виден в репо"
+    echo "  Assistant: visible in repo"
 fi
 if [[ "$HIDE_COMMITS" == "y" || "$HIDE_COMMITS" == "Y" ]]; then
-    echo "  Коммиты:   без атрибуции"
+    echo "  Commits:   no attribution"
 else
-    echo "  Коммиты:   со атрибуцией"
+    echo "  Commits:   with attribution"
 fi
 if [[ "$DO_COMMIT" == "y" || "$DO_COMMIT" == "Y" ]]; then
-    echo "  Коммит:    создать"
+    echo "  Commit:    create"
 else
-    echo "  Коммит:    пропустить"
+    echo "  Commit:    skip"
 fi
 if [ "$DEV_QUESTION_ASKED" = true ]; then
     if [[ "$DO_DEV" == "y" || "$DO_DEV" == "Y" ]]; then
-        echo "  Ветка dev: создать"
+        echo "  Dev branch: create"
     else
-        echo "  Ветка dev: пропустить"
+        echo "  Dev branch: skip"
     fi
 fi
 echo ""
-read -p "Продолжить? [y/N]: " CONFIRM </dev/tty
+read -p "Continue? [y/N]: " CONFIRM </dev/tty
 if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
-    echo "Отменено."
+    echo "Cancelled."
     exit 0
 fi
 
 echo ""
 
-# Сохранить существующий .gitignore
+# Save existing .gitignore
 EXISTING_GITIGNORE=""
 [ -f ".gitignore" ] && EXISTING_GITIGNORE=$(cat .gitignore)
 
-# Скачать template/ из репо
-echo "Скачиваем шаблон..."
-curl -fsSL "${REPO}/archive/refs/heads/main.tar.gz" \
-    | tar xz --strip-components=2 "workflow-template-main/template"
+# Download template/ from repo
+echo "Downloading template..."
+curl -fsSL "${REPO}/archive/refs/heads/oss.tar.gz" \
+    | tar xz --strip-components=2 "workflow-template-oss/template"
 
-# Обработать .gitignore: дополнить, не перезаписать
+# Process .gitignore: append, do not overwrite
 TEMPLATE_GITIGNORE=$(cat .gitignore)
 if [ -n "$EXISTING_GITIGNORE" ]; then
     echo "$EXISTING_GITIGNORE" > .gitignore
@@ -122,12 +122,12 @@ if [ -n "$EXISTING_GITIGNORE" ]; then
     echo "# workflow-template:end" >> .gitignore
 fi
 
-# Заполнить {PROJECT_NAME} во всех .md
-echo "Заполняем плейсхолдеры..."
+# Fill {PROJECT_NAME} in all .md files
+echo "Filling placeholders..."
 find . -name "*.md" -not -path "./.git/*" \
     -exec sed -i "s|{PROJECT_NAME}|$PROJECT_NAME|g" {} +
 
-# Скрыть файлы ассистента через .git/info/exclude
+# Hide assistant files via .git/info/exclude
 if [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
     mkdir -p .git/info
     {
@@ -141,7 +141,7 @@ if [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
     } >> .git/info/exclude
 fi
 
-# Отключить атрибуцию в коммитах
+# Disable attribution in commits
 if [[ "$HIDE_COMMITS" == "y" || "$HIDE_COMMITS" == "Y" ]]; then
     mkdir -p .claude
     echo '{
@@ -149,7 +149,7 @@ if [[ "$HIDE_COMMITS" == "y" || "$HIDE_COMMITS" == "Y" ]]; then
 }' > .claude/settings.json
 fi
 
-# Привязать remote
+# Set remote
 if [ -n "$REMOTE_URL" ]; then
     if git remote get-url origin &>/dev/null 2>&1; then
         git remote set-url origin "$REMOTE_URL"
@@ -158,21 +158,21 @@ if [ -n "$REMOTE_URL" ]; then
     fi
 fi
 
-# Начальный коммит
+# Initial commit
 if [[ "$DO_COMMIT" == "y" || "$DO_COMMIT" == "Y" ]]; then
-    echo "Создаём начальный коммит..."
+    echo "Creating initial commit..."
     git add .
     git commit -m "chore: init from workflow-template"
 fi
 
-# Создать ветку dev
+# Create dev branch
 if [[ "$DO_DEV" == "y" || "$DO_DEV" == "Y" ]]; then
     git checkout -b dev
 fi
 
 echo ""
-echo -e "${GREEN}Готово!${NC} Проект «$PROJECT_NAME» инициализирован."
+echo -e "${GREEN}Done!${NC} Project \"$PROJECT_NAME\" initialized."
 echo ""
-echo "Следующие шаги:"
-echo "  1. Запусти CC и скажи: 'Прочитай CLAUDE.md и помоги заполнить оставшиеся плейсхолдеры'"
-[ -z "$REMOTE_URL" ] && echo "  2. Добавь remote: git remote add origin <url>"
+echo "Next steps:"
+echo "  1. Launch CC and say: 'Read CLAUDE.md and help me fill in the remaining placeholders'"
+[ -z "$REMOTE_URL" ] && echo "  2. Add remote: git remote add origin <url>"
