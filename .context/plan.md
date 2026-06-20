@@ -1,54 +1,98 @@
-# Задача: Предпубликационный аудит — исправить 6 проблем (ADR-009)
+# Задача: Улучшение install.sh (ADR-012)
 
 ## Контекст
 
-Аудит перед публикацией на GitHub выявил блокеры и нестыковки.
-Все изменения — в рамках существующих файлов, новые файлы не создаются.
+Изменяется только `scripts/install.sh`.
+Другие файлы не затрагиваются.
 Зависит от: —
 
 ## Что реализовать
 
-1. `install.sh` — добавить `git checkout -b dev` после строки `git commit`
-2. Удалить `.claude/skills/meta/cc-export-chat.md`
-3. Удалить `template/.claude/skills/meta/cc-export-chat.md`
-4. Убрать упоминания «экспорт истории» из:
-   - `template/CLAUDE.md` (таблица ключевых фраз)
-   - `template/WORKFLOW.md` (таблица команд рабочего процесса)
-   - `template/.claude/index.md` (таблица мета-скиллов)
-   - `.claude/index.md` (таблица мета-скиллов)
-5. `.gitignore` — добавить `.claude/settings.local.json`, `.claude/chat_history/`, `.env`
-6. `CONTRIBUTION.md` — заменить `"обсудим задачу"` на `"обсудим"` (шаг 2 типичного цикла)
-7. `template/WORKFLOW.md` — добавить `text` к code block раздела «Ветки»
+### 1. Предупреждение о перезаписи
+
+Заменить расплывчатое «файлы могут быть перезаписаны» на явный список:
+
+```text
+Будут перезаписаны: CLAUDE.md, WORKFLOW.md, .markdownlint.json, .claude/, .context/
+.gitignore будет дополнен (не перезаписан).
+```
+
+### 2. Корректная обработка .gitignore
+
+Перед `tar xz` — сохранить содержимое `.gitignore` в переменную (если файл существует).
+После извлечения — восстановить оригинал, затем дописать строки из шаблонного `.gitignore`:
+
+- добавить маркер `# workflow-template`
+- для каждой строки из шаблона: добавить только если её нет в файле (grep -xF)
+
+### 3. Два новых вопроса
+
+Задавать после Remote URL, до финального подтверждения.
+
+**Вопрос A:**
+
+```text
+Скрыть файлы ассистента из репозитория?
+  CLAUDE.md, WORKFLOW.md, .claude/, .context/ → .git/info/exclude [y/N]:
+```
+
+**Вопрос B:**
+
+```text
+Скрыть ассистента из сообщений коммитов? [y/N]:
+```
+
+### 4. Действия после извлечения шаблона
+
+**Если A=y:**
+
+Дописать в `.git/info/exclude` (создать если не существует):
+
+```text
+# workflow-template
+CLAUDE.md
+WORKFLOW.md
+.claude/
+.context/
+```
+
+**Если B=y:**
+
+Создать или дополнить `.claude/settings.json` ключом, отключающим Co-Authored-By.
+Уточнить точное имя ключа перед записью — поискать в документации CC или исходниках.
+
+### 5. Финальное подтверждение
+
+Включить A и B в сводку:
+
+```text
+  Проект:    my-project
+  Remote:    https://...
+  Ассистент: скрыт (exclude) / виден в репо
+  Коммиты:   без атрибуции / со атрибуцией
+```
 
 ## Файлы
 
 Изменить:
 
-- `scripts/install.sh` — добавить `git checkout -b dev`
-- `.gitignore` — дополнить тремя строками
-- `CONTRIBUTION.md` — исправить фразу
-- `template/CLAUDE.md` — убрать строку «экспорт истории»
-- `template/WORKFLOW.md` — убрать строку «экспорт истории» + исправить code block
-- `template/.claude/index.md` — убрать строку «экспорт истории»
-- `.claude/index.md` — убрать строку «экспорт истории»
-
-Удалить:
-
-- `.claude/skills/meta/cc-export-chat.md`
-- `template/.claude/skills/meta/cc-export-chat.md`
+- `scripts/install.sh`
 
 ## Ограничения
 
-- `dev`-ветку в install.sh создавать только после init commit — не до
-- Не трогать мейнтейнерский `CLAUDE.md` (в нём нет упоминаний экспорта)
-- Не добавлять ничего взамен удалённого скилла
+- `.git/info/exclude` создавать если не существует (`mkdir -p .git/info`)
+- Вопросы A и B — строго после Remote URL, до финального confirm
+- Дедупликацию .gitignore — по точному совпадению строки (`grep -qxF`)
+- Не добавлять маркер в `.gitignore` если `.gitignore` создаётся с нуля (нет оригинала)
+- Точное имя ключа settings.json для B — уточнить перед записью, не угадывать
 
 ## Проверка
 
-- `grep -r "экспорт истории\|cc-export-chat\|export.chat" . --include="*.md" --include="*.sh" --exclude-dir=.git` — возвращает пусто
-- `grep "chat_history\|settings.local\|\.env" .gitignore` — показывает все три строки
-- `grep "обсудим задачу" CONTRIBUTION.md` — возвращает пусто
-- `tail -5 scripts/install.sh` — содержит `git checkout -b dev`
+- Установка в пустой репо: поведение как раньше (кроме нового вопроса и сводки)
+- Установка в репо с существующим `.gitignore`: оригинал сохранён, шаблонные строки добавлены с маркером, дубликаты не появились
+- A=y: `.git/info/exclude` содержит блок `# workflow-template`; `.gitignore` не содержит `CLAUDE.md` и др.
+- B=y: `.claude/settings.json` содержит нужный ключ
+- A=n, B=n: поведение идентично старому (кроме корректной обработки `.gitignore`)
 
 ## Изменения по ходу
 
