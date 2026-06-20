@@ -1,98 +1,83 @@
-# Задача: Перевод мейнтейнерского слоя на английский + реальные слэш-команды
+## Задача: Переписать README и протестировать install.sh end-to-end
 
-## Контекст
+### Контекст
 
-ADR-016 зафиксировал: мейнтейнерский слой остаётся на русском. Решение пересматривается:
-всё что читает CC переводится на английский, `.context/` остаётся на языке общения (русский).
-Это согласует мейнтейнерский слой с шаблонным и устраняет языковую непоследовательность.
+README содержит баг — упомянута команда `/status`, переименованная в `/report` (ADR-017).
+Новому пользователю не понятна структура проекта после установки.
+install.sh с ветки `oss` ни разу не прогонялся end-to-end.
 
-В той же задаче: создать `.claude/commands/` — реальные слэш-команды для мейнтейнерского слоя.
+Зависит от: ADR-017, ADR-018 (выполнено); перевод шаблонного слоя (выполнено).
 
-Зависит от: шаблонный слой (выполнено — `template/.claude/commands/` создан).
+### Что реализовать
 
-## Что реализовать
+1. Переписать `README.md` — исправить баг, добавить ASCII-структуру, реструктурировать разделы
+2. Протестировать `install.sh` локально с ветки `oss`; исправить всё что сломается
 
-### 1. Зафиксировать ADR-018 в `.context/decisions.md`
+### README.md — целевая структура
 
-Перевод мейнтейнерского слоя на английский: отменяет решение ADR-016 о сохранении русского.
-`.context/` остаётся на языке общения.
+Оставить без изменений:
+- Заголовок + бейджи
+- Раздел «Why» (текст хороший)
+- Раздел «Quick start»
 
-### 2. Перевести мейнтейнерский слой на английский
+Переписать / заменить:
+- Одна строка описания после бейджей — можно уточнить
+- «What's included» → заменить двумя разделами:
 
-- `CLAUDE.md` — полный перевод; добавить `**Language:** Respond in the user's language.`;
-  таблицу «Ключевые фразы» заменить на «Slash commands»;
-  в описаниях режимов заменить «Активируется фразой» → «Triggered by `/command`»
-- `CONTRIBUTION.md` — полный перевод; заменить упоминания ключевых фраз на слэш-команды
-- `.claude/index.md` — полный перевод; таблицу мета-скиллов обновить на слэш-команды
-- `.claude/skills/meta/cc-commit.md` — полный перевод (уже есть английская версия в template/, адаптировать)
-- `.claude/skills/meta/cc-close-task.md` — аналогично
-- `.claude/skills/meta/cc-status-report.md` — аналогично
-- `.claude/skills/meta/cc-architect-sync.md` — аналогично
+**«What gets installed»** — ASCII-дерево проекта после установки, аннотация к каждому элементу:
 
-### 3. Создать `.claude/commands/` с 9 файлами (на английском)
+```text
+your-project/
+├── CLAUDE.md          ← CC читает при старте: контекст проекта, режимы, конвенции
+├── WORKFLOW.md        ← шпаргалка по слэш-командам
+├── .claude/
+│   ├── commands/      ← /architect, /dev, /commit, /close, /report, /sync…
+│   └── skills/meta/   ← реализации скиллов
+└── .context/
+    ├── blueprint.md   ← архитектура проекта
+    ├── plan.md        ← план текущей задачи
+    ├── to-do.md       ← очередь задач
+    ├── status.md      ← снимок состояния реализации
+    └── decisions.md   ← журнал архитектурных решений (ADR)
+```
 
-**Команды-режимы** (инлайн, адаптированные под мейнтейнерский контекст):
+**«How it works»** — цикл рабочего процесса, 4–5 строк:
 
-- `organize.md` — Organizer mode; файлы для редактирования специфичны для этого репо
-- `architect.md` — Architect mode + формат `plan.md`; `$ARGUMENTS` = тема
-- `dev.md` — Developer mode + главное правило
+```text
+/architect  →  CC задаёт вопросы, пишет .context/plan.md
+/dev        →  CC читает план, реализует в его границах
+/commit     →  показать diff → подтвердить → коммит
+/report     →  снимок текущего состояния → .context/status.md
+/sync       →  сравнить код с документацией, предложить обновления
+```
 
-**Команды-утилиты** (инлайн):
+Решения накапливаются в `decisions.md` и сохраняются между сессиями.
 
-- `next.md`
-- `record.md`
+Аннотации в ASCII-дереве — на английском (файл публичный, аудитория международная).
+Текст разделов README — на английском.
 
-**Команды-скиллы** (тонкие — идентичны шаблонным):
+### Файлы
 
-- `close.md`, `report.md`, `sync.md`, `commit.md`
+Изменить:
+- `README.md` — переписать по структуре выше
 
-### 4. Обновить `.claude/index.md`
+Новых файлов нет. Если тест выявит баги install.sh — исправить те файлы; зафиксировать ниже.
 
-Добавить раздел «Slash commands»; раздел «Meta-skills» обновить.
+### Ограничения
 
-## Файлы
+- Демо в этой итерации не делать — не добавлять placeholder и TODO на него
+- Только ASCII — без mermaid, без изображений
+- curl URL остаётся на ветке `oss` — переедет на `main` при мерже
+- Текст «Quick start» не менять без явного повода от теста
+- Если тест выявит баги install.sh → исправить, задокументировать в «Изменения по ходу»
 
-Создать:
+### Проверка
 
-- `.claude/commands/organize.md`
-- `.claude/commands/architect.md`
-- `.claude/commands/dev.md`
-- `.claude/commands/next.md`
-- `.claude/commands/record.md`
-- `.claude/commands/close.md`
-- `.claude/commands/report.md`
-- `.claude/commands/sync.md`
-- `.claude/commands/commit.md`
+- `grep "/status" README.md` — нет совпадений
+- README содержит ASCII-дерево с `.claude/` и `.context/`
+- Тест: `mkdir /tmp/test-wf && cd /tmp/test-wf && git init && curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/oss/scripts/install.sh | bash` — завершается без ошибок
+- После установки в `/tmp/test-wf` присутствуют: CLAUDE.md, WORKFLOW.md, .claude/, .context/
 
-Обновить:
+### Изменения по ходу
 
-- `.context/decisions.md` — ADR-018
-- `CLAUDE.md`
-- `CONTRIBUTION.md`
-- `.claude/index.md`
-- `.claude/skills/meta/cc-commit.md`
-- `.claude/skills/meta/cc-close-task.md`
-- `.claude/skills/meta/cc-status-report.md`
-- `.claude/skills/meta/cc-architect-sync.md`
-
-Не трогать:
-
-- `.context/` (blueprint, plan, to-do, status, decisions, history, discussions) — остаётся на русском
-
-## Ограничения
-
-- `.context/` — не переводить
-- Шаблонный слой — не трогать
-- Скиллы: перевести, опираясь на уже готовые английские версии в `template/.claude/skills/meta/`
-- `organize.md` команда — адаптировать под файлы мейнтейнерского репо (не копировать из template/)
-
-## Проверка
-
-- `ls .claude/commands/` показывает 9 файлов
-- В `CLAUDE.md` нет «Ключевые фразы», есть «Slash commands», есть `**Language:** Respond in the user's language.`
-- В `.claude/skills/meta/*.md` нет «Реагирует на фразы»
-- В `CONTRIBUTION.md` нет ключевых фраз в кавычках
-
-## Изменения по ходу
-
-(пусто)
+- `scripts/install.sh` — исправлено определение TTY: `[ -e /dev/tty ]` заменено на `( </dev/tty ) 2>/dev/null`. Устройство может существовать как нода, но быть недоступным для открытия — в таком случае фолбэк на `/dev/stdin`. Проявляется в средах без реального TTY (CI, Docker, bash-инструмент CC).

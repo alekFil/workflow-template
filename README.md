@@ -23,6 +23,39 @@ With this template:
 
 ---
 
+## What gets installed
+
+```text
+your-project/
+├── CLAUDE.md          ← CC reads on startup: project context, modes, conventions
+├── WORKFLOW.md        ← slash command reference
+├── .claude/
+│   ├── commands/      ← /architect, /dev, /commit, /close, /report, /sync…
+│   └── skills/meta/   ← skill implementations
+└── .context/
+    ├── blueprint.md   ← architecture overview
+    ├── plan.md        ← current task plan
+    ├── to-do.md       ← task queue
+    ├── status.md      ← implementation snapshot
+    └── decisions.md   ← architecture decisions log (ADR)
+```
+
+---
+
+## How it works
+
+```text
+/architect  →  CC asks questions, writes .context/plan.md
+/dev        →  CC reads the plan, implements within its scope
+/commit     →  show diff → confirm → commit
+/report     →  snapshot current state → .context/status.md
+/sync       →  compare code with docs, suggest updates
+```
+
+Decisions accumulate in `decisions.md` and persist across sessions.
+
+---
+
 ## Quick start
 
 ```bash
@@ -50,12 +83,3 @@ Read CLAUDE.md and help me fill in the remaining placeholders.
 ```
 
 Full instructions — in [SETUP.md](SETUP.md).
-
----
-
-## What's included
-
-- `CLAUDE.md` — instructions for CC: modes, slash commands, conventions
-- `WORKFLOW.md` — workflow quick reference
-- `.claude/skills/meta/` — meta-skills: `/commit`, `/close`, `/status`, `/sync`
-- `.context/` — documentation structure: blueprint, plan, to-do, status, decisions
