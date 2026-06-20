@@ -56,6 +56,33 @@ Decisions accumulate in `decisions.md` and persist across sessions.
 
 ---
 
+## Demo
+
+You open a new project session and type:
+
+```text
+/architect add CSV export for the reports page
+```
+
+CC asks clarifying questions — which data, which format, where the trigger lives.
+You answer. CC writes `.context/plan.md`.
+
+```text
+/dev
+```
+
+CC reads the plan and implements strictly within its scope — no improvisation.
+
+```text
+/commit
+```
+
+CC shows the diff, you confirm, commit is created.
+
+Decisions accumulate in `decisions.md` and persist across sessions.
+
+---
+
 ## Quick start
 
 ```bash
@@ -83,3 +110,14 @@ Read CLAUDE.md and help me fill in the remaining placeholders.
 ```
 
 Full instructions — in [SETUP.md](SETUP.md).
+
+---
+
+## Contributing
+
+This repo has two layers:
+
+- **Root** (maintainer layer) — `CLAUDE.md`, `CONTRIBUTION.md`, `.context/`, `.claude/`, `scripts/`
+- **`template/`** (template layer) — everything that gets installed into a new project via `install.sh`
+
+See [CONTRIBUTION.md](CONTRIBUTION.md) for how to work with this repo.
