@@ -36,6 +36,7 @@
 - [ ] Расширить `cc-architect-sync.md`: добавить шаг проверки ADR со статусом "Заменено" и предложения архивировать в `.context/history/decisions/`
 - [ ] То же для `template/.claude/skills/meta/cc-architect-sync.md`
 - [ ] Создать `.context/history/decisions/` (`.gitkeep`)
+- [ ] Тест: проверить что развёртывание через install.sh работает end-to-end
 
 ### Приоритет 3: Полнота шаблона
 
@@ -68,6 +69,5 @@
 
 ## После MVP (технический долг)
 
-- [ ] Тест: проверить что развёртывание через install.sh работает end-to-end
 - [ ] Тест: проверить curl-команду для uninstall.sh в SETUP.md
 - [ ] Changelog для отслеживания версий шаблона
