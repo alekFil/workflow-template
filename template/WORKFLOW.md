@@ -20,6 +20,7 @@ Type `/command` directly in the Claude Code prompt. Each command is defined by a
 | `/close` | Rebase + ff-merge into `dev`, delete branch |
 | `/report` | Archive old `status.md`, write new one |
 | `/sync` | Compare code with documentation, suggest changes |
+| `/retro` | Analyze project history → write discussion → propose to-do and ADR updates |
 
 ---
 
@@ -66,6 +67,12 @@ CC **never does `git push`** without explicit request.
 6. Every few tasks — sync documentation
    → /report  (update status.md)
    → /sync    (check blueprint / code divergence)
+
+7. Periodically — retrospective
+   → /retro
+   CC reads decisions, history, git log — presents analysis draft
+   You correct → CC writes .context/discussions/retro-YYYY-MM-DD.md
+   Proposes to-do and ADR updates with per-item confirmation
 ```
 
 ---

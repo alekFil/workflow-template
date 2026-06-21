@@ -141,6 +141,7 @@ If a problem outside the plan scope is found during implementation — two paths
 | `/close` | Merge feature branch, close the task |
 | `/report` | Archive and write new `.context/status.md` |
 | `/sync` | Compare code with documentation, suggest changes |
+| `/retro` | Retrospective: analyze history → write discussion → propose actions |
 | `/commit` | Show diff → confirm → commit |
 
 ---

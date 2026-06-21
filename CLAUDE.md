@@ -123,6 +123,7 @@ In this mode you:
 | `/close` | Merge feature branch, close the task |
 | `/report` | Archive and write new `.context/status.md` |
 | `/sync` | Compare documentation with implementation, suggest changes |
+| `/retro` | Ретроспектива: анализ истории → discussion-файл → действия |
 | `/commit` | Show diff → confirm → commit |
 
 ---
