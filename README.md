@@ -113,6 +113,16 @@ Full instructions — in [SETUP.md](SETUP.md).
 
 ---
 
+## Local model (Qwen3 via vLLM)
+
+Если Anthropic API недоступен — можно подключить локальную модель через LiteLLM proxy.
+Workflow (скилы, `/architect`, `/dev`, `/close`) остаётся без изменений.
+
+- [SETUP-LOCAL.md](SETUP-LOCAL.md) — развёртывание LiteLLM на корпоративном сервере
+- [SETUP-DEV.md](SETUP-DEV.md) — настройка Claude Code на машине разработчика
+
+---
+
 ## Contributing
 
 This repo has two layers:
