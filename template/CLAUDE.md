@@ -3,7 +3,11 @@
 Project context for Claude Code.
 Read this file first. Details — follow the links below.
 
-**Language:** Respond in the user's language. Write all `.context/` files (status.md, plan.md, to-do.md, decisions.md, discussions) in the user's language as well.
+**Language:**
+- Communication: {COMMUNICATION_LANGUAGE}
+- `.context/` files: {CONTEXT_LANGUAGE}
+- Code comments: {CODE_COMMENTS_LANGUAGE}
+- Workflow docs (`.claude/`, skills, commands): English
 
 ## About this project
 
@@ -190,7 +194,6 @@ If a problem outside the plan scope is found during implementation — two paths
 
 {CODE_CONVENTIONS}
 {Example:}
-{- Comment language: English}
 {- Type hints everywhere}
 {- Commits: `type: description` — types: feat, fix, refactor, docs, test, chore}
 

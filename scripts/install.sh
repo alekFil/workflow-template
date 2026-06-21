@@ -58,6 +58,21 @@ fi
 
 read -p "Remote URL (Enter — configure later): " REMOTE_URL <"$TTY"
 
+# --- Language ---
+echo ""
+read -p "One language for everything (English), or configure per area? [one/multi]: " LANG_MODE <"$TTY"
+
+if [[ "$LANG_MODE" == "multi" ]]; then
+    echo "  (Workflow docs are always in English)"
+    read -p "  Communication language (ru/en/...): " COMM_LANG <"$TTY"
+    read -p "  .context/ files language (ru/en/...): " CONTEXT_LANG <"$TTY"
+    read -p "  Code comments language (ru/en/...): " CODE_LANG <"$TTY"
+else
+    COMM_LANG="English"
+    CONTEXT_LANG="English"
+    CODE_LANG="English"
+fi
+
 echo ""
 read -p "Hide assistant files from repository? (CLAUDE.md, WORKFLOW.md, .claude/, .context/ → .git/info/exclude) [y/N]: " HIDE_FILES <"$TTY"
 read -p "Hide assistant from commit messages? [y/N]: " HIDE_COMMITS <"$TTY"
@@ -74,8 +89,12 @@ if [[ "$DO_COMMIT" == "y" || "$DO_COMMIT" == "Y" ]] || git rev-parse HEAD &>/dev
 fi
 
 echo ""
-echo "  Project:   $PROJECT_NAME"
-[ -n "$REMOTE_URL" ] && echo "  Remote:    $REMOTE_URL"
+echo "  Project:        $PROJECT_NAME"
+[ -n "$REMOTE_URL" ] && echo "  Remote:         $REMOTE_URL"
+echo "  Communication:  $COMM_LANG"
+echo "  Context files:  $CONTEXT_LANG"
+echo "  Code comments:  $CODE_LANG"
+echo "  Workflow docs:  English"
 if [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
     echo "  Assistant: hidden (exclude)"
 else
@@ -130,10 +149,16 @@ if [ -n "$EXISTING_GITIGNORE" ]; then
     echo "# workflow-template:end" >> .gitignore
 fi
 
-# Fill {PROJECT_NAME} in all .md files
+# Fill placeholders in all .md files
 echo "Filling placeholders..."
 find . -name "*.md" -not -path "./.git/*" \
     -exec sed -i "s|{PROJECT_NAME}|$PROJECT_NAME|g" {} +
+find . -name "*.md" -not -path "./.git/*" \
+    -exec sed -i "s|{COMMUNICATION_LANGUAGE}|$COMM_LANG|g" {} +
+find . -name "*.md" -not -path "./.git/*" \
+    -exec sed -i "s|{CONTEXT_LANGUAGE}|$CONTEXT_LANG|g" {} +
+find . -name "*.md" -not -path "./.git/*" \
+    -exec sed -i "s|{CODE_COMMENTS_LANGUAGE}|$CODE_LANG|g" {} +
 
 # Hide assistant files via .git/info/exclude
 if [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
