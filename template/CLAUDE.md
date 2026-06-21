@@ -4,6 +4,7 @@ Project context for Claude Code.
 Read this file first. Details — follow the links below.
 
 **Language:**
+
 - Communication: {COMMUNICATION_LANGUAGE}
 - `.context/` files: {CONTEXT_LANGUAGE}
 - Code comments: {CODE_COMMENTS_LANGUAGE}
@@ -12,17 +13,17 @@ Read this file first. Details — follow the links below.
 ## About this project
 
 {PROJECT_DESCRIPTION}
-{One or two sentences: what the product is, who the user is, the core mechanic.}
+{One or two sentences: what domain, what business/analytical question, who consumes the findings.}
 
-Full architecture: `.context/blueprint.md`
+Full data schema and methodology: `.context/blueprint.md`, `.context/methodology.md`
 
-## Stack
+## Data
 
-| Layer | Technology |
-| --- | --- |
-| {LAYER_1} | {TECH_1} |
-| {LAYER_2} | {TECH_2} |
-| {LAYER_3} | {TECH_3} |
+| Source | What it is | Volume |
+| --- | --- | --- |
+| {DATA_SOURCE_1} | {description} | {volume} |
+
+**Data is not stored in the repository.** How to get it, how to update — `data/README.md`.
 
 **Repository:** {REPO_URL}
 
@@ -34,14 +35,17 @@ Full architecture: `.context/blueprint.md`
 | --- | --- |
 | Command reference (for owner) | `WORKFLOW.md` |
 | Documentation map | `.claude/index.md` |
-| Project architecture | `.context/blueprint.md` |
-| What's done | `.context/status.md` |
+| Data schema and preparation pipeline | `.context/blueprint.md` |
+| Statistical conventions and model standards | `.context/methodology.md` |
+| What has been found — findings and their status | `.context/findings.md` |
+| What has been analysed | `.context/status.md` |
 | What to do next | `.context/to-do.md` |
 | Current task | `.context/plan.md` |
-| Architecture decisions | `.context/decisions.md` |
+| Scope and methodology decisions | `.context/decisions.md` |
 
-At the start of each session read: `.context/blueprint.md` → `.context/to-do.md` → `.context/status.md`.
-Before implementation also read: `.context/plan.md`.
+At the start of each session read: `.context/blueprint.md` → `.context/findings.md` →
+`.context/to-do.md` → `.context/status.md`.
+Before a new analysis also read: `.context/methodology.md` → `.context/plan.md`.
 
 ---
 
@@ -56,50 +60,61 @@ Triggered by **`/organize`**.
 
 In this mode you:
 
-- Discuss workflow organization approaches
+- Discuss workflow organisation approaches
 - Ask clarifying questions before proposing solutions
 - Edit: `CLAUDE.md`, `WORKFLOW.md`, `.claude/index.md`, `.claude/skills/*.md`, `.claudeignore`, `.gitignore`
 - Create discussions and research documents in `.context/discussions/`
 
-### Architect mode
+### Analytics Architect mode
 
 Triggered by **`/architect`** (with any continuation or none).
 
 In this mode you:
 
-- Discuss architecture and technical decisions
+- Discuss the hypothesis, method and expected result of an analysis
+- **Before proposing a method — check `.context/findings.md`**: does the new hypothesis contradict
+  an already recorded finding? If there is overlap — name it explicitly
 - Ask clarifying questions before proposing solutions
-- Record decisions in `.context/decisions.md`
-- Write a plan in `.context/plan.md` at the end of the discussion (format below)
+- Record scope/methodology decisions in `.context/decisions.md`
+- At the end of the discussion write a plan in `.context/plan.md` (format below)
 - Do not write code — only design and plan
 
 **`.context/plan.md` format:**
 
 ````markdown
-## Task: {verb + noun, specific}
+## Analysis: {verb + noun, specific}
 
-### Context
-{what this component is, why it's needed}
-Depends on: {list of already-implemented components or "—"}
+### Question
+{what business/analytical question this analysis answers}
 
-### What to implement
-1. {atomic unit of work}
-2. {atomic unit of work}
+### Hypothesis
+{what we expect to see and why}
+
+### Related findings
+{links to FINDING-XXX from findings.md that this confirms, refines, or may contradict — or "—"}
+
+### Data & filters
+{which data slice, which filters, time period}
+Depends on: {already prepared data/features in src/ — or "—"}
+
+### Method
+{which test/model, why — with reference to methodology.md}
 
 ### Files
 Create:
-- {path}
+- {path to notebook, e.g. notebooks/NN-short-name.ipynb}
 
 Edit:
-- {path} — {what to change}
+- {path} — {what to change, e.g. add function to src/}
 
 ### Constraints
-- Obvious bug or tech debt directly on the path: document in "Changes along the way" and continue. If it's an architectural decision — also add to decisions.md.
-- Non-obvious change or affects architecture: stop. Describe the problem and options, wait for owner's choice.
+- Obvious data issue directly on the path (missing values, duplicates, target leakage) → fix it,
+  document in "Changes along the way". If it changes methodology — also add to decisions.md.
+- Non-obvious change to scope or methodology → stop. Describe options, wait for owner's choice.
 - {explicit prohibition}
 
 ### Verification
-- {automatable criterion — command or specific result}
+- {automatable criterion — e.g. notebook executes end-to-end without errors and saved with outputs}
 
 ### Changes along the way
 - {what was changed outside scope} — {why}
@@ -107,29 +122,37 @@ Edit:
 
 **Good plan rules:**
 
-- One plan — one coherent task. Touches more than three components — suggest splitting.
-- Explicit dependencies. If a task depends on something unimplemented — mark as blocker.
+- One plan — one coherent analysis. Covers more than three hypotheses — suggest splitting.
+- Explicit dependencies. If the analysis depends on data/features not yet prepared — mark as blocker.
 - Constraints over wishes. One hard prohibition beats three soft "preferably".
-- Verification must be automatable. "pytest passes" — good. "code is readable" — bad.
+- Verification must be automatable: notebook executes without errors (`jupyter nbconvert --execute`),
+  numbers in markdown cells match actual code output.
 
-### Developer mode
+### Analyst mode
 
-Triggered by **`/dev`**.
+Triggered by **`/analyze`**.
 
 In this mode you:
 
-- Create a `feature/<task-name>` branch from `dev` (if not already on a feature branch)
+- If the analysis is experimental (not yet ready for `main`) — create an `experiment/<task-name>`
+  branch; otherwise work directly in `main`
 - Read `.context/plan.md` and implement it
+- Use shared functions from `src/` instead of duplicating logic between notebooks — if the needed
+  function does not exist, add it to `src/`, do not duplicate logic in the notebook
 - Stay within the plan scope — do not expand independently
 - If you encounter uncertainty — stop and ask
-- Write tests for new code
-- After completion report what was done and what remains
+- Execute the notebook end-to-end before considering the task done — verify that numbers in
+  markdown cells match actual code output
+- After completion propose: `/record-finding`
 
-**Developer mode main rule:**
-If a problem outside the plan scope is found during implementation — two paths:
+**Analyst mode main rule:**
+If a problem outside the plan scope is found during analysis — two paths:
 
-- **Obvious bug or tech debt directly on the path** → fix it, document in `### Changes along the way` in `plan.md` (what and why). If it's an architectural decision — also add ADR to `decisions.md`.
-- **Non-obvious change or affects architecture** → stop. Describe the problem and options, wait for owner's choice.
+- **Obvious data issue directly on the path** (missing values, duplicates, target leakage) → fix
+  it, document in `### Changes along the way` in `plan.md`. If it changes the standard filter or
+  methodology — also add to `decisions.md`.
+- **Non-obvious change to scope or methodology** → stop. Describe the problem and options, wait for
+  owner's choice.
 
 ---
 
@@ -138,39 +161,50 @@ If a problem outside the plan scope is found during implementation — two paths
 | Command | Action |
 | --- | --- |
 | `/organize` | Switch to Organizer mode |
-| `/architect` | Switch to Architect mode |
+| `/architect` | Switch to Analytics Architect mode |
 | `/next` | Architect mode: first incomplete item from `.context/to-do.md` |
-| `/record` | Add ADR to `.context/decisions.md` |
-| `/dev` | Switch to Developer mode — implement `.context/plan.md` |
-| `/close` | Merge feature branch, close the task |
-| `/report` | Archive and write new `.context/status.md` |
-| `/sync` | Compare code with documentation, suggest changes |
-| `/retro` | Retrospective: analyze history → write discussion → propose actions |
+| `/record` | Add decision to `.context/decisions.md` |
+| `/analyze` | Switch to Analyst mode — implement `.context/plan.md` |
+| `/record-finding` | Record finding to `.context/findings.md` |
+| `/snapshot` | Archive and write new `.context/status.md` |
+| `/report` | Generate markdown analytical report → `outputs/report-{date}.md` |
+| `/present jupyter` | Generate presentation notebook → `outputs/presentation.ipynb` |
+| `/present html` | Export presentation to HTML slides → `outputs/presentation.html` |
+| `/close` | Merge `experiment/*` branch into `main` (ff-only) |
+| `/retro` | Retrospective: analyse history → discussion file → actions |
 | `/commit` | Show diff → confirm → commit |
 
 ---
 
-## Key architecture rules
+## Key analysis rules
 
-{ARCHITECTURE_RULES}
+{ANALYSIS_RULES}
 {Example:}
-{**1. Business logic — not in routers.**}
-{Routers: receive request → call service → return response.}
+{**1. Always check findings across key segments before generalising.**}
+{If the data has natural segmentation (e.g. internal risk score, cohort, channel) — a finding on}
+{the full sample may not reproduce or may reverse within a segment. Before recording as "confirmed"}
+{in findings.md — check on at least 2–3 slices.}
 
-{**2. State — in {STATE_STORAGE}.**}
-{Do not store in process memory.}
+{**2. Be cautious with post-hoc features.**}
+{If a feature is computed after the event being analysed (e.g. after the decision the analysis}
+{is trying to improve) — it may partially "know" the outcome. Mark such features in blueprint.md}
+{and check for leakage separately.}
 
-{Add rules specific to your project.}
+{**3. Before trusting a finding on the last N periods — check for censoring.**}
+{Recent data may be structurally incomplete (the target variable has not yet resolved).}
+
+{Add rules specific to your domain.}
 
 ---
 
 ## Branching conventions
 
-- Model: `main` / `dev` / `feature/<name>` / `hotfix/<name>`
-- Merges only via ff-only — rebase onto target branch before merging
-- `feature/*` → `dev` (automatically via `/close`)
-- `hotfix/*` → `main` (automatically via `/close`), then `dev` is rebased manually
-- `dev` → `main` — manually only, release decision
+- Model: `main` / `experiment/<name>` / `hotfix/<name>`
+- All regular analyses — directly in `main`
+- `experiment/<name>` — only for hypotheses not yet ready for `main` (risky exploration)
+- Merges only via ff-only — rebase onto `main` before merging
+- `experiment/*` → `main` (via `/close`)
+- `hotfix/*` → `main` (via `/close`), then rebase manually if needed
 - CC never does `git push` without explicit request
 
 ---
@@ -178,15 +212,24 @@ If a problem outside the plan scope is found during implementation — two paths
 ## Environment and commands
 
 {RUNTIME_SETUP}
-{Example for Python/uv:}
-{| Command | Purpose |}
-{| --- | --- |}
-{| `uv sync` | Install dependencies |}
-{| `uv run pytest` | Run tests |}
 
-{Example for Node:}
-{| `npm install` | Install dependencies |}
-{| `npm test` | Run tests |}
+| Command | Purpose |
+| --- | --- |
+| `uv sync` | Install dependencies |
+| `uv run jupyter lab` | Start Jupyter Lab |
+| `uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb` | Execute notebook and verify it does not fail |
+| `uv run pytest` | Run tests for `src/` |
+
+---
+
+## Notebook conventions
+
+- Naming: `notebooks/NN-short-name.ipynb` where `NN` is a sequence number (`01`, `02`, ...)
+- One notebook — one coherent analysis (corresponds to one `plan.md`)
+- Each notebook must be self-contained: explicitly declares data sources and filters at the top,
+  does not rely on state from other notebooks
+- Before committing: execute end-to-end (`Restart & Run All` / `nbconvert --execute`) and verify
+  that numbers in markdown cells match actual code output
 
 ---
 
@@ -194,8 +237,9 @@ If a problem outside the plan scope is found during implementation — two paths
 
 {CODE_CONVENTIONS}
 {Example:}
-{- Type hints everywhere}
-{- Commits: `type: description` — types: feat, fix, refactor, docs, test, chore}
+{- Reusable logic (data loading, standard filter, statistical tests, feature engineering)}
+{  — in `src/` only, do not duplicate between notebooks}
+{- Commits: `type: description` — types: analysis, finding, fix, refactor, docs, chore}
 
 ---
 
@@ -214,8 +258,7 @@ If a problem outside the plan scope is found during implementation — two paths
 
 {List environment variables or reference `.env.example`.}
 {Example:}
-{- `DATABASE_URL` — database connection string}
-{- `SECRET_KEY` — application secret key}
+{- `DATA_SOURCE_PATH` — path or connection string to data source}
 
 ---
 
@@ -223,20 +266,28 @@ If a problem outside the plan scope is found during implementation — two paths
 
 ```text
 {PROJECT_STRUCTURE}
-{Example:}
-{src/}
-{  {module_1}/}
-{  {module_2}/}
-{.claude/}
-{  index.md}
-{  skills/}
-{    meta/    ← workflow}
-{    project/ ← technical conventions}
-{tests/}
-{.context/}
-{  blueprint.md / status.md / to-do.md / plan.md / decisions.md}
-{  history/     ← status.md archive (not in CC context)}
-{  discussions/ ← discussions and research}
+notebooks/
+  NN-short-name.ipynb
+src/
+  analysis_utils.py   ← reusable functions: loading, filters, tests, models
+  {module}.py
+data/
+  README.md           ← where to get data, versions, provenance (data files — NOT in git)
+outputs/
+  report-{date}.md    ← analytical report (/report)
+  presentation.ipynb  ← presentation notebook (/present jupyter)
+  presentation.html   ← HTML slides (/present html)
+.claude/
+  index.md
+  skills/
+    meta/    ← workflow
+    project/ ← technical project conventions (if needed)
+.context/
+  blueprint.md / methodology.md / findings.md / status.md
+  to-do.md / plan.md / decisions.md
+  history/     ← status.md archive
+  discussions/ ← discussions and research
+  notes/       ← personal notes, not committed
 ```
 
 ---
@@ -244,3 +295,4 @@ If a problem outside the plan scope is found during implementation — two paths
 ## Current state
 
 Current state — in `.context/status.md`.
+Current findings and their status — in `.context/findings.md`.

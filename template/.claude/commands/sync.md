@@ -1,1 +1,1 @@
-Read `.claude/skills/meta/cc-architect-sync.md` and execute the algorithm.
+Read `.claude/skills/meta/cc-finding-sync.md` and execute the algorithm.

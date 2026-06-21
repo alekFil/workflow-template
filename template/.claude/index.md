@@ -1,50 +1,60 @@
 # .claude/index.md — {PROJECT_NAME} Documentation Map
 
-This file is the entry point for documentation. Read it first.
+Entry point for CC. Read this file first.
 Load only the files needed for the current task.
 
 ---
 
-## Architecture and project state
+## Data, methodology, and project state
 
 | File | When to read |
 | --- | --- |
-| `.context/blueprint.md` | Before a task touching architecture, components, or infrastructure |
-| `.context/status.md` | When you need to understand what has been implemented |
+| `.context/blueprint.md` | Before a task touching data, schema, preparation pipeline |
+| `.context/methodology.md` | Before a new statistical test or model |
+| `.context/findings.md` | Always at session start — what has been found and with what status |
+| `.context/status.md` | When you need to understand what has been analysed |
 | `.context/to-do.md` | When you need to understand what to do next |
-| `.context/plan.md` | Before implementation — the current task |
-| `.context/decisions.md` | When you need to understand why a decision was made |
+| `.context/plan.md` | Before analysis — current task |
+| `.context/decisions.md` | When you need to understand why a scope/method decision was made |
+| `data/README.md` | Before working with data — where to get it, which version is current |
 
 ---
 
 ## Slash commands
 
-Each file in `.claude/commands/` defines a CC slash command invoked by the project owner.
+Each file in `.claude/commands/` defines a CC slash command.
 
 | Command | File | Description |
 | --- | --- | --- |
 | `/organize` | `commands/organize.md` | Organizer mode |
-| `/architect` | `commands/architect.md` | Architect mode — plan |
+| `/architect` | `commands/architect.md` | Analytics Architect mode — plan |
 | `/next` | `commands/next.md` | First incomplete task |
-| `/record` | `commands/record.md` | Add ADR |
-| `/dev` | `commands/dev.md` | Developer mode — implement |
+| `/record` | `commands/record.md` | Add decision |
+| `/analyze` | `commands/analyze.md` | Analyst mode — implement |
+| `/record-finding` | `commands/record-finding.md` | Record finding to findings.md |
+| `/snapshot` | `commands/snapshot.md` | Update status.md |
+| `/report` | `commands/report.md` | Generate analytical report |
+| `/present` | `commands/present.md` | Generate presentation (jupyter / html) |
 | `/commit` | `commands/commit.md` | Commit changes |
-| `/close` | `commands/close.md` | Merge and close branch |
-| `/report` | `commands/report.md` | Update status.md |
-| `/sync` | `commands/sync.md` | Sync docs with code |
+| `/close` | `commands/close.md` | Merge experiment/* into main |
+| `/retro` | `commands/retro.md` | Retrospective |
 
 ---
 
 ## Meta-skills (workflow algorithms)
 
-Detailed algorithms backing the workflow commands. Read via the corresponding command file.
+Read the corresponding skill when the owner triggers the command.
 
-| File | Used by |
+| File | Triggered by |
 | --- | --- |
-| `.claude/skills/meta/cc-status-report.md` | `/report` |
-| `.claude/skills/meta/cc-architect-sync.md` | `/sync` |
+| `.claude/skills/meta/cc-status-report.md` | `/snapshot` |
+| `.claude/skills/meta/cc-finding-sync.md` | `/sync` |
+| `.claude/skills/meta/cc-record-finding.md` | `/record-finding` |
+| `.claude/skills/meta/cc-report.md` | `/report` |
+| `.claude/skills/meta/cc-present.md` | `/present` |
 | `.claude/skills/meta/cc-commit.md` | `/commit` |
 | `.claude/skills/meta/cc-close-task.md` | `/close` |
+| `.claude/skills/meta/cc-retrospective.md` | `/retro` |
 
 ---
 
