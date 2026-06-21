@@ -1,6 +1,7 @@
 # workflow-template — CLAUDE.md
 
 **Language:**
+
 - Communication: Russian
 - `.context/` files: Russian
 - Code comments: English
