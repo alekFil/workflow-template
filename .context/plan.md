@@ -1,196 +1,116 @@
-## Task: Добавить команду /retro (ретроспектива) в workflow-template
+## Task: Добавить явную настройку языка в установщик и CLAUDE.md
 
 ### Context
 
-Новая bounded-операция (как /commit, /report) — не постоянный режим.
-Читает все источники истории проекта, строит анализ, предъявляет черновик пользователю,
-вносит правки, затем записывает discussion-файл и предлагает конкретные действия.
+Сейчас `template/CLAUDE.md` содержит расплывчатую инструкцию "respond in the user's language",
+которая заставляет Claude угадывать язык. Нужно сделать язык явной конфигурацией:
+задавать вопросы при установке и вписывать конкретные значения в CLAUDE.md.
 
-Не дублирует /sync: тот проверяет соответствие кода и документации,
-/retro анализирует процесс и паттерны работы.
+Воркфлоу-документы (`.claude/`, skills, команды) — всегда English (invariant, без плейсхолдера).
+Три настраиваемые оси: общение, контекст, комментарии в коде.
 
 Depends on: —
 
 ### Что реализовать
 
-1. Написать алгоритм скила `.claude/skills/meta/cc-retrospective.md`
-2. Создать команду-триггер `.claude/commands/retro.md`
-3. Скопировать оба файла в `template/`
-4. Добавить `/retro` в таблицу команд `CLAUDE.md` (maintainer)
-5. Добавить `/retro` в таблицу команд `template/CLAUDE.md`
-6. Добавить `/retro` в `template/WORKFLOW.md` — таблица + "Typical workday"
+1. Добавить в `template/CLAUDE.md` секцию Language с тремя плейсхолдерами, убрать упоминание языка из `{CODE_CONVENTIONS}`
+2. Обновить `CLAUDE.md` (root) — ту же секцию с реальными значениями (ru / ru / English)
+3. Добавить в `scripts/install.sh` блок вопросов о языке и подстановку трёх плейсхолдеров
 
 ### Files
 
-Создать:
-- `.claude/skills/meta/cc-retrospective.md`
-- `.claude/commands/retro.md`
-- `template/.claude/skills/meta/cc-retrospective.md`
-- `template/.claude/commands/retro.md`
-
 Редактировать:
-- `CLAUDE.md` — строка `/retro` в таблице slash commands
-- `template/CLAUDE.md` — строка `/retro` в таблице slash commands
-- `template/WORKFLOW.md` — строка в таблице + пункт 7 в "Typical workday"
+- `template/CLAUDE.md` — строка 6: заменить на явную Language-секцию с 3 плейсхолдерами; строка 193: убрать `{- Comment language: English}` из `{CODE_CONVENTIONS}`
+- `CLAUDE.md` — строка 3: заменить на ту же Language-секцию с реальными значениями
+- `scripts/install.sh` — добавить блок языковых вопросов после вопроса о PROJECT_NAME (≈ строка 57), добавить 3 `sed`-подстановки в блок "Fill placeholders" (≈ строка 134)
 
-### Целевое содержимое: .claude/commands/retro.md
-
-```text
-Read `.claude/skills/meta/cc-retrospective.md` and execute the algorithm.
-```
-
-### Целевое содержимое: .claude/skills/meta/cc-retrospective.md
+### Целевой вид Language-секции в template/CLAUDE.md
 
 ```markdown
-# Skill: Retrospective
+**Language:**
+- Communication: {COMMUNICATION_LANGUAGE}
+- `.context/` files: {CONTEXT_LANGUAGE}
+- Code comments: {CODE_COMMENTS_LANGUAGE}
+- Workflow docs (`.claude/`, skills, commands): English
+```
 
-Triggered by: `/retro`
-
----
-
-## What it does
-
-Analyzes project history: decisions, completed work, git commits.
-Produces a structured retrospective discussion and proposes concrete actions.
-
-Hybrid: CC builds the analysis, presents a draft, incorporates user corrections,
-then writes the result and proposes updates to to-do.md and decisions.md.
-
----
-
-## Algorithm
-
-### 1. Gather inputs
-
-Read:
-- `.context/decisions.md` — architectural decisions and rationale
-- `.context/status.md` — current implementation snapshot
-- `.context/history/*.md` — previous status snapshots (if any)
-- `.context/to-do.md` — task queue: completed vs pending
-- `git log --oneline -50` — recent commit history
-
-### 2. Analyze across four dimensions
-
-**What went well:**
-- Decisions that held up (not revised or superseded)
-- Tasks completed without blockers
-- Patterns that reduced friction
-
-**What was difficult:**
-- Blocked or stalled tasks
-- Decisions that were revisited or reversed
-- Recurring uncertainty types
-
-**Patterns and observations:**
-- Themes across ADRs (what kinds of decisions keep coming up?)
-- Ratio of planned vs unplanned work
-- Scope drift signals
-
-**Proposed actions:**
-- Concrete items for to-do.md
-- Learnings worth recording as ADRs
-
-### 3. Present draft
-
-Output structured analysis and ask:
-
-> Что добавить или изменить?
-
-### 4. Incorporate feedback
-
-Apply user corrections. If the user confirms without changes — proceed.
-
-### 5. Write discussion file
-
-Create `.context/discussions/retro-YYYY-MM-DD.md` (use today's date):
+### Целевой вид Language-секции в CLAUDE.md (root)
 
 ```markdown
-# Ретроспектива YYYY-MM-DD
-
-## Что шло хорошо
-
-## Что было трудно
-
-## Паттерны и наблюдения
-
-## Действия
+**Language:**
+- Communication: Russian
+- `.context/` files: Russian
+- Code comments: English
+- Workflow docs (`.claude/`, skills, commands): English
 ```
 
-Report: "Записано в `.context/discussions/retro-YYYY-MM-DD.md`"
+### Целевой флоу install.sh
 
-### 6. Propose to-do updates
+```bash
+# --- Language ---
+echo ""
+read -p "One language for everything (English), or configure per area? [one/multi]: " LANG_MODE <"$TTY"
 
-For each proposed action — ask for confirmation separately, then apply:
-
-```text
-Добавить в to-do.md:
-- {action item}
-Добавить? (да / пропустить)
+if [[ "$LANG_MODE" == "multi" ]]; then
+    echo "  (Workflow docs are always in English)"
+    read -p "  Communication language (ru/en/...): " COMM_LANG <"$TTY"
+    read -p "  .context/ files language (ru/en/...): " CONTEXT_LANG <"$TTY"
+    read -p "  Code comments language (ru/en/...): " CODE_LANG <"$TTY"
+else
+    COMM_LANG="English"
+    CONTEXT_LANG="English"
+    CODE_LANG="English"
+fi
 ```
 
-### 7. Propose ADR entries
-
-If retrospective surfaced learnings that merit architectural decisions,
-propose each separately:
-
-```text
-Добавить ADR:
-{title and brief rationale}
-Добавить? (да / пропустить)
+В summary перед подтверждением добавить:
+```bash
+echo "  Communication: $COMM_LANG"
+echo "  Context files: $CONTEXT_LANG"
+echo "  Code comments: $CODE_LANG"
+echo "  Workflow docs: English"
 ```
 
-If confirmed — add directly to `.context/decisions.md`.
-```
-
-### Строка для таблицы команд (CLAUDE.md и template/CLAUDE.md)
-
-```text
-| `/retro` | Ретроспектива: анализ истории → discussion-файл → действия |
-```
-
-### Добавление в template/WORKFLOW.md
-
-В таблицу команд добавить строку:
-```text
-| `/retro` | Analyze project history → write discussion → propose to-do and ADR updates |
-```
-
-В секцию "Typical workday" добавить пункт 7 после пункта 6:
-```text
-7. Periodically — retrospective
-   → /retro
-   CC reads decisions, history, git log — presents analysis draft
-   You correct → CC writes .context/discussions/retro-YYYY-MM-DD.md
-   Proposes to-do and ADR updates with per-item confirmation
+В блок подстановок:
+```bash
+find . -name "*.md" -not -path "./.git/*" \
+    -exec sed -i "s|{COMMUNICATION_LANGUAGE}|$COMM_LANG|g" {} +
+find . -name "*.md" -not -path "./.git/*" \
+    -exec sed -i "s|{CONTEXT_LANGUAGE}|$CONTEXT_LANG|g" {} +
+find . -name "*.md" -not -path "./.git/*" \
+    -exec sed -i "s|{CODE_COMMENTS_LANGUAGE}|$CODE_LANG|g" {} +
 ```
 
 ### Constraints
 
-- Скил не меняет файлы без подтверждения пользователя
-- to-do.md и decisions.md — обновляются только после явного "да" по каждому пункту
-- Команда `retro.md` — одна строка, как у всех остальных команд
-- Файл ретроспективы — только в `.context/discussions/`, формат имени `retro-YYYY-MM-DD.md`
-- `template/CLAUDE.md` содержит `{PLACEHOLDERS}` — не трогать их, только добавлять строку в таблицу
+- `CLAUDE.md` (root) — реальные значения, не плейсхолдеры
+- Воркфлоу-язык не является плейсхолдером — он хардкодится как "English" в обоих файлах
+- `{CODE_CONVENTIONS}` в template/CLAUDE.md: убрать только строку `{- Comment language: English}`, остальные примеры не трогать
+- Не менять порядок существующих вопросов в install.sh — языковой блок вставляется сразу после PROJECT_NAME, до вопросов о hide/commit
+- Переменные `COMM_LANG`, `CONTEXT_LANG`, `CODE_LANG` должны иметь значение по умолчанию до summary, даже если пользователь не ввёл ничего (обработать пустой ввод так же как `one`)
 
 ### Verification
 
 ```bash
-# Файлы созданы
-ls .claude/commands/retro.md .claude/skills/meta/cc-retrospective.md
-ls template/.claude/commands/retro.md template/.claude/skills/meta/cc-retrospective.md
+# Плейсхолдеры присутствуют в template
+grep "COMMUNICATION_LANGUAGE\|CONTEXT_LANGUAGE\|CODE_COMMENTS_LANGUAGE" template/CLAUDE.md
 
-# Команды зарегистрированы
-grep -n "retro" CLAUDE.md
-grep -n "retro" template/CLAUDE.md
-grep -n "retro" template/WORKFLOW.md
+# Старая расплывчатая строка удалена из обоих файлов
+grep "user's language" template/CLAUDE.md CLAUDE.md
+# ожидаемый вывод: пусто
 
-# Формат команды
-cat .claude/commands/retro.md
-# ожидаемый вывод: одна строка с путём к скилу
+# Реальные значения в root CLAUDE.md
+grep "Russian\|English" CLAUDE.md | head -5
 
-# Плейсхолдеры не тронуты
-grep -n "PLACEHOLDERS" template/CLAUDE.md | wc -l
-# должно быть столько же, сколько до изменений
+# Comment language убрана из CODE_CONVENTIONS
+grep "Comment language" template/CLAUDE.md
+# ожидаемый вывод: пусто
+
+# Подстановки добавлены в install.sh
+grep "COMMUNICATION_LANGUAGE\|CONTEXT_LANGUAGE\|CODE_COMMENTS_LANGUAGE" scripts/install.sh
+
+# Языковой блок вопросов есть в install.sh
+grep "one/multi\|LANG_MODE\|COMM_LANG" scripts/install.sh
 ```
 
 ### Changes along the way
