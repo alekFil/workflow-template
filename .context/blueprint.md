@@ -38,10 +38,11 @@
 | ADR-013 | `install.sh`: опциональные коммит и dev-ветка; `uninstall.sh` — полное удаление ассистента |
 | ADR-014 | OSS-публикация: перевод, слэш-команды, демо; отказ от Cookiecutter |
 | ADR-015 | Удалён `template/.markdownlint.json` из шаблонного слоя |
-| ADR-016 | Ветка `oss`; «Respond in the user's language»; слэш-команды в шаблоне реализованы вместе с переводом |
+| ADR-016 | Ветка `oss`; «Respond in the user's language»; слэш-команды в шаблоне реализованы вместе с переводом. Языковое правило заменено в части ADR-020 |
 | ADR-017 | Переименование `/status` → `/report` (конфликт со встроенной командой CC) |
 | ADR-018 | Мейнтейнерский слой переведён на английский; слэш-команды добавлены в `.claude/commands/` |
 | ADR-019 | `/retro` добавлен как регулярный инструмент рабочего процесса; hybrid-mode: CC анализирует историю, пользователь корректирует черновик |
+| ADR-020 | Явная языковая настройка в установщике: 3 плейсхолдера, вопрос [one/multi], workflow docs всегда English |
 
 ---
 
@@ -82,11 +83,11 @@
 
 1. Проверяет зависимости (`git`, `curl`, `tar`) и наличие `.git`
 2. При непустой директории показывает список перезаписываемых файлов, запрашивает подтверждение
-3. Интерактивно запрашивает: название проекта, remote URL
+3. Интерактивно запрашивает: название проекта, remote URL, языковой режим [one/multi] и до трёх языковых настроек
 4. Спрашивает: скрыть файлы ассистента (→ `.git/info/exclude`), скрыть из коммитов (→ `.claude/settings.json`)
 5. Спрашивает: создать начальный коммит? (дефолт `n`), создать ветку `dev`? (дефолт `n`)
 6. Скачивает `template/` из репо через GitHub tar.gz
-7. Заполняет `{PROJECT_NAME}` во всех `.md`
+7. Заполняет плейсхолдеры во всех `.md`: `{PROJECT_NAME}`, `{COMMUNICATION_LANGUAGE}`, `{CONTEXT_LANGUAGE}`, `{CODE_COMMENTS_LANGUAGE}`
 8. Дополняет `.gitignore` с маркером `# workflow-template:start/end` (не перезаписывает)
 9. Применяет выбранные настройки видимости
 10. Привязывает remote (если указан)
@@ -132,7 +133,7 @@ CLAUDE.md ← .claude/skills/meta/ (файлы скиллов)
 template/CLAUDE.md ← template/.claude/commands/
 template/CLAUDE.md ← template/.claude/index.md
 template/CLAUDE.md ← template/.claude/skills/meta/
-scripts/install.sh → template/ (скачивает и разворачивает шаблонный слой)
+scripts/install.sh → template/ (скачивает и разворачивает шаблонный слой; подставляет 4 плейсхолдера: PROJECT_NAME + 3 языковых)
 scripts/uninstall.sh → .claude/, .context/, memory/, CLAUDE.md, WORKFLOW.md, .gitignore, .git/info/exclude
 .claude/commands/retro.md → .claude/skills/meta/cc-retrospective.md
 template/.claude/commands/retro.md → template/.claude/skills/meta/cc-retrospective.md
@@ -153,4 +154,5 @@ template/.claude/commands/retro.md → template/.claude/skills/meta/cc-retrospec
 - Направление OSS-публикации зафиксировано: перевод + слэш-команды + демо (ADR-014)
 - Перевод мейнтейнерского слоя на английский, слэш-команды в `.claude/commands/` (ADR-015, ADR-016, ADR-017, ADR-018)
 - `/retro` реализован в обоих слоях: скилл + команда + обновление CLAUDE.md и WORKFLOW.md (ADR-019)
+- Явная языковая настройка при установке: 3 плейсхолдера в `template/CLAUDE.md`, вопрос [one/multi] в `install.sh` (ADR-020)
 - `memory/` — персистентная память CC, документирована и включена в uninstall.sh

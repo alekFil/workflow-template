@@ -64,6 +64,7 @@
 - [x] `template-mini` отклонён — поддерживать два параллельных шаблона нецелесообразно (ADR-010)
 - [x] Cookiecutter отклонён — продукт workflow-слой, не project starter (ADR-003 → ADR-014)
 - [x] `.context/notes/` исключена из git в обоих слоях, описана в WORKFLOW.md (ADR-011)
+- [x] Явная языковая настройка: 3 плейсхолдера в `template/CLAUDE.md`, вопрос [one/multi] в `install.sh`, Language-секция в обоих `CLAUDE.md` (ADR-020)
 
 ---
 
