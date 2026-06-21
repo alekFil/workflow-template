@@ -42,6 +42,14 @@ The decision to sync between them is always intentional.
 
 ---
 
+## CC persistent memory
+
+Claude Code automatically creates a `memory/` directory in the repo root to store
+persistent context between sessions. It is excluded from git via `.gitignore` and
+removed by `scripts/uninstall.sh`. No manual management needed — CC handles it automatically.
+
+---
+
 ## What NOT to touch
 
 - All `{PLACEHOLDERS}` in `template/` — do not fill with real data

@@ -21,6 +21,7 @@ fi
 TO_DELETE=()
 [ -d ".claude" ]     && TO_DELETE+=(".claude/")
 [ -d ".context" ]    && TO_DELETE+=(".context/")
+[ -d "memory" ]      && TO_DELETE+=("memory/")
 [ -f "CLAUDE.md" ]   && TO_DELETE+=("CLAUDE.md")
 [ -f "WORKFLOW.md" ] && TO_DELETE+=("WORKFLOW.md")
 

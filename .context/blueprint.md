@@ -37,6 +37,11 @@
 | ADR-012 | `install.sh`: безопасный `.gitignore` (дополнение с маркером), управление видимостью ассистента |
 | ADR-013 | `install.sh`: опциональные коммит и dev-ветка; `uninstall.sh` — полное удаление ассистента |
 | ADR-014 | OSS-публикация: перевод, слэш-команды, демо; отказ от Cookiecutter |
+| ADR-015 | Удалён `template/.markdownlint.json` из шаблонного слоя |
+| ADR-016 | Ветка `oss`; «Respond in the user's language»; слэш-команды в шаблоне реализованы вместе с переводом |
+| ADR-017 | Переименование `/status` → `/report` (конфликт со встроенной командой CC) |
+| ADR-018 | Мейнтейнерский слой переведён на английский; слэш-команды добавлены в `.claude/commands/` |
+| ADR-019 | `/retro` добавлен как регулярный инструмент рабочего процесса; hybrid-mode: CC анализирует историю, пользователь корректирует черновик |
 
 ---
 
@@ -50,9 +55,11 @@
 - `CONTRIBUTION.md` — руководство мейнтейнера: рабочий цикл, синхронизация улучшений
 - `SETUP.md` — инструкция по развёртыванию шаблона
 - `.claude/index.md` — навигатор CC для мейнтейнерского контекста
-- `.claude/skills/meta/` — четыре мета-скилла рабочего процесса
+- `.claude/commands/` — 10 файлов слэш-команд (ADR-018)
+- `.claude/skills/meta/` — пять мета-скиллов рабочего процесса (ADR-019)
 - `.context/` — рабочая документация мейнтейнера (blueprint, status, plan, to-do, decisions)
 - `.context/notes/` — личные заметки владельца (не коммитятся, исключены через `.gitignore`)
+- `memory/` — персистентная память CC между сессиями (создаётся автоматически, не коммитится, исключена через `.gitignore`)
 - `scripts/install.sh` — curl-установка шаблона для пользователей
 - `scripts/uninstall.sh` — удаление ассистента из проекта через curl
 
@@ -63,7 +70,8 @@
 - `template/CLAUDE.md` — CLAUDE.md для нового проекта (с `{ПЛЕЙСХОЛДЕРАМИ}`)
 - `template/WORKFLOW.md` — шпаргалка рабочего процесса для нового проекта
 - `template/.claude/index.md` — навигатор CC (с плейсхолдерами)
-- `template/.claude/skills/meta/` — копия четырёх мета-скиллов (независимая от мейнтейнерской)
+- `template/.claude/commands/` — 10 файлов слэш-команд (зеркало мейнтейнерского слоя)
+- `template/.claude/skills/meta/` — пять мета-скиллов (независимая копия мейнтейнерской)
 - `template/.context/` — документация для нового проекта (с плейсхолдерами)
 - `template/.context/notes/` — пустая директория для личных заметок (`.gitkeep`; `.gitignore` исключает `*.md`)
 - `template/.gitignore` — базовый gitignore для нового проекта
@@ -103,7 +111,7 @@ curl -fsSL .../scripts/install.sh | bash
 
 ```text
 сессия CC в workflow-template
-→ "что дальше" → "обсудим" → "начинаем реализацию" → "фиксируем"
+→ `/next` → `/architect` → `/dev` → `/commit`
 ```
 
 ### 4.3 Синхронизация улучшений из рабочих проектов
@@ -118,12 +126,16 @@ curl -fsSL .../scripts/install.sh | bash
 ## 5. Зависимости между компонентами
 
 ```text
-CLAUDE.md ← .claude/skills/meta/ (ключевые фразы → скиллы)
+CLAUDE.md ← .claude/commands/ (слэш-команды → режимы/скиллы)
 CLAUDE.md ← .claude/index.md (навигация)
-template/CLAUDE.md ← template/.claude/skills/meta/
+CLAUDE.md ← .claude/skills/meta/ (файлы скиллов)
+template/CLAUDE.md ← template/.claude/commands/
 template/CLAUDE.md ← template/.claude/index.md
+template/CLAUDE.md ← template/.claude/skills/meta/
 scripts/install.sh → template/ (скачивает и разворачивает шаблонный слой)
-scripts/uninstall.sh → .claude/, .context/, CLAUDE.md, WORKFLOW.md, .gitignore, .git/info/exclude
+scripts/uninstall.sh → .claude/, .context/, memory/, CLAUDE.md, WORKFLOW.md, .gitignore, .git/info/exclude
+.claude/commands/retro.md → .claude/skills/meta/cc-retrospective.md
+template/.claude/commands/retro.md → template/.claude/skills/meta/cc-retrospective.md
 ```
 
 ---
@@ -139,3 +151,6 @@ scripts/uninstall.sh → .claude/, .context/, CLAUDE.md, WORKFLOW.md, .gitignore
 - `install.sh` безопасен для существующих проектов: `.gitignore` дополняется, видимость ассистента настраивается (ADR-012)
 - Управление жизненным циклом: опциональный коммит/ветка, `uninstall.sh` для удаления (ADR-013)
 - Направление OSS-публикации зафиксировано: перевод + слэш-команды + демо (ADR-014)
+- Перевод мейнтейнерского слоя на английский, слэш-команды в `.claude/commands/` (ADR-015, ADR-016, ADR-017, ADR-018)
+- `/retro` реализован в обоих слоях: скилл + команда + обновление CLAUDE.md и WORKFLOW.md (ADR-019)
+- `memory/` — персистентная память CC, документирована и включена в uninstall.sh
