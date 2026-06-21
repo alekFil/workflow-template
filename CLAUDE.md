@@ -1,4 +1,4 @@
-# workflow-template — CLAUDE.md
+# analytics-workflow-template — CLAUDE.md
 
 **Language:**
 
@@ -8,20 +8,31 @@
 - Workflow docs (`.claude/`, skills, commands): English
 
 Context for Claude Code when working with this repository.
-This is a **meta-repo**: a workflow template for new projects.
+This is a **meta-repo**: a workflow template for analytical projects.
 
 ---
 
 ## About this repo
 
-`workflow-template` — a workflow template repository for Claude Code.
-Contains documentation structure, meta-skills, and CC instructions.
-Used as the foundation when starting a new project.
+`analytics-workflow-template` — a workflow template repository for Claude Code, specialised for
+data analysis projects (notebooks, empirical findings, statistical methodology).
+
+The `analytics` branch of `workflow-template`. Both branches are permanent and independent:
+
+| | `main` branch | `analytics` branch |
+| --- | --- | --- |
+| Target project | Software product | Data analysis |
+| Work artefact | Code + tests | Notebook + findings.md entry |
+| "Architecture" | `blueprint.md` — components, data flows | `blueprint.md` — data schema, pipeline + `methodology.md` — statistical conventions |
+| Key sync risk | Docs drift from code | Finding becomes invalid on new data |
+| Sync skill | `cc-architect-sync` | `cc-finding-sync` |
+| Branch model | `main`/`dev`/`feature/*` | `main`/`experiment/*` |
+| Output | Deployed code | Report / presentation |
 
 ### Two layers
 
 - **Maintainer** (root): `CLAUDE.md`, `CONTRIBUTION.md`, `.context/`, `.claude/`, `scripts/`
-- **Template** (`template/`): everything that goes into a new project when deployed via `scripts/install.sh`
+- **Template** (`template/`): everything that goes into a new analytics project via `scripts/install.sh`
 
 ---
 
@@ -50,16 +61,28 @@ scripts/
   decisions.md
   history/          ← status.md archive
   discussions/      ← discussions
-template/                        ← template layer (goes into new project)
+template/                        ← template layer (goes into new analytics project)
   CLAUDE.md
   WORKFLOW.md
+  pyproject.toml
   .claude/
     index.md
     commands/       ← slash commands
-    skills/meta/   ← independent copy of skills
+    skills/meta/   ← independent copy of skills (includes analytics-specific)
   .context/
-    blueprint.md / plan.md / to-do.md / status.md / decisions.md
-    history/ / discussions/
+    blueprint.md / methodology.md / findings.md
+    plan.md / to-do.md / status.md / decisions.md
+    history/ / discussions/ / notes/
+  data/
+    README.md       ← data provenance (data files not in git)
+  notebooks/
+    README.md
+  src/
+    README.md
+    analysis_utils.py  ← ready-to-use statistical functions
+  tests/
+    test_analysis_utils.py
+  outputs/          ← exported reports and presentations
 ```
 
 ---
@@ -68,7 +91,7 @@ template/                        ← template layer (goes into new project)
 
 | Need | Where to look |
 | --- | --- |
-| Template for new project | `template/` |
+| Template for new analytics project | `template/` |
 | Deployment instructions | `SETUP.md` |
 | How to work with this repo | `CONTRIBUTION.md` |
 | What's planned for improvement | `.context/to-do.md` |
@@ -125,21 +148,18 @@ In this mode you:
 | `/next` | Architect mode: first incomplete item from `.context/to-do.md` |
 | `/record` | Add ADR to `.context/decisions.md` |
 | `/dev` | Switch to Developer mode — implement `.context/plan.md` |
-| `/close` | Merge feature branch, close the task |
 | `/report` | Archive and write new `.context/status.md` |
 | `/sync` | Compare documentation with implementation, suggest changes |
-| `/retro` | Ретроспектива: анализ истории → discussion-файл → действия |
+| `/retro` | Retrospective: analyse history → discussion file → actions |
 | `/commit` | Show diff → confirm → commit |
 
 ---
 
 ## Branching conventions
 
-- Model: `main` / `dev` / `feature/<name>` / `hotfix/<name>`
-- Merges only via ff-only — rebase onto target branch before merging
-- `feature/*` → `dev` (via `/close`)
-- `dev` → `main` — manually only
+- Maintainer branches: `feature/<name>` → `dev` → `main` (same as `workflow-template`)
 - CC never does `git push` without explicit request
+- The `analytics` branch itself is never merged back into `main`
 
 ---
 
@@ -158,12 +178,17 @@ In this mode you:
 
 ### Syncing improvements from real projects
 
-If a skill or workflow improvement appeared in a working project and you want to bring it into the template:
+If a skill or workflow improvement appeared in a working analytics project:
 
 1. Open a session with this repo
 2. Manually transfer the change:
-   - Skill → `.claude/skills/meta/` and/or `template/.claude/skills/meta/`
-   - CLAUDE.md → `template/CLAUDE.md`
+   - General skill (`cc-commit`, `cc-close-task`, `cc-status-report`) →
+     `.claude/skills/meta/` **and** `template/.claude/skills/meta/` (both copies)
+   - Analytics skill (`cc-record-finding`, `cc-finding-sync`, `cc-report`, `cc-present`) →
+     `template/.claude/skills/meta/` **only** — these have no equivalent in the maintainer layer
+   - `CLAUDE.md` improvement → `template/CLAUDE.md`
+   - Reusable statistical function proven across several projects →
+     `template/src/analysis_utils.py` + test in `template/tests/`
 3. Commit: `/commit`
 
 ### Skill versioning
@@ -173,6 +198,8 @@ Skills are not explicitly versioned. Change history — in git log and `.context
 ### What NOT to touch
 
 - All files in `template/` keep `{PLACEHOLDERS}` — do not fill with real data.
+- `template/src/analysis_utils.py` — working code, not a placeholder. Change only if a function
+  genuinely improves, with `template/tests/test_analysis_utils.py` passing.
 - `.context/history/` and `template/.context/history/` — empty folders (`.gitkeep`), needed for structure.
 
 ---

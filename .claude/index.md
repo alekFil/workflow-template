@@ -1,4 +1,4 @@
-# .claude/index.md — workflow-template Documentation Navigator
+# .claude/index.md — analytics-workflow-template Documentation Navigator
 
 Entry point for CC when working with this repo. Read first.
 Load only the files needed for the current task.
@@ -21,11 +21,12 @@ Load only the files needed for the current task.
 
 | File/folder | Purpose |
 | --- | --- |
-| `template/CLAUDE.md` | CLAUDE.md for a new project (with placeholders) |
-| `template/WORKFLOW.md` | Workflow quick reference for a new project |
-| `template/.claude/` | Commands, skills, and navigator for a new project |
-| `template/.context/` | Documentation for a new project (with placeholders) |
-| `scripts/install.sh` | curl template installation |
+| `template/CLAUDE.md` | CLAUDE.md for a new analytics project (with placeholders) |
+| `template/WORKFLOW.md` | Workflow quick reference for a new analytics project |
+| `template/.claude/` | Commands, skills, and navigator for a new analytics project |
+| `template/.context/` | Documentation for a new analytics project (with placeholders) |
+| `template/src/analysis_utils.py` | Reusable statistical functions (working code, not placeholder) |
+| `scripts/install.sh` | curl template installation (analytics branch) |
 
 ---
 
@@ -39,21 +40,23 @@ Each file in `.claude/commands/` defines a CC slash command.
 | `/architect` | `commands/architect.md` | Architect mode — plan |
 | `/next` | `commands/next.md` | First incomplete task |
 | `/record` | `commands/record.md` | Add ADR |
-| `/dev` | `commands/dev.md` | Developer mode — implement |
 | `/commit` | `commands/commit.md` | Commit changes |
-| `/close` | `commands/close.md` | Merge and close branch |
 | `/report` | `commands/report.md` | Update status.md |
-| `/sync` | `commands/sync.md` | Sync docs with code |
+| `/sync` | `commands/sync.md` | Sync docs with implementation |
+| `/retro` | `commands/retro.md` | Retrospective |
 
 ---
 
 ## Meta-skills (workflow algorithms)
 
 Detailed algorithms backing the workflow commands.
+Note: analytics-specific skills (`cc-record-finding`, `cc-finding-sync`, `cc-report`, `cc-present`)
+live only in `template/.claude/skills/meta/` — they are not needed at the maintainer level.
 
 | File | Used by |
 | --- | --- |
 | `.claude/skills/meta/cc-status-report.md` | `/report` |
 | `.claude/skills/meta/cc-architect-sync.md` | `/sync` |
 | `.claude/skills/meta/cc-commit.md` | `/commit` |
-| `.claude/skills/meta/cc-close-task.md` | `/close` |
+| `.claude/skills/meta/cc-close-task.md` | `/close` (feature/* → dev, maintainer only) |
+| `.claude/skills/meta/cc-retrospective.md` | `/retro` |

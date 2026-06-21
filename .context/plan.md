@@ -1,116 +1,77 @@
-## Task: Добавить явную настройку языка в установщик и CLAUDE.md
+## Task: Initialize `analytics` branch and adapt root-layer identity
 
 ### Context
 
-Сейчас `template/CLAUDE.md` содержит расплывчатую инструкцию "respond in the user's language",
-которая заставляет Claude угадывать язык. Нужно сделать язык явной конфигурацией:
-задавать вопросы при установке и вписывать конкретные значения в CLAUDE.md.
+`analytics` — постоянная параллельная ветка репозитория (не feature). `main` остаётся шаблоном для
+разработки ПО, `analytics` становится шаблоном для аналитических проектов. Ветки никогда не сливаются
+обратно — оба продукта живут в одном репо и разрабатываются независимо.
 
-Воркфлоу-документы (`.claude/`, skills, команды) — всегда English (invariant, без плейсхолдера).
-Три настраиваемые оси: общение, контекст, комментарии в коде.
+Эта задача (1 из 6) создаёт ветку и трансформирует **только корневой (мейнтейнерский) слой** — `CLAUDE.md`,
+`.context/`, `.claude/index.md`. Template-слой (`template/`) не трогается — это задачи 2–6.
 
 Depends on: —
 
-### Что реализовать
+### What to implement
 
-1. Добавить в `template/CLAUDE.md` секцию Language с тремя плейсхолдерами, убрать упоминание языка из `{CODE_CONVENTIONS}`
-2. Обновить `CLAUDE.md` (root) — ту же секцию с реальными значениями (ru / ru / English)
-3. Добавить в `scripts/install.sh` блок вопросов о языке и подстановку трёх плейсхолдеров
+1. Создать ветку `analytics` от текущего HEAD `main`
+2. Переписать `CLAUDE.md` — идентифицировать репо как analytics-variant: описание, сравнительная таблица
+   с `workflow-template`, структура (добавить `data/`, `notebooks/`, `src/`, `outputs/` в template-слое),
+   обновить список скиллов (в root — без `cc-record-finding`/`cc-finding-sync`, они только в `template/`)
+3. Адаптировать `CONTRIBUTION.md` — описание двух слоёв, правила синхронизации аналитических скиллов
+4. Адаптировать `SETUP.md` — упомянуть Python/uv, аналитику-специфичные next steps при развёртывании
+5. Переписать `.context/blueprint.md` — мета-репо контекст: что это, два слоя, связь с `main` веткой
+6. Переписать `.context/status.md` — начальное состояние analytics-ветки (что унаследовано, что ещё не сделано)
+7. Добавить ADR-021/022/023 в `.context/decisions.md` — уже записаны в ходе обсуждения; проверить
+   полноту и добавить недостающее
+8. Переписать `.context/to-do.md` — список из 6 задач для analytics-ветки (уже обновлён)
+9. Адаптировать `.claude/index.md` — обновить навигацию под analytics meta-repo контекст
 
 ### Files
 
-Редактировать:
-- `template/CLAUDE.md` — строка 6: заменить на явную Language-секцию с 3 плейсхолдерами; строка 193: убрать `{- Comment language: English}` из `{CODE_CONVENTIONS}`
-- `CLAUDE.md` — строка 3: заменить на ту же Language-секцию с реальными значениями
-- `scripts/install.sh` — добавить блок языковых вопросов после вопроса о PROJECT_NAME (≈ строка 57), добавить 3 `sed`-подстановки в блок "Fill placeholders" (≈ строка 134)
-
-### Целевой вид Language-секции в template/CLAUDE.md
-
-```markdown
-**Language:**
-- Communication: {COMMUNICATION_LANGUAGE}
-- `.context/` files: {CONTEXT_LANGUAGE}
-- Code comments: {CODE_COMMENTS_LANGUAGE}
-- Workflow docs (`.claude/`, skills, commands): English
-```
-
-### Целевой вид Language-секции в CLAUDE.md (root)
-
-```markdown
-**Language:**
-- Communication: Russian
-- `.context/` files: Russian
-- Code comments: English
-- Workflow docs (`.claude/`, skills, commands): English
-```
-
-### Целевой флоу install.sh
-
-```bash
-# --- Language ---
-echo ""
-read -p "One language for everything (English), or configure per area? [one/multi]: " LANG_MODE <"$TTY"
-
-if [[ "$LANG_MODE" == "multi" ]]; then
-    echo "  (Workflow docs are always in English)"
-    read -p "  Communication language (ru/en/...): " COMM_LANG <"$TTY"
-    read -p "  .context/ files language (ru/en/...): " CONTEXT_LANG <"$TTY"
-    read -p "  Code comments language (ru/en/...): " CODE_LANG <"$TTY"
-else
-    COMM_LANG="English"
-    CONTEXT_LANG="English"
-    CODE_LANG="English"
-fi
-```
-
-В summary перед подтверждением добавить:
-```bash
-echo "  Communication: $COMM_LANG"
-echo "  Context files: $CONTEXT_LANG"
-echo "  Code comments: $CODE_LANG"
-echo "  Workflow docs: English"
-```
-
-В блок подстановок:
-```bash
-find . -name "*.md" -not -path "./.git/*" \
-    -exec sed -i "s|{COMMUNICATION_LANGUAGE}|$COMM_LANG|g" {} +
-find . -name "*.md" -not -path "./.git/*" \
-    -exec sed -i "s|{CONTEXT_LANGUAGE}|$CONTEXT_LANG|g" {} +
-find . -name "*.md" -not -path "./.git/*" \
-    -exec sed -i "s|{CODE_COMMENTS_LANGUAGE}|$CODE_LANG|g" {} +
-```
+Edit:
+- `CLAUDE.md` — сменить описание репо; добавить сравнительную таблицу dev vs analytics; обновить
+  `Repo structure` (добавить `data/`, `notebooks/`, `src/`, `outputs/` в template-слой); обновить
+  `Maintaining this template` (правило про analytics-скиллы); оставить слэш-команды и язык (English)
+- `CONTRIBUTION.md` — обновить описание template-слоя; добавить правило: analytics-скиллы
+  (`cc-record-finding`, `cc-finding-sync`) — только в `template/`, не в корне
+- `SETUP.md` — обновить описание шаблона; добавить Python/uv в next steps; поправить первую фразу в
+  "First session" (cc читает analytics-specific файлы)
+- `.context/blueprint.md` — переписать: что такое analytics-workflow-template, два слоя, что добавилось
+  относительно workflow-template (findings, methodology, data provenance), связь с main веткой
+- `.context/status.md` — переписать: дата/ветка = analytics; что унаследовано от main; что ещё не
+  реализовано из аналитических задач (tasks 2–6)
+- `.context/decisions.md` — добавить ADR-021 в начало файла
+- `.context/to-do.md` — переписать под analytics: 6 задач, текущая = Task 1 (В работе)
+- `.claude/index.md` — обновить описание репо; убрать cc-architect-sync из analytics-context
+  (он остаётся в `.claude/skills/meta/` но не упоминается в навигаторе как основной инструмент)
 
 ### Constraints
 
-- `CLAUDE.md` (root) — реальные значения, не плейсхолдеры
-- Воркфлоу-язык не является плейсхолдером — он хардкодится как "English" в обоих файлах
-- `{CODE_CONVENTIONS}` в template/CLAUDE.md: убрать только строку `{- Comment language: English}`, остальные примеры не трогать
-- Не менять порядок существующих вопросов в install.sh — языковой блок вставляется сразу после PROJECT_NAME, до вопросов о hide/commit
-- Переменные `COMM_LANG`, `CONTEXT_LANG`, `CODE_LANG` должны иметь значение по умолчанию до summary, даже если пользователь не ввёл ничего (обработать пустой ввод так же как `one`)
+- НЕ трогать `template/` — это задачи 2–5
+- НЕ трогать `scripts/` — задача 6
+- НЕ трогать `.claude/skills/meta/` и `.claude/commands/` — корневые скиллы остаются без изменений
+- НЕ использовать `/close` для закрытия этой задачи — analytics не мержится в dev/main
+- После завершения: коммит прямо на ветке `analytics`, ветка живёт параллельно
+- Language-конвенция корневого CLAUDE.md не меняется: English workflow docs, Russian .context/
 
 ### Verification
 
 ```bash
-# Плейсхолдеры присутствуют в template
-grep "COMMUNICATION_LANGUAGE\|CONTEXT_LANGUAGE\|CODE_COMMENTS_LANGUAGE" template/CLAUDE.md
+# analytics-ветка создана
+git branch | grep analytics
 
-# Старая расплывчатая строка удалена из обоих файлов
-grep "user's language" template/CLAUDE.md CLAUDE.md
-# ожидаемый вывод: пусто
+# Идентификация репо верна
+grep "analytics-workflow-template\|analytics workflow" CLAUDE.md
 
-# Реальные значения в root CLAUDE.md
-grep "Russian\|English" CLAUDE.md | head -5
+# Сравнительная таблица присутствует
+grep "workflow-template.*analytics\|analytics.*workflow-template" CLAUDE.md
 
-# Comment language убрана из CODE_CONVENTIONS
-grep "Comment language" template/CLAUDE.md
-# ожидаемый вывод: пусто
+# ADR-021 добавлен
+grep "ADR-021" .context/decisions.md
 
-# Подстановки добавлены в install.sh
-grep "COMMUNICATION_LANGUAGE\|CONTEXT_LANGUAGE\|CODE_COMMENTS_LANGUAGE" scripts/install.sh
-
-# Языковой блок вопросов есть в install.sh
-grep "one/multi\|LANG_MODE\|COMM_LANG" scripts/install.sh
+# to-do.md содержит 6 аналитических задач
+grep "Task [1-6]" .context/to-do.md | wc -l
+# ожидаемый вывод: 6
 ```
 
 ### Changes along the way

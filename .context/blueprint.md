@@ -1,125 +1,105 @@
-# workflow-template — Blueprint
+# analytics-workflow-template — Blueprint
 
-> Живой технический референс. Отражает фактическую реализацию.
-> Обновляется командой "синхронизируем".
+> Живой технический референс. Отражает фактическую реализацию analytics-ветки.
+> Обновляется командой `/sync`.
 
 ---
 
-## 1. Обзор системы
+## 1. Обзор
 
-`workflow-template` — шаблонный репозиторий рабочего процесса для Claude Code.
-Содержит структуру документации, мета-скиллы и скрипт установки.
-Устанавливается через curl в новый git-репозиторий.
+`analytics-workflow-template` — шаблонный репозиторий рабочего процесса для аналитических проектов
+на Claude Code. Постоянная параллельная ветка (`analytics`) репозитория `workflow-template`.
+
+Ключевое отличие от `workflow-template` (ветка `main`):
+
+| Аспект | `main` (разработка) | `analytics` (аналитика) |
+| --- | --- | --- |
+| Артефакт задачи | Код + тесты | Ноутбук + запись в `findings.md` |
+| Главный риск | Документация расходится с кодом | Вывод перестаёт подтверждаться на новых данных |
+| Синхронизирующий скилл | `cc-architect-sync` | `cc-finding-sync` |
+| Модель ветвления | `main`/`dev`/`feature/*` | `main`/`experiment/*` |
+| Выход для стейкхолдера | Деплой | Отчёт / презентация |
 
 **Ключевые принципы:**
 
 - Два независимых слоя в одном репо: мейнтейнерский и шаблонный (ADR-001)
-- Навигатор CC (`index.md`) живёт в `.claude/`, не в `.context/` (ADR-002)
-- Скиллы двух слоёв независимы — расходятся по мере развития
+- Ветки `main` и `analytics` никогда не сливаются — два независимых продукта (ADR-021)
+- В аналитике вывод может оказаться неверным на новых данных — это нормально, для этого есть
+  `findings.md` со статусами и скилл `cc-finding-sync`
 
 ---
 
-## 2. Ключевые архитектурные решения
+## 2. Ключевые решения
 
 | ADR | Суть |
 | --- | --- |
-| ADR-001 | Два слоя в одном репо: мейнтейнерский (корень) и шаблонный (`template/`) |
-| ADR-002 | `index.md` перенесён из `docs/` в `.claude/` — навигатор CC, не документация проекта |
-| ADR-003 | Cookiecutter — Отклонено; продукт workflow-слой, не project starter (ADR-014) |
-| ADR-004 | Аудит `decisions.md` встроен в `cc-architect-sync`, не отдельным скиллом |
-| ADR-005 | `install.sh` для curl-установки; `init-project.sh` удалён |
-| ADR-006 | `docs/` переименована в `.context/` в обоих слоях |
-| ADR-007 | `scripts/init-project.sh` удалён; `install.sh` — единственный способ установки |
-| ADR-008 | Раздел «Управление контекстом» удалён из обоих CLAUDE.md — `/context` недоступна модели |
-| ADR-009 | Предпубликационный аудит: `cc-export-chat` удалён, `.gitignore` дополнен, `install.sh` создаёт `dev`-ветку |
-| ADR-010 | Отказ от `template-mini` — поддерживать два параллельных шаблона нецелесообразно |
-| ADR-011 | `.context/notes/` — личные заметки владельца, исключены из git в обоих слоях |
-| ADR-012 | `install.sh`: безопасный `.gitignore` (дополнение с маркером), управление видимостью ассистента |
-| ADR-013 | `install.sh`: опциональные коммит и dev-ветка; `uninstall.sh` — полное удаление ассистента |
-| ADR-014 | OSS-публикация: перевод, слэш-команды, демо; отказ от Cookiecutter |
-| ADR-015 | Удалён `template/.markdownlint.json` из шаблонного слоя |
-| ADR-016 | Ветка `oss`; «Respond in the user's language»; слэш-команды в шаблоне реализованы вместе с переводом. Языковое правило заменено в части ADR-020 |
-| ADR-017 | Переименование `/status` → `/report` (конфликт со встроенной командой CC) |
-| ADR-018 | Мейнтейнерский слой переведён на английский; слэш-команды добавлены в `.claude/commands/` |
-| ADR-019 | `/retro` добавлен как регулярный инструмент рабочего процесса; hybrid-mode: CC анализирует историю, пользователь корректирует черновик |
-| ADR-020 | Явная языковая настройка в установщике: 3 плейсхолдера, вопрос [one/multi], workflow docs всегда English |
+| ADR-021 | `analytics` — постоянная параллельная ветка, никогда не мержится в `main` |
+| ADR-022 | Упрощённая модель ветвления в шаблоне: `main` + `experiment/*`, без `dev` |
+| ADR-023 | Три выходных скилла: `/report` (MD), `/present jupyter`, `/present html` |
+
+Полная история решений (ADR-001–020) — унаследована от `workflow-template/main`.
 
 ---
 
 ## 3. Компоненты
 
-### 3.1 Мейнтейнерский слой
+### 3.1 Мейнтейнерский слой (корень)
 
-Живёт в корне репо. Удаляется скриптом при развёртывании нового проекта.
-
-- `CLAUDE.md` — инструкции для CC при работе с этим репо: роли, ключевые фразы, конвенции
-- `CONTRIBUTION.md` — руководство мейнтейнера: рабочий цикл, синхронизация улучшений
-- `SETUP.md` — инструкция по развёртыванию шаблона
+- `CLAUDE.md` — инструкции CC для работы с этим репо; идентифицирует ветку как analytics-variant
+- `CONTRIBUTION.md` — руководство мейнтейнера; правила синхронизации analytics-скиллов
+- `SETUP.md` — инструкция по развёртыванию (Python/uv, аналитика-специфичные шаги)
 - `.claude/index.md` — навигатор CC для мейнтейнерского контекста
-- `.claude/commands/` — 10 файлов слэш-команд (ADR-018)
-- `.claude/skills/meta/` — пять мета-скиллов рабочего процесса (ADR-019)
-- `.context/` — рабочая документация мейнтейнера (blueprint, status, plan, to-do, decisions)
-- `.context/notes/` — личные заметки владельца (не коммитятся, исключены через `.gitignore`)
-- `memory/` — персистентная память CC между сессиями (создаётся автоматически, не коммитится, исключена через `.gitignore`)
-- `scripts/install.sh` — curl-установка шаблона для пользователей
-- `scripts/uninstall.sh` — удаление ассистента из проекта через curl
+- `.claude/commands/` — слэш-команды мейнтейнера
+- `.claude/skills/meta/` — мета-скиллы мейнтейнера (общие; analytics-специфичные только в template)
+- `.context/` — рабочая документация мейнтейнера
+- `scripts/install.sh` — curl-установка аналитического шаблона
+- `scripts/uninstall.sh` — удаление ассистента из проекта
 
-### 3.2 Шаблонный слой
+### 3.2 Шаблонный слой (`template/`)
 
-Живёт в `template/`. Разворачивается в корень при инициализации нового проекта.
+Разворачивается в корень нового аналитического проекта при инициализации.
 
-- `template/CLAUDE.md` — CLAUDE.md для нового проекта (с `{ПЛЕЙСХОЛДЕРАМИ}`)
-- `template/WORKFLOW.md` — шпаргалка рабочего процесса для нового проекта
-- `template/.claude/index.md` — навигатор CC (с плейсхолдерами)
-- `template/.claude/commands/` — 10 файлов слэш-команд (зеркало мейнтейнерского слоя)
-- `template/.claude/skills/meta/` — пять мета-скиллов (независимая копия мейнтейнерской)
-- `template/.context/` — документация для нового проекта (с плейсхолдерами)
-- `template/.context/notes/` — пустая директория для личных заметок (`.gitkeep`; `.gitignore` исключает `*.md`)
-- `template/.gitignore` — базовый gitignore для нового проекта
+Отличия от шаблона `main`-ветки:
+
+- `template/.context/` добавлены: `methodology.md`, `findings.md` — центральные для аналитики
+- `template/data/README.md` — провенанс данных (сами данные не в git)
+- `template/notebooks/` — директория ноутбуков с конвенциями именования
+- `template/src/analysis_utils.py` — готовые к использованию статистические функции
+- `template/outputs/` — экспортированные отчёты и презентации
+- `template/pyproject.toml` — Python/uv окружение
+- Analytics-скиллы в `template/.claude/skills/meta/`:
+  `cc-record-finding`, `cc-finding-sync`, `cc-report`, `cc-present`
 
 ### 3.3 Инициализация нового проекта
 
-`scripts/install.sh` — текущий механизм установки (ADR-005, ADR-007, ADR-012, ADR-013):
-
-1. Проверяет зависимости (`git`, `curl`, `tar`) и наличие `.git`
-2. При непустой директории показывает список перезаписываемых файлов, запрашивает подтверждение
-3. Интерактивно запрашивает: название проекта, remote URL, языковой режим [one/multi] и до трёх языковых настроек
-4. Спрашивает: скрыть файлы ассистента (→ `.git/info/exclude`), скрыть из коммитов (→ `.claude/settings.json`)
-5. Спрашивает: создать начальный коммит? (дефолт `n`), создать ветку `dev`? (дефолт `n`)
-6. Скачивает `template/` из репо через GitHub tar.gz
-7. Заполняет плейсхолдеры во всех `.md`: `{PROJECT_NAME}`, `{COMMUNICATION_LANGUAGE}`, `{CONTEXT_LANGUAGE}`, `{CODE_COMMENTS_LANGUAGE}`
-8. Дополняет `.gitignore` с маркером `# workflow-template:start/end` (не перезаписывает)
-9. Применяет выбранные настройки видимости
-10. Привязывает remote (если указан)
-11. Создаёт коммит и ветку `dev` (если выбрано)
-
-Запуск: `curl -fsSL .../scripts/install.sh | bash` в пустом `git init`-репозитории.
+`scripts/install.sh` — адаптирован под аналитику (Python/uv next steps, data/.gitignore).
 
 ---
 
 ## 4. Потоки использования
 
-### 4.1 Развёртывание нового проекта
+### 4.1 Развёртывание нового аналитического проекта
 
 ```text
-mkdir my-project && cd my-project
+mkdir my-analysis && cd my-analysis
 git init
-curl -fsSL .../scripts/install.sh | bash
-→ интерактивный ввод → готовый репозиторий
+curl -fsSL .../analytics/scripts/install.sh | bash
+→ uv sync → jupyter lab → CC fills placeholders
 ```
 
 ### 4.2 Мейнтейнинг шаблона
 
 ```text
-сессия CC в workflow-template
+сессия CC в analytics-ветке
 → `/next` → `/architect` → `/dev` → `/commit`
+(без /close — analytics не мержится в main)
 ```
 
-### 4.3 Синхронизация улучшений из рабочих проектов
+### 4.3 Синхронизация из рабочих проектов
 
 ```text
-рабочий проект → улучшение скилла или процесса
-→ открыть сессию workflow-template → перенести вручную → "фиксируем"
+рабочий аналитический проект → улучшение скилла
+→ сессия в analytics-ветке → перенести вручную → `/commit`
 ```
 
 ---
@@ -127,32 +107,26 @@ curl -fsSL .../scripts/install.sh | bash
 ## 5. Зависимости между компонентами
 
 ```text
-CLAUDE.md ← .claude/commands/ (слэш-команды → режимы/скиллы)
+CLAUDE.md ← .claude/commands/ (слэш-команды)
 CLAUDE.md ← .claude/index.md (навигация)
-CLAUDE.md ← .claude/skills/meta/ (файлы скиллов)
 template/CLAUDE.md ← template/.claude/commands/
-template/CLAUDE.md ← template/.claude/index.md
 template/CLAUDE.md ← template/.claude/skills/meta/
-scripts/install.sh → template/ (скачивает и разворачивает шаблонный слой; подставляет 4 плейсхолдера: PROJECT_NAME + 3 языковых)
-scripts/uninstall.sh → .claude/, .context/, memory/, CLAUDE.md, WORKFLOW.md, .gitignore, .git/info/exclude
-.claude/commands/retro.md → .claude/skills/meta/cc-retrospective.md
-template/.claude/commands/retro.md → template/.claude/skills/meta/cc-retrospective.md
+scripts/install.sh → template/ (скачивает analytics-ветку; подставляет плейсхолдеры)
+scripts/uninstall.sh → .claude/, .context/, findings.md, methodology.md, data/, notebooks/, src/, outputs/
 ```
 
 ---
 
-## 6. Реализованные сценарии
+## 6. Что реализовано
 
-- Мейнтейнинг шаблона через CC: роли, ключевые фразы, скиллы
-- Полная структура шаблонного слоя для нового проекта
-- curl-установка через `scripts/install.sh` реализована (ADR-005, ADR-007)
-- Рабочая документация в `.context/` (ADR-006)
-- Предпубликационный аудит выполнен: шаблон готов к публикации (ADR-008, ADR-009)
-- `.context/notes/` — личные заметки, исключены из git в обоих слоях (ADR-011)
-- `install.sh` безопасен для существующих проектов: `.gitignore` дополняется, видимость ассистента настраивается (ADR-012)
-- Управление жизненным циклом: опциональный коммит/ветка, `uninstall.sh` для удаления (ADR-013)
-- Направление OSS-публикации зафиксировано: перевод + слэш-команды + демо (ADR-014)
-- Перевод мейнтейнерского слоя на английский, слэш-команды в `.claude/commands/` (ADR-015, ADR-016, ADR-017, ADR-018)
-- `/retro` реализован в обоих слоях: скилл + команда + обновление CLAUDE.md и WORKFLOW.md (ADR-019)
-- Явная языковая настройка при установке: 3 плейсхолдера в `template/CLAUDE.md`, вопрос [one/multi] в `install.sh` (ADR-020)
-- `memory/` — персистентная память CC, документирована и включена в uninstall.sh
+- Ветка `analytics` создана от `main` (ADR-021)
+- Мейнтейнерский слой адаптирован: CLAUDE.md, CONTRIBUTION.md, SETUP.md, .context/, .claude/index.md
+- Решения ADR-021/022/023 зафиксированы
+
+## 7. Что не реализовано (Tasks 2–6)
+
+- `template/CLAUDE.md`, `template/WORKFLOW.md` — аналитическая адаптация (Task 2)
+- `template/.context/methodology.md`, `findings.md` — новые файлы (Task 3)
+- Analytics-скиллы в template (Task 4)
+- `template/data/`, `notebooks/`, `src/`, `outputs/`, `pyproject.toml` (Task 5)
+- `scripts/install.sh` — адаптация под аналитику (Task 6)
