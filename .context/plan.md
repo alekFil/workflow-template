@@ -1,116 +1,120 @@
-## Task: Добавить явную настройку языка в установщик и CLAUDE.md
+## Task: Адаптировать workflow-template для локальной модели через LiteLLM + vLLM
 
 ### Context
 
-Сейчас `template/CLAUDE.md` содержит расплывчатую инструкцию "respond in the user's language",
-которая заставляет Claude угадывать язык. Нужно сделать язык явной конфигурацией:
-задавать вопросы при установке и вписывать конкретные значения в CLAUDE.md.
+Команда работает в корпоративном контуре без доступа к Anthropic API.
+На внутреннем сервере (H100, 47 GB VRAM) развёрнута Qwen3-30B через vLLM
+с OpenAI-совместимым API: `http://vllm.ml.bank.local/`.
 
-Воркфлоу-документы (`.claude/`, skills, команды) — всегда English (invariant, без плейсхолдера).
-Три настраиваемые оси: общение, контекст, комментарии в коде.
+Цель — сохранить workflow целиком (скилы, /architect, /dev, /close, /commit)
+заменив только транспортный слой: CC → LiteLLM (прокси) → vLLM.
+
+LiteLLM разворачивается на том же хосте, что и vLLM.
+Разработчик настраивает CC через два env-переменных.
 
 Depends on: —
 
 ### Что реализовать
 
-1. Добавить в `template/CLAUDE.md` секцию Language с тремя плейсхолдерами, убрать упоминание языка из `{CODE_CONVENTIONS}`
-2. Обновить `CLAUDE.md` (root) — ту же секцию с реальными значениями (ru / ru / English)
-3. Добавить в `scripts/install.sh` блок вопросов о языке и подстановку трёх плейсхолдеров
+1. Создать ветку `feature/local-model` от `oss`
+2. Создать `infra/litellm/config.yaml` — маппинг `claude-*` → `qwen3` + vLLM endpoint
+3. Создать `infra/litellm/docker-compose.yml` — LiteLLM как docker-сервис
+4. Создать `infra/litellm/.env.example` — шаблон переменных окружения
+5. Написать `SETUP-LOCAL.md` — гайд DevOps: развернуть LiteLLM на сервере
+6. Написать `SETUP-DEV.md` — гайд разработчика: настроить CC за 2 шага
+7. Обновить `README.md` — добавить секцию "Local model" со ссылками на оба гайда
+
+### Схема
+
+```text
+[Машина разработчика]          [Корпоративный сервер]
+CC
+  ANTHROPIC_BASE_URL=http://litellm.ml.bank.local:4000
+  ANTHROPIC_API_KEY=<LITELLM_MASTER_KEY>
+        │
+        ▼
+LiteLLM :4000  (docker, тот же хост что vLLM)
+  Anthropic API format → OpenAI API format
+        │
+        ▼
+vLLM :8000  →  Qwen3-30B
+  http://vllm.ml.bank.local/v1
+```
 
 ### Files
 
+Создать:
+- `infra/litellm/config.yaml`
+- `infra/litellm/docker-compose.yml`
+- `infra/litellm/.env.example`
+- `SETUP-LOCAL.md`
+- `SETUP-DEV.md`
+
 Редактировать:
-- `template/CLAUDE.md` — строка 6: заменить на явную Language-секцию с 3 плейсхолдерами; строка 193: убрать `{- Comment language: English}` из `{CODE_CONVENTIONS}`
-- `CLAUDE.md` — строка 3: заменить на ту же Language-секцию с реальными значениями
-- `scripts/install.sh` — добавить блок языковых вопросов после вопроса о PROJECT_NAME (≈ строка 57), добавить 3 `sed`-подстановки в блок "Fill placeholders" (≈ строка 134)
+- `README.md` — добавить секцию "Local model" после "Quick start"
 
-### Целевой вид Language-секции в template/CLAUDE.md
+### infra/litellm/config.yaml — целевое содержимое
 
-```markdown
-**Language:**
-- Communication: {COMMUNICATION_LANGUAGE}
-- `.context/` files: {CONTEXT_LANGUAGE}
-- Code comments: {CODE_COMMENTS_LANGUAGE}
-- Workflow docs (`.claude/`, skills, commands): English
+```yaml
+model_list:
+  - model_name: claude-sonnet-4-6
+    litellm_params:
+      model: openai/qwen3-30b
+      api_base: ${VLLM_API_BASE}
+      api_key: ${VLLM_API_KEY}
+  - model_name: claude-opus-4-7
+    litellm_params:
+      model: openai/qwen3-30b
+      api_base: ${VLLM_API_BASE}
+      api_key: ${VLLM_API_KEY}
+  - model_name: claude-haiku-4-5
+    litellm_params:
+      model: openai/qwen3-30b
+      api_base: ${VLLM_API_BASE}
+      api_key: ${VLLM_API_KEY}
+
+litellm_settings:
+  drop_params: true
+
+general_settings:
+  master_key: ${LITELLM_MASTER_KEY}
 ```
 
-### Целевой вид Language-секции в CLAUDE.md (root)
-
-```markdown
-**Language:**
-- Communication: Russian
-- `.context/` files: Russian
-- Code comments: English
-- Workflow docs (`.claude/`, skills, commands): English
-```
-
-### Целевой флоу install.sh
+### infra/litellm/.env.example — целевое содержимое
 
 ```bash
-# --- Language ---
-echo ""
-read -p "One language for everything (English), or configure per area? [one/multi]: " LANG_MODE <"$TTY"
-
-if [[ "$LANG_MODE" == "multi" ]]; then
-    echo "  (Workflow docs are always in English)"
-    read -p "  Communication language (ru/en/...): " COMM_LANG <"$TTY"
-    read -p "  .context/ files language (ru/en/...): " CONTEXT_LANG <"$TTY"
-    read -p "  Code comments language (ru/en/...): " CODE_LANG <"$TTY"
-else
-    COMM_LANG="English"
-    CONTEXT_LANG="English"
-    CODE_LANG="English"
-fi
-```
-
-В summary перед подтверждением добавить:
-```bash
-echo "  Communication: $COMM_LANG"
-echo "  Context files: $CONTEXT_LANG"
-echo "  Code comments: $CODE_LANG"
-echo "  Workflow docs: English"
-```
-
-В блок подстановок:
-```bash
-find . -name "*.md" -not -path "./.git/*" \
-    -exec sed -i "s|{COMMUNICATION_LANGUAGE}|$COMM_LANG|g" {} +
-find . -name "*.md" -not -path "./.git/*" \
-    -exec sed -i "s|{CONTEXT_LANGUAGE}|$CONTEXT_LANG|g" {} +
-find . -name "*.md" -not -path "./.git/*" \
-    -exec sed -i "s|{CODE_COMMENTS_LANGUAGE}|$CODE_LANG|g" {} +
+LITELLM_MASTER_KEY=sk-internal-changeme
+VLLM_API_BASE=http://vllm.ml.bank.local/v1
+VLLM_API_KEY=dummy
 ```
 
 ### Constraints
 
-- `CLAUDE.md` (root) — реальные значения, не плейсхолдеры
-- Воркфлоу-язык не является плейсхолдером — он хардкодится как "English" в обоих файлах
-- `{CODE_CONVENTIONS}` в template/CLAUDE.md: убрать только строку `{- Comment language: English}`, остальные примеры не трогать
-- Не менять порядок существующих вопросов в install.sh — языковой блок вставляется сразу после PROJECT_NAME, до вопросов о hide/commit
-- Переменные `COMM_LANG`, `CONTEXT_LANG`, `CODE_LANG` должны иметь значение по умолчанию до summary, даже если пользователь не ввёл ничего (обработать пустой ввод так же как `one`)
+- `template/` не трогать — он остаётся универсальным (не привязан к инфре)
+- Адаптацию скилов под Qwen3 — не делать сейчас (Phase 2, после теста)
+- В docker-compose использовать официальный образ `ghcr.io/berriai/litellm`
+- Все чувствительные значения — только через `.env`, не хардкодить в yaml
+- `SETUP-LOCAL.md` и `SETUP-DEV.md` писать на русском (язык команды)
+- README.md — секция "Local model" только добавляется, существующие секции не трогать
 
 ### Verification
 
 ```bash
-# Плейсхолдеры присутствуют в template
-grep "COMMUNICATION_LANGUAGE\|CONTEXT_LANGUAGE\|CODE_COMMENTS_LANGUAGE" template/CLAUDE.md
+# Структура файлов
+ls infra/litellm/config.yaml infra/litellm/docker-compose.yml infra/litellm/.env.example
 
-# Старая расплывчатая строка удалена из обоих файлов
-grep "user's language" template/CLAUDE.md CLAUDE.md
-# ожидаемый вывод: пусто
+# Гайды присутствуют
+ls SETUP-LOCAL.md SETUP-DEV.md
 
-# Реальные значения в root CLAUDE.md
-grep "Russian\|English" CLAUDE.md | head -5
+# README обновлён
+grep -n "Local model" README.md
 
-# Comment language убрана из CODE_CONVENTIONS
-grep "Comment language" template/CLAUDE.md
-# ожидаемый вывод: пусто
+# Маппинг в конфиге
+grep -n "claude-sonnet-4-6" infra/litellm/config.yaml
+grep -n "qwen3-30b" infra/litellm/config.yaml
 
-# Подстановки добавлены в install.sh
-grep "COMMUNICATION_LANGUAGE\|CONTEXT_LANGUAGE\|CODE_COMMENTS_LANGUAGE" scripts/install.sh
-
-# Языковой блок вопросов есть в install.sh
-grep "one/multi\|LANG_MODE\|COMM_LANG" scripts/install.sh
+# Env-переменные не захардкожены
+grep -rn "sk-internal" infra/litellm/config.yaml  # должен вернуть пусто
 ```
 
 ### Changes along the way
