@@ -132,8 +132,8 @@ EXISTING_GITIGNORE=""
 
 # Download template/ from repo
 echo "Downloading template..."
-curl -fsSL "${REPO}/archive/refs/heads/oss.tar.gz" \
-    | tar xz --strip-components=2 "workflow-template-oss/template"
+curl -fsSL "${REPO}/archive/refs/heads/main.tar.gz" \
+    | tar xz --strip-components=2 "workflow-template-main/template"
 
 # Process .gitignore: append, do not overwrite
 TEMPLATE_GITIGNORE=$(cat .gitignore)
