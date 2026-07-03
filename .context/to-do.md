@@ -8,57 +8,30 @@
 
 ## В работе
 
-### Task 1: Branch init + root-layer identity
+### Brainstorm skill — перенос из main с аналитической адаптацией
 
-- [ ] Создать ветку `analytics` от `main`
-- [ ] Переписать `CLAUDE.md` (analytics meta-repo: описание, сравнительная таблица, структура)
-- [ ] Адаптировать `CONTRIBUTION.md` (два слоя, правила синхронизации analytics-скиллов)
-- [ ] Адаптировать `SETUP.md` (Python/uv, analytics next steps)
-- [ ] Переписать `.context/blueprint.md` (что такое этот репо, связь с main)
-- [ ] Переписать `.context/status.md` (начальное состояние analytics-ветки)
-- [ ] Адаптировать `.claude/index.md`
+- [x] Создать `template/.context/methodology.md` — шаблонный файл статистической методологии
+- [x] Создать `template/.claude/skills/meta/cc-brainstorm.md` — аналитическая адаптация скилла
+- [x] Создать `.claude/skills/meta/cc-brainstorm.md` — копия для maintainer-слоя
+- [x] Создать `template/.claude/commands/brainstorm.md`
+- [x] Создать `.claude/commands/brainstorm.md`
+- [x] Добавить Brainstorm mode в `template/CLAUDE.md` первым в "Your roles"
+- [x] Добавить `/brainstorm` и `/brainstorm done` в таблицы команд обоих CLAUDE.md
+- [ ] Закоммитить всё вышеперечисленное (`/commit`)
 
 ---
 
 ## Следующее
 
-### Task 2: Template core — CLAUDE.md + WORKFLOW.md + index.md
-
-`template/CLAUDE.md`:
-
-- Данные вместо Stack (таблица источников + `data/README.md`)
-- Навигация: добавить `findings.md`, `methodology.md`, `data/README.md`; убрать `/sync` → заменить `/snapshot`
-- Режимы: Developer → Analyst (работает в `main` или `experiment/<name>`); Architect → Analytics Architect
-  (сверяется с `findings.md` перед предложением метода)
-- plan.md формат: Question / Hypothesis / Related findings / Data & filters / Method
-- Slash commands: убрать `/dev` и `/sync`; добавить `/record-finding`, `/report` (MD отчёт),
-  `/present` (`jupyter`/`html`), `/snapshot` (статус); переименовать `/close` → только для `experiment/*`
-- Key analysis rules (вместо "Key architecture rules"): domain-specific placeholders
-- Branching: `main` + `experiment/<name>` + `hotfix/<name>` (ADR-022)
-- Commit types: `analysis:`, `finding:`, `fix:`, `refactor:`, `docs:`, `chore:`
-- Notebook conventions: `NN-short-name.ipynb`, self-contained, run end-to-end before commit
-
-`template/WORKFLOW.md`:
-
-- Таблица режимов и команд (обновлённый набор)
-- Типичный цикл: задача → ноутбук → анализ → `/record-finding` → коммит → `/report` или `/present`
-- Когда создавать `experiment/<name>` (и когда не нужно)
-
-`template/.claude/index.md`:
-
-- Добавить `findings.md`, `methodology.md`, `data/README.md`
-- Обновить таблицу скиллов: добавить cc-record-finding, cc-finding-sync, cc-report, cc-present
-
 ### Task 3: Template `.context/` files
 
 - `template/.context/blueprint.md` — переписать: источники данных, схема, пайплайн, стандартный фильтр,
   производные признаки, известные ограничения данных
-- `template/.context/methodology.md` — создать: одномерные тесты, многомерные модели, правило сегментов,
-  воспроизводимость, глоссарий
 - `template/.context/findings.md` — создать: реестр выводов, статусы (⏳/✅/⚠️/❌), FINDING-001 placeholder
 - `template/.context/plan.md` — адаптировать: analytics формат (Question/Hypothesis/Method/Data)
 - `template/.context/status.md` — адаптировать: ссылки на findings.md
 - `template/.context/to-do.md` — адаптировать: разделы для гипотез, данных, планируемых анализов
+- `template/.context/decisions.md` — адаптировать: analytics placeholder decisions
 
 ### Task 4: Analytics skills + commands
 
@@ -75,16 +48,6 @@
 
 - `template/.claude/skills/meta/cc-close-task.md` — упростить: только `experiment/*` → `main` (ff-only)
 - `template/.claude/skills/meta/cc-architect-sync.md` — УДАЛИТЬ (нет кода; заменяется cc-finding-sync)
-
-Команды:
-
-- `template/.claude/commands/record-finding.md` — создать
-- `template/.claude/commands/report.md` — переписать (аналитический отчёт, не status)
-- `template/.claude/commands/present.md` — создать (принимает аргумент `jupyter`/`html`)
-- `template/.claude/commands/snapshot.md` — создать (триггерит cc-status-report, бывший `/report`)
-- `template/.claude/commands/sync.md` — переписать: триггерит cc-finding-sync
-- `template/.claude/commands/dev.md` — УДАЛИТЬ (нет feature-flow в аналитике)
-- `template/.claude/commands/retro.md` — сохранить (ретроспектива полезна в аналитике)
 
 ### Task 5: Template project files
 
@@ -114,4 +77,21 @@
 
 ## Готово
 
-(нет — ветка только создаётся)
+### Task 1: Branch init + root-layer identity
+
+- [x] Создать ветку `analytics` от `main`
+- [x] Переписать `CLAUDE.md` (analytics meta-repo: описание, сравнительная таблица, структура)
+- [x] Адаптировать `CONTRIBUTION.md` (два слоя, правила синхронизации analytics-скиллов)
+- [x] Адаптировать `SETUP.md` (Python/uv, analytics next steps)
+- [x] Переписать `.context/blueprint.md` (что такое этот репо, связь с main)
+- [x] Переписать `.context/status.md` (начальное состояние analytics-ветки)
+- [x] Адаптировать `.claude/index.md`
+
+### Task 2: Template core — CLAUDE.md + WORKFLOW.md + index.md + commands
+
+- [x] `template/CLAUDE.md` — 4 режима (Brainstorm/Architect/Analyst/Organizer), data table,
+  analytics slash commands, notebook conventions, commit types
+- [x] `template/WORKFLOW.md` — analytics quick reference с таблицей команд и workflow циклом
+- [x] `template/.claude/index.md` — findings.md, methodology.md, analytics skills table
+- [x] `template/.claude/commands/` — 13 команд: analyze, architect, close, commit, next,
+  organize, present, record, record-finding, report, retro, snapshot, sync
