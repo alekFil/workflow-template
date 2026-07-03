@@ -5,6 +5,24 @@
 
 ---
 
+## ADR-025: Шаблон нейтрален к IDE для ноутбуков
+
+**Статус:** Принято
+
+**Контекст:** SETUP.md и template/CLAUDE.md предписывали `uv run jupyter lab` как единственный
+способ работы с ноутбуками. Пользователи VS Code с расширением Jupyter (и других совместимых сред)
+не нуждаются в Jupyter Lab как IDE.
+
+**Решение:** Шаблон не предписывает конкретную IDE для ноутбуков. VS Code + Jupyter extension,
+Jupyter Lab, Cursor и аналоги — равнозначные варианты. Пакет `jupyter` в `pyproject.toml`
+устанавливается только как бэкенд для `nbconvert` (скилл `/present html`), не как IDE.
+SETUP.md описывает шаг как "open notebooks in your preferred environment".
+
+**Последствия:** Убраны все упоминания `uv run jupyter lab` из инструкций и Getting started.
+Task 5 (`pyproject.toml`): `jupyter` — зависимость для `nbconvert`, без `jupyterlab` как IDE.
+
+---
+
 ## ADR-024: Добавить скилл /caveman в оба слоя шаблона
 
 **Статус:** Принято
