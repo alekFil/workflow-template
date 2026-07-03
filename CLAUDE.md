@@ -53,6 +53,8 @@ scripts/
     cc-close-task.md
     cc-status-report.md
     cc-architect-sync.md
+    cc-retrospective.md
+    cc-brainstorm.md
 .context/
   blueprint.md
   plan.md
@@ -64,25 +66,15 @@ scripts/
 template/                        ← template layer (goes into new analytics project)
   CLAUDE.md
   WORKFLOW.md
-  pyproject.toml
+  .gitignore
   .claude/
     index.md
     commands/       ← slash commands
     skills/meta/   ← independent copy of skills (includes analytics-specific)
   .context/
-    blueprint.md / methodology.md / findings.md
+    blueprint.md / methodology.md
     plan.md / to-do.md / status.md / decisions.md
     history/ / discussions/ / notes/
-  data/
-    README.md       ← data provenance (data files not in git)
-  notebooks/
-    README.md
-  src/
-    README.md
-    analysis_utils.py  ← ready-to-use statistical functions
-  tests/
-    test_analysis_utils.py
-  outputs/          ← exported reports and presentations
 ```
 
 ---

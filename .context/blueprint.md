@@ -120,13 +120,15 @@ scripts/uninstall.sh → .claude/, .context/, findings.md, methodology.md, data/
 ## 6. Что реализовано
 
 - Ветка `analytics` создана от `main` (ADR-021)
-- Мейнтейнерский слой адаптирован: CLAUDE.md, CONTRIBUTION.md, SETUP.md, .context/, .claude/index.md
+- Мейнтейнерский слой адаптирован: CLAUDE.md, CONTRIBUTION.md, SETUP.md, .context/, .claude/index.md (Task 1)
 - Решения ADR-021/022/023 зафиксированы
+- Шаблонный слой: template/CLAUDE.md, WORKFLOW.md, .claude/index.md, 14 команд (Task 2)
+- Скилл cc-brainstorm добавлен в оба слоя; template/.context/methodology.md создан
 
-## 7. Что не реализовано (Tasks 2–6)
+## 7. Что не реализовано (Tasks 3–6)
 
-- `template/CLAUDE.md`, `template/WORKFLOW.md` — аналитическая адаптация (Task 2)
-- `template/.context/methodology.md`, `findings.md` — новые файлы (Task 3)
-- Analytics-скиллы в template (Task 4)
-- `template/data/`, `notebooks/`, `src/`, `outputs/`, `pyproject.toml` (Task 5)
-- `scripts/install.sh` — адаптация под аналитику (Task 6)
+- `template/.context/findings.md` — реестр выводов (Task 3)
+- Остальные .context/ файлы в аналитическом формате: blueprint, plan, status, to-do (Task 3)
+- Analytics-скиллы в template: cc-record-finding, cc-finding-sync, cc-report, cc-present (Task 4)
+- `template/data/`, `notebooks/`, `src/`, `tests/`, `outputs/`, `pyproject.toml` (Task 5)
+- `scripts/install.sh`, `scripts/uninstall.sh` — адаптация под аналитику (Task 6)

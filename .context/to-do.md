@@ -8,16 +8,7 @@
 
 ## В работе
 
-### Brainstorm skill — перенос из main с аналитической адаптацией
-
-- [x] Создать `template/.context/methodology.md` — шаблонный файл статистической методологии
-- [x] Создать `template/.claude/skills/meta/cc-brainstorm.md` — аналитическая адаптация скилла
-- [x] Создать `.claude/skills/meta/cc-brainstorm.md` — копия для maintainer-слоя
-- [x] Создать `template/.claude/commands/brainstorm.md`
-- [x] Создать `.claude/commands/brainstorm.md`
-- [x] Добавить Brainstorm mode в `template/CLAUDE.md` первым в "Your roles"
-- [x] Добавить `/brainstorm` и `/brainstorm done` в таблицы команд обоих CLAUDE.md
-- [ ] Закоммитить всё вышеперечисленное (`/commit`)
+(нет)
 
 ---
 
@@ -49,6 +40,9 @@
 - `template/.claude/skills/meta/cc-close-task.md` — упростить: только `experiment/*` → `main` (ff-only)
 - `template/.claude/skills/meta/cc-architect-sync.md` — УДАЛИТЬ (нет кода; заменяется cc-finding-sync)
 
+> **Техдолг:** `template/.claude/commands/sync.md` сейчас триггерит `cc-finding-sync` (не существует).
+> `/sync` в шаблоне сломан до создания `cc-finding-sync`. `cc-architect-sync` оставлен временно.
+
 ### Task 5: Template project files
 
 - `template/data/README.md` — провенанс, история версий, ограничения
@@ -76,6 +70,17 @@
 ---
 
 ## Готово
+
+### Brainstorm skill — перенос из main с аналитической адаптацией
+
+- [x] Создать `template/.context/methodology.md` — шаблонный файл статистической методологии
+- [x] Создать `template/.claude/skills/meta/cc-brainstorm.md` — аналитическая адаптация скилла
+- [x] Создать `.claude/skills/meta/cc-brainstorm.md` — копия для maintainer-слоя
+- [x] Создать `template/.claude/commands/brainstorm.md`
+- [x] Создать `.claude/commands/brainstorm.md`
+- [x] Добавить Brainstorm mode в `template/CLAUDE.md` первым в "Your roles"
+- [x] Добавить `/brainstorm` и `/brainstorm done` в таблицы команд обоих CLAUDE.md
+- [x] Закоммитить (b6265e1)
 
 ### Task 1: Branch init + root-layer identity
 
