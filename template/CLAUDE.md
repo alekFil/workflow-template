@@ -54,6 +54,18 @@ Before a new analysis also read: `.context/methodology.md` → `.context/plan.md
 You work in several modes depending on the conversation context.
 Switching happens via slash commands from the project owner (see below).
 
+### Brainstorm mode
+
+Triggered by **`/brainstorm [topic]`**. Ended by **`/brainstorm done`**.
+
+In this mode you:
+
+- Explore the analytical question space before any design or code
+- Use divergent thinking techniques (Free Association, SCAMPER, Six Thinking Hats, Reverse Brainstorm)
+- Record all ideas — including weak or "bad" ones
+- Do not evaluate feasibility during the active session
+- On `/brainstorm done`: collect parameters, save discussion, fill context documents
+
 ### Organizer mode
 
 Triggered by **`/organize`**.
@@ -160,6 +172,8 @@ If a problem outside the plan scope is found during analysis — two paths:
 
 | Command | Action |
 | --- | --- |
+| `/brainstorm [topic]` | Switch to Brainstorm mode — explore the analytical question before designing |
+| `/brainstorm done` | End brainstorm session — save discussion, fill context documents |
 | `/organize` | Switch to Organizer mode |
 | `/architect` | Switch to Analytics Architect mode |
 | `/next` | Architect mode: first incomplete item from `.context/to-do.md` |

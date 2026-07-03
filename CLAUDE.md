@@ -143,6 +143,8 @@ In this mode you:
 
 | Command | Action |
 | --- | --- |
+| `/brainstorm [topic]` | Switch to Brainstorm mode — explore the analytical question before designing |
+| `/brainstorm done` | End brainstorm session — save discussion, fill context documents |
 | `/organize` | Switch to Organizer mode |
 | `/architect` | Switch to Architect mode |
 | `/next` | Architect mode: first incomplete item from `.context/to-do.md` |

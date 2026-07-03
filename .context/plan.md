@@ -1,77 +1,144 @@
-## Task: Initialize `analytics` branch and adapt root-layer identity
+## Task: Перенести скилл /brainstorm в аналитический шаблон (адаптированная версия)
 
 ### Context
 
-`analytics` — постоянная параллельная ветка репозитория (не feature). `main` остаётся шаблоном для
-разработки ПО, `analytics` становится шаблоном для аналитических проектов. Ветки никогда не сливаются
-обратно — оба продукта живут в одном репо и разрабатываются независимо.
+На ветке `main` (через `feature/brainstorm-skill`) уже реализован скилл `/brainstorm` для
+software-проектов. Ветка `analytics` — постоянный параллельный шаблон для аналитических проектов
+(notebooks, findings, methodology). Скилл нужно перенести сюда, адаптировав под аналитический
+контекст: другие плейсхолдеры, другие файлы для заполнения, ориентация на данные а не компоненты.
 
-Эта задача (1 из 6) создаёт ветку и трансформирует **только корневой (мейнтейнерский) слой** — `CLAUDE.md`,
-`.context/`, `.claude/index.md`. Template-слой (`template/`) не трогается — это задачи 2–6.
-
-Depends on: —
+Зависит от: —
 
 ### What to implement
 
-1. Создать ветку `analytics` от текущего HEAD `main`
-2. Переписать `CLAUDE.md` — идентифицировать репо как analytics-variant: описание, сравнительная таблица
-   с `workflow-template`, структура (добавить `data/`, `notebooks/`, `src/`, `outputs/` в template-слое),
-   обновить список скиллов (в root — без `cc-record-finding`/`cc-finding-sync`, они только в `template/`)
-3. Адаптировать `CONTRIBUTION.md` — описание двух слоёв, правила синхронизации аналитических скиллов
-4. Адаптировать `SETUP.md` — упомянуть Python/uv, аналитику-специфичные next steps при развёртывании
-5. Переписать `.context/blueprint.md` — мета-репо контекст: что это, два слоя, связь с `main` веткой
-6. Переписать `.context/status.md` — начальное состояние analytics-ветки (что унаследовано, что ещё не сделано)
-7. Добавить ADR-021/022/023 в `.context/decisions.md` — уже записаны в ходе обсуждения; проверить
-   полноту и добавить недостающее
-8. Переписать `.context/to-do.md` — список из 6 задач для analytics-ветки (уже обновлён)
-9. Адаптировать `.claude/index.md` — обновить навигацию под analytics meta-repo контекст
+1. Создать `template/.context/methodology.md` — шаблонный файл статистической методологии
+2. Создать `template/.claude/skills/meta/cc-brainstorm.md` — аналитическая адаптация скилла
+3. Создать `.claude/skills/meta/cc-brainstorm.md` — копия скилла для maintainer-слоя
+4. Создать `template/.claude/commands/brainstorm.md` — файл команды (идентичен main)
+5. Создать `.claude/commands/brainstorm.md` — файл команды для maintainer-слоя
+6. Добавить раздел Brainstorm mode в `template/CLAUDE.md` — первым в "Your roles"
+7. Добавить `/brainstorm` и `/brainstorm done` в таблицу команд `template/CLAUDE.md`
+8. Добавить `/brainstorm` и `/brainstorm done` в таблицу команд `CLAUDE.md` (maintainer)
 
 ### Files
 
+Create:
+
+- `template/.context/methodology.md`
+- `template/.claude/skills/meta/cc-brainstorm.md`
+- `.claude/skills/meta/cc-brainstorm.md`
+- `template/.claude/commands/brainstorm.md`
+- `.claude/commands/brainstorm.md`
+
 Edit:
-- `CLAUDE.md` — сменить описание репо; добавить сравнительную таблицу dev vs analytics; обновить
-  `Repo structure` (добавить `data/`, `notebooks/`, `src/`, `outputs/` в template-слой); обновить
-  `Maintaining this template` (правило про analytics-скиллы); оставить слэш-команды и язык (English)
-- `CONTRIBUTION.md` — обновить описание template-слоя; добавить правило: analytics-скиллы
-  (`cc-record-finding`, `cc-finding-sync`) — только в `template/`, не в корне
-- `SETUP.md` — обновить описание шаблона; добавить Python/uv в next steps; поправить первую фразу в
-  "First session" (cc читает analytics-specific файлы)
-- `.context/blueprint.md` — переписать: что такое analytics-workflow-template, два слоя, что добавилось
-  относительно workflow-template (findings, methodology, data provenance), связь с main веткой
-- `.context/status.md` — переписать: дата/ветка = analytics; что унаследовано от main; что ещё не
-  реализовано из аналитических задач (tasks 2–6)
-- `.context/decisions.md` — добавить ADR-021 в начало файла
-- `.context/to-do.md` — переписать под analytics: 6 задач, текущая = Task 1 (В работе)
-- `.claude/index.md` — обновить описание репо; убрать cc-architect-sync из analytics-context
-  (он остаётся в `.claude/skills/meta/` но не упоминается в навигаторе как основной инструмент)
+
+- `template/CLAUDE.md` — добавить Brainstorm mode первым в "Your roles" + две строки в таблицу команд
+- `CLAUDE.md` — добавить две строки в таблицу команд
+
+### Skill algorithm: аналитические отличия от main-версии
+
+#### Параметры `/brainstorm done` — Parameter sweep
+
+_Заполняются сейчас_ (из сессии или через вопросы):
+
+| Плейсхолдер | Откуда |
+| --- | --- |
+| `{PROJECT_DESCRIPTION}` | из брейншторма |
+| `{DATA_SOURCE_1}` + description + volume | из брейншторма, если обсудили |
+| `{COMMUNICATION_LANGUAGE}` / `{CONTEXT_LANGUAGE}` / `{CODE_COMMENTS_LANGUAGE}` | спросить |
+| `{CODE_CONVENTIONS}` | спросить |
+| `{ANALYSIS_RULES}` | спросить или вывести из брейншторма |
+| `{RUNTIME_SETUP}` | спросить |
+| `{REPO_URL}` | взять из `git remote get-url origin`, если есть |
+
+_Заполняются позже_ (пропустить):
+
+`{PROJECT_NAME}` (уже заполнен `install.sh`), `{PROJECT_STRUCTURE}`, `{PHASE_NAME}`, `{N}`,
+`{FIRST_DECISION_TITLE}`, `{FIRST_KEY_DECISION}`, `{DECISION_KEY}`
+
+#### Файлы для заполнения в `/brainstorm done`
+
+- `CLAUDE.md` — аналитические плейсхолдеры (описание проекта, языки, источники данных, правила)
+- `.context/blueprint.md` — фокус на данных: источники, pipeline, ключевые поля
+- `.context/methodology.md` — статистические конвенции, полученные из брейншторма
+- `.context/to-do.md` — если появились аналитические направления/гипотезы
+- `.context/status.md` — если есть начальное состояние проекта
+- `.claude/index.md` — если есть `{PROJECT_DESCRIPTION}`
+- NOT `findings.md` — только для реальных находок, не для брейншторма
+
+#### Завершение сессии
+
+```text
+Сессия завершена.
+Сохранено: .context/discussions/brainstorm-YYYYMMDD-{slug}.md
+Обновлено: CLAUDE.md, .context/blueprint.md, .context/methodology.md, [другие если были]
+
+Следующий шаг: /architect — проработать методологию и данные на основе инсайтов.
+```
+
+### template/.context/methodology.md — структура шаблона
+
+```markdown
+# {PROJECT_NAME} — Methodology
+
+> Statistical conventions and model standards for this project.
+> Updated via `/record` when methodology decisions are made.
+
+---
+
+## Statistical approach
+
+{STATISTICAL_APPROACH}
+
+## Key assumptions
+
+- {ASSUMPTION_1}
+- {ASSUMPTION_2}
+
+## Validation standards
+
+{VALIDATION_STANDARDS}
+
+## Model standards
+
+| Criterion | Standard |
+| --- | --- |
+| Significance threshold | {SIGNIFICANCE_THRESHOLD} |
+| Minimum sample size | {MIN_SAMPLE_SIZE} |
+
+## Known data caveats
+
+{DATA_CAVEATS}
+```
 
 ### Constraints
 
-- НЕ трогать `template/` — это задачи 2–5
-- НЕ трогать `scripts/` — задача 6
-- НЕ трогать `.claude/skills/meta/` и `.claude/commands/` — корневые скиллы остаются без изменений
-- НЕ использовать `/close` для закрытия этой задачи — analytics не мержится в dev/main
-- После завершения: коммит прямо на ветке `analytics`, ветка живёт параллельно
-- Language-конвенция корневого CLAUDE.md не меняется: English workflow docs, Russian .context/
+- `template/CLAUDE.md` корень: добавить только новый раздел mode и строки в таблице — структуру не менять
+- `CLAUDE.md` (maintainer): добавить только строки в таблице команд
+- Скилл не создаёт code-файлы (`.py`, `.ipynb` и т.д.) ни при каких обстоятельствах
+- При заполнении `methodology.md` — только плейсхолдеры заменять, секции не удалять
+- Если `blueprint.md` содержит software-плейсхолдеры (`{COMPONENT_1}` и т.д.) — адаптировать их в аналитический контекст при заполнении (источники данных, pipeline-этапы)
 
 ### Verification
 
 ```bash
-# analytics-ветка создана
-git branch | grep analytics
+# Скилл присутствует в обоих слоях
+ls template/.claude/skills/meta/cc-brainstorm.md
+ls .claude/skills/meta/cc-brainstorm.md
 
-# Идентификация репо верна
-grep "analytics-workflow-template\|analytics workflow" CLAUDE.md
+# Команда присутствует в обоих слоях
+ls template/.claude/commands/brainstorm.md
+ls .claude/commands/brainstorm.md
 
-# Сравнительная таблица присутствует
-grep "workflow-template.*analytics\|analytics.*workflow-template" CLAUDE.md
+# Шаблон methodology.md создан
+ls template/.context/methodology.md
 
-# ADR-021 добавлен
-grep "ADR-021" .context/decisions.md
+# Команды добавлены в оба CLAUDE.md
+grep "brainstorm" template/CLAUDE.md
+grep "brainstorm" CLAUDE.md
 
-# to-do.md содержит 6 аналитических задач
-grep "Task [1-6]" .context/to-do.md | wc -l
-# ожидаемый вывод: 6
+# Brainstorm mode — первый в "Your roles"
+grep -n "Brainstorm\|Organizer\|Architect\|Analyst" template/CLAUDE.md | head -10
 ```
 
 ### Changes along the way

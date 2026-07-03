@@ -5,6 +5,34 @@
 
 ---
 
+## ADR-024: Добавить скилл /caveman в оба слоя шаблона
+
+**Статус:** Принято
+
+**Контекст:** Длинные ответы CC при активной аналитической работе (итерации по данным, быстрые
+уточнения) расходуют токены на воду и вводные фразы. Внешний проект JuliusBrussee/caveman (MIT)
+решает эту задачу: скилл сжимает ответы ~65% без потери технической точности, работает на уровне
+инструкции в `.md`-файле, не требует npm или внешних зависимостей.
+
+**Решение:** Добавить `cc-caveman.md` в оба слоя как general skill (аналогично `cc-commit`,
+`cc-close-task`). Содержимое — адаптация `skills/caveman/SKILL.md` из upstream с сохранением
+copyright (MIT, JuliusBrussee) и явной ссылкой на версию (commit SHA + дата) для возможности
+обновления. В шаблонный слой добавить аналитическое примечание: в `findings.md` и `methodology.md`
+избегать уровня `ultra` — там важна точность. `template/WORKFLOW.md` получает раздел с инструкцией
+по применению. Скилл — строго opt-in, не активируется по умолчанию.
+
+**Последствия:**
+
+- `template/.claude/skills/meta/cc-caveman.md` — новый файл (шаблонный слой, с analytics-note)
+- `.claude/skills/meta/cc-caveman.md` — новый файл (мейнтейнерский слой)
+- `template/.claude/commands/caveman.md` — файл команды
+- `.claude/commands/caveman.md` — файл команды
+- `template/WORKFLOW.md` — строка в таблицу команд + раздел «Caveman mode» с инструкцией
+- `template/CLAUDE.md` — строка `/caveman` в таблицу slash commands
+- `CLAUDE.md` (root) — строка `/caveman` в таблицу slash commands
+
+---
+
 ## ADR-023: Три выходных скилла аналитического шаблона
 
 **Статус:** Принято (analytics-ветка)
