@@ -146,6 +146,7 @@ In this mode you:
 | `/sync` | Compare documentation with implementation, suggest changes |
 | `/retro` | Retrospective: analyse history → discussion file → actions |
 | `/commit` | Show diff → confirm → commit |
+| `/caveman [level]` | Enable caveman mode — compress CC responses to reduce token usage |
 
 ---
 

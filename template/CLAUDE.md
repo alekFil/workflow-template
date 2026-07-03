@@ -187,6 +187,7 @@ If a problem outside the plan scope is found during analysis — two paths:
 | `/close` | Merge `experiment/*` branch into `main` (ff-only) |
 | `/retro` | Retrospective: analyse history → discussion file → actions |
 | `/commit` | Show diff → confirm → commit |
+| `/caveman [level]` | Enable caveman mode — compress CC responses to reduce token usage |
 
 ---
 

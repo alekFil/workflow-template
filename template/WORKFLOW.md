@@ -24,6 +24,7 @@ Type `/command` directly in the Claude Code prompt. Each command is defined by a
 | `/commit` | Show diff → wait for confirmation → commit |
 | `/close` | Rebase + ff-merge `experiment/*` into `main`, delete branch |
 | `/retro` | Analyse project history → write discussion → propose to-do and decision updates |
+| `/caveman [level]` | Enable caveman mode — compress CC responses to reduce token usage |
 
 ---
 
@@ -123,3 +124,22 @@ Format: `type: description`
 | `notebooks/README.md` | Notebook naming conventions and index |
 | `src/README.md` | What is in the reusable code |
 | `outputs/README.md` | Purpose of the exports folder |
+
+---
+
+## Caveman mode
+
+Reduces CC response length ~65–75% by stripping filler while preserving technical accuracy.
+Useful during active iteration — data exploration, quick clarifications, tight loops with CC.
+
+```text
+/caveman        ← enable at default level (full)
+/caveman lite   ← professional + tight, full sentences
+/caveman full   ← fragments OK, drop articles (default)
+/caveman ultra  ← maximum compression; use arrows for logic flow
+```
+
+**Analytics note:** avoid `ultra` when writing content that goes into `findings.md` or
+`methodology.md` — precision and full sentences matter there.
+
+To disable: type `stop caveman` or `normal mode`.
