@@ -84,7 +84,7 @@
 mkdir my-analysis && cd my-analysis
 git init
 curl -fsSL .../analytics/scripts/install.sh | bash
-→ uv sync → jupyter lab → CC fills placeholders
+→ uv sync → open notebook IDE → CC fills placeholders
 ```
 
 ### 4.2 Мейнтейнинг шаблона

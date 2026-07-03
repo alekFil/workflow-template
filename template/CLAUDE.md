@@ -230,7 +230,6 @@ If a problem outside the plan scope is found during analysis — two paths:
 | Command | Purpose |
 | --- | --- |
 | `uv sync` | Install dependencies |
-| `uv run jupyter lab` | Start Jupyter Lab |
 | `uv run jupyter nbconvert --to notebook --execute --inplace notebooks/NN-*.ipynb` | Execute notebook and verify it does not fail |
 | `uv run pytest` | Run tests for `src/` |
 

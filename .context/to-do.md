@@ -62,7 +62,7 @@
 
 - Переписать `scripts/install.sh`:
   - Сообщения и заголовок — analytics-specific
-  - Next steps: `uv sync`, `uv run jupyter lab`, "Run CC and say: read CLAUDE.md"
+  - Next steps: `uv sync`, open notebook IDE, "Run CC and say: read CLAUDE.md"
   - Добавить `.gitignore`-запись для `data/*` и `outputs/*.html` в процессе установки
 - Адаптировать `scripts/uninstall.sh`: добавить analytics-specific файлы
   (`findings.md`, `methodology.md`, `data/`, `notebooks/`, `src/`, `outputs/`)

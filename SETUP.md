@@ -68,16 +68,22 @@ After setup:
    uv sync
    ```
 
-2. Start Jupyter:
+2. Open notebooks in your preferred environment — VS Code (Jupyter extension), Jupyter Lab,
+   or any Jupyter-compatible IDE.
 
-   ```bash
-   uv run jupyter lab
-   ```
+   Keep the notebook IDE and CC open in parallel: the IDE for computation, CC for planning
+   and recording findings.
 
 3. Open CC and say:
 
    ```text
    Read CLAUDE.md and help me fill in the remaining placeholders.
+   ```
+
+4. Start your first analysis session in CC:
+
+   ```text
+   /brainstorm <your analytical question>
    ```
 
 ---
