@@ -66,3 +66,19 @@ removed by `scripts/uninstall.sh`. No manual management needed — CC handles it
 
 Skills are not explicitly versioned.
 Change history — in `git log` and `.context/decisions.md`.
+
+---
+
+## Caveman mode
+
+Reduces CC response length ~65–75% by stripping filler while preserving technical accuracy.
+Useful during active iteration — quick clarifications, tight loops with CC.
+
+```text
+/caveman        ← enable at default level (full)
+/caveman lite   ← professional + tight, full sentences
+/caveman full   ← fragments OK, drop articles (default)
+/caveman ultra  ← maximum compression; use arrows for logic flow
+```
+
+To disable: type `stop caveman` or `normal mode`.
