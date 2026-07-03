@@ -43,4 +43,6 @@ grep "findings.md" CONTRIBUTION.md && echo "BAD" || echo "correctly absent"
 
 ### Changes along the way
 
-(пока пусто)
+- `scripts/install.sh` строки 135–136: `oss` → `analytics` — ветка `oss` не существует,
+  скрипт получал 404 при скачивании архива шаблона. Паттерн `main`/`analytics` симметричен:
+  `main` ветка скачивала `main.tar.gz`, `analytics` должна скачивать `analytics.tar.gz`.
