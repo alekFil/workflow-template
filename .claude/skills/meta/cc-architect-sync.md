@@ -19,6 +19,7 @@ Edits are made only after explicit agreement with the owner.
 - `.context/blueprint.md` — current documentation
 - `.context/status.md` — current implementation state
 - `.context/to-do.md` — task queue
+- `.claude/skills/project/*.md` — technical conventions (if directory exists)
 - `CLAUDE.md` — entry file
 
 If `.context/status.md` is missing or outdated — report:
@@ -38,6 +39,12 @@ For each document find:
 
 - Tasks from "Next" that are already implemented per status.md — suggest moving to "Done"
 - Tasks in "In progress" that are actually complete — suggest moving to "Done"
+
+**.claude/skills/project/*.md** (if directory exists):
+
+- Instructions that don't match the actual code (libraries, patterns, paths)
+- New recurring patterns worth capturing as a skill
+- Outdated instructions
 
 **CLAUDE.md:**
 
@@ -100,3 +107,6 @@ If the divergence is accidental — record it and plan to fix the implementation
 
 **ADRs are never deleted.**
 If a decision has changed — add a new ADR with a note "replaces ADR-XXX".
+
+**Skills must match the actual code.**
+A divergence between a skill and the implementation is always an error. One of them is wrong.

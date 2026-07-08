@@ -1,6 +1,6 @@
 # Skill: Commit changes
 
-Triggered by: `/commit`
+Triggered by: `/commit`, "commit", "make a commit" and variations.
 
 ---
 

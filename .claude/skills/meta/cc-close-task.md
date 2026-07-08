@@ -1,6 +1,6 @@
 # Skill: Close task
 
-Triggered by: `/close`
+Triggered by: `/close`, "close the task", "task done" and variations.
 
 ---
 

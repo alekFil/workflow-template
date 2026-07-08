@@ -127,8 +127,8 @@ In this mode you:
 | `/dev` | Switch to Developer mode — implement `.context/plan.md` |
 | `/close` | Merge feature branch, close the task |
 | `/report` | Archive and write new `.context/status.md` |
-| `/sync` | Compare documentation with implementation, suggest changes |
-| `/retro` | Ретроспектива: анализ истории → discussion-файл → действия |
+| `/sync` | Compare code with documentation, suggest changes |
+| `/retro` | Retrospective: analyze history → write discussion → propose actions |
 | `/commit` | Show diff → confirm → commit |
 
 ---
@@ -137,8 +137,9 @@ In this mode you:
 
 - Model: `main` / `dev` / `feature/<name>` / `hotfix/<name>`
 - Merges only via ff-only — rebase onto target branch before merging
-- `feature/*` → `dev` (via `/close`)
-- `dev` → `main` — manually only
+- `feature/*` → `dev` (automatically via `/close`)
+- `hotfix/*` → `main` (automatically via `/close`), then `dev` is rebased manually
+- `dev` → `main` — manually only, release decision
 - CC never does `git push` without explicit request
 
 ---
