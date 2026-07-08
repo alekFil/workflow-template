@@ -23,7 +23,7 @@ Edits are made only after explicit agreement with the developer.
 - `CLAUDE.md` — entry file
 
 If `.context/status.md` is missing or outdated — report:
-> "No current status.md. First run: `/status`"
+> "No current status.md. First run: `/report`"
 
 ### 2. Analyze divergences
 

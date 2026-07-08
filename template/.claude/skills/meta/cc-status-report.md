@@ -1,6 +1,6 @@
 # Skill: Project status report
 
-Triggered by: `/status`, "what's done", "show status" and variations.
+Triggered by: `/report`, "what's done", "show status" and variations.
 
 ---
 
