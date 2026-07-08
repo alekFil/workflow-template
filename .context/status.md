@@ -1,6 +1,6 @@
 # Статус реализации workflow-template
 
-Дата: 2026-06-21 (ветка `oss`)
+Дата: 2026-07-08 18:00:00
 
 ---
 
@@ -8,32 +8,34 @@
 
 **Мейнтейнерский слой (корень):**
 
-- `CLAUDE.md` — инструкции CC: роли, 10 слэш-команд, конвенции (ADR-008, ADR-009, ADR-018, ADR-019); Language-секция с явными значениями: Russian / Russian / English / English
-- `CONTRIBUTION.md` — руководство мейнтейнера на английском (ADR-009, ADR-018)
-- `SETUP.md` — инструкция по развёртыванию на английском; curl и клон; раздел «Удаление» (ADR-013, ADR-014)
+- `CLAUDE.md` — инструкции CC: роли, 10 слэш-команд, конвенции; Language-секция (Russian/Russian/English/English); уточнена модель веток (hotfix → main + rebase dev, feature → dev); `/retro` и `/sync` переведены на английский (ADR-008, ADR-009, ADR-018, ADR-019, ADR-020)
+- `CONTRIBUTION.md` — руководство мейнтейнера на английском
+- `SETUP.md` — инструкция по развёртыванию; curl и клон; раздел «Удаление»
 - `README.md` — описание репо для GitHub; секции Demo walkthrough и Contributing
 - `.gitignore` — исключены `.claude/settings.local.json`, `.claude/chat_history/`, `.env`, `.context/notes/*.md`, `memory/`
-- `.markdownlint.json` — конфигурация проверки Markdown (только мейнтейнерский слой)
-- `.claude/index.md` — навигатор CC на английском с триггерами слэш-команд (ADR-018)
-- `.claude/commands/` — 10 файлов слэш-команд: `architect.md`, `close.md`, `commit.md`, `dev.md`, `next.md`, `organize.md`, `record.md`, `report.md`, `retro.md`, `sync.md` (ADR-017, ADR-018, ADR-019)
-- `.claude/skills/meta/` — пять мета-скиллов на английском: cc-commit, cc-close-task, cc-status-report, cc-architect-sync, cc-retrospective (ADR-018, ADR-019)
-- `.context/blueprint.md`, `.context/plan.md`, `.context/to-do.md`, `.context/decisions.md` — заполнены, на русском
+- `.markdownlint.json` — конфигурация Markdown (только мейнтейнерский слой)
+- `.claude/index.md` — навигатор CC на английском с триггерами слэш-команд
+- `.claude/commands/` — 10 файлов слэш-команд: `architect.md`, `close.md`, `commit.md`, `dev.md`, `next.md`, `organize.md`, `record.md`, `report.md`, `retro.md`, `sync.md`
+- `.claude/skills/meta/cc-architect-sync.md` — добавлен аудит `.claude/skills/project/*.md` (если директория существует); принцип «Skills must match the actual code»
+- `.claude/skills/meta/cc-close-task.md`, `cc-commit.md` — точечные исправления из бэкпорта шаблонного слоя
+- `.claude/skills/meta/cc-status-report.md`, `cc-retrospective.md` — без изменений с 2026-06-21
+- `.context/blueprint.md`, `plan.md`, `to-do.md`, `decisions.md` — на русском; plan.md содержит завершённую задачу fix-install-oss-to-main
 - `.context/discussions/` — четыре обсуждения: curl-установка, mini-версия, локальный LLM-агент, ретроспектива 2026-06-21
-- `.context/notes/` — личные заметки владельца (исключены из git, ADR-011)
-- `scripts/install.sh` — curl-установка на английском: tar.gz, плейсхолдеры (PROJECT_NAME + три языковых), .gitignore с маркером, видимость ассистента, опциональные коммит и dev-ветка, языковой блок вопросов [one/multi] (ADR-005, ADR-007, ADR-012, ADR-013, ADR-014, ADR-020)
-- `scripts/uninstall.sh` — удаление ассистента на английском: перечисляет файлы, очищает .gitignore и .git/info/exclude (ADR-013, ADR-014)
+- `scripts/install.sh` — **исправлен**: скачивает `main.tar.gz` (вместо `oss.tar.gz`), путь распаковки `workflow-template-main/template`; языковой блок вопросов [one/multi]; 4 плейсхолдера (ADR-005, ADR-007, ADR-012, ADR-013, ADR-014, ADR-020)
+- `scripts/uninstall.sh` — удаление ассистента; очищает `.gitignore` и `.git/info/exclude`
 
-**Шаблонный слой (`template/`) — английский, слэш-команды (ADR-014, ADR-015, ADR-016, ADR-017, ADR-019, ADR-020):**
+**Шаблонный слой (`template/`) — английский, слэш-команды:**
 
-- `template/CLAUDE.md` — на английском; 10 слэш-команд включая `/retro`; явная Language-секция с тремя плейсхолдерами (`{COMMUNICATION_LANGUAGE}`, `{CONTEXT_LANGUAGE}`, `{CODE_COMMENTS_LANGUAGE}`) и хардкодом English для workflow docs; `{CODE_CONVENTIONS}` без упоминания Comment language
-- `template/WORKFLOW.md` — шпаргалка рабочего процесса на английском; `/retro` добавлен в таблицу и в "Typical workday" пункт 7
+- `template/CLAUDE.md` — 10 слэш-команд; Language-секция с тремя плейсхолдерами; `{CODE_CONVENTIONS}` без упоминания Comment language (ADR-014—ADR-020)
+- `template/WORKFLOW.md` — шпаргалка; `/retro` в таблице и в "Typical workday"
 - `template/.gitignore` — базовый .gitignore для нового проекта
 - `template/.claude/index.md` — навигатор CC на английском
-- `template/.claude/commands/` — 10 файлов слэш-команд (зеркало мейнтейнерского слоя, включая `retro.md`)
-- `template/.claude/skills/meta/` — пять мета-скиллов на английском (cc-commit, cc-close-task, cc-status-report, cc-architect-sync, cc-retrospective)
-- `template/.context/blueprint.md`, `plan.md`, `to-do.md`, `status.md`, `decisions.md` — на английском, с плейсхолдерами
-- `template/.context/notes/` — пустая директория (`.gitkeep`; `.gitignore` исключает `*.md`, ADR-011)
-- `template/.markdownlint.json` — **удалён** (ADR-015)
+- `template/.claude/commands/` — 10 файлов слэш-команд
+- `template/.claude/skills/meta/cc-architect-sync.md` — **исправлен**: ссылка `/report` вместо `/status` (ADR-017)
+- `template/.claude/skills/meta/cc-status-report.md` — **исправлен**: имя команды `/report` вместо `/status` (ADR-017)
+- `template/.claude/skills/meta/cc-commit.md`, `cc-close-task.md`, `cc-retrospective.md` — без изменений
+- `template/.context/*.md` — на английском, с плейсхолдерами
+- `template/.context/notes/`, `history/`, `discussions/` — пустые директории (`.gitkeep`)
 
 ---
 
@@ -53,19 +55,19 @@ workflow-template/
 │   ├── settings.local.json       ← в .gitignore
 │   ├── commands/                 ← 10 файлов слэш-команд
 │   └── skills/meta/
-│       ├── cc-commit.md
-│       ├── cc-close-task.md
-│       ├── cc-status-report.md
 │       ├── cc-architect-sync.md
-│       └── cc-retrospective.md
+│       ├── cc-close-task.md
+│       ├── cc-commit.md
+│       ├── cc-retrospective.md
+│       └── cc-status-report.md
 ├── .context/
 │   ├── blueprint.md
-│   ├── plan.md
-│   ├── to-do.md
-│   ├── status.md
 │   ├── decisions.md
-│   ├── history/         (011 архивов)
-│   ├── discussions/     (4 обсуждения)
+│   ├── plan.md
+│   ├── status.md
+│   ├── to-do.md
+│   ├── discussions/     (4 файла)
+│   ├── history/         (012 архивов)
 │   └── notes/           ← в .gitignore
 ├── memory/              ← в .gitignore
 ├── scripts/
@@ -78,15 +80,15 @@ workflow-template/
     ├── .claude/
     │   ├── index.md
     │   ├── commands/    ← 10 файлов слэш-команд
-    │   └── skills/meta/ (5 скиллов на английском)
+    │   └── skills/meta/ ← 5 скиллов на английском
     └── .context/
         ├── blueprint.md
-        ├── plan.md
-        ├── to-do.md
-        ├── status.md
         ├── decisions.md
-        ├── history/
+        ├── plan.md
+        ├── status.md
+        ├── to-do.md
         ├── discussions/
+        ├── history/
         └── notes/
 ```
 
@@ -94,26 +96,8 @@ workflow-template/
 
 ## Ключевые технические решения
 
-- **ADR-001**: Два слоя — мейнтейнерский (корень) и шаблонный (`template/`)
-- **ADR-002**: `index.md` в `.claude/`, не в `docs/`
-- **ADR-003**: Cookiecutter — Отклонено, заменено ADR-014
-- **ADR-004**: Аудит `decisions.md` встроен в `cc-architect-sync`, не отдельным скиллом
-- **ADR-005**: `install.sh` для curl-установки
-- **ADR-006**: `docs/` переименована в `.context/` в обоих слоях
-- **ADR-007**: `scripts/init-project.sh` удалён; `install.sh` — единственный способ установки
-- **ADR-008**: Раздел «Управление контекстом» удалён из обоих `CLAUDE.md`
-- **ADR-009**: Предпубликационный аудит — 6 исправлений
-- **ADR-010**: Отказ от `template-mini`
-- **ADR-011**: `.context/notes/` — личные заметки, исключены из git в обоих слоях
-- **ADR-012**: `install.sh` — безопасный `.gitignore`, управление видимостью ассистента
-- **ADR-013**: `install.sh` — опциональные коммит и dev-ветка; `uninstall.sh`; `SETUP.md` — раздел «Удаление»
-- **ADR-014**: OSS-публикация — перевод шаблонного слоя и публичных файлов на английский
-- **ADR-015**: Удалён `template/.markdownlint.json` из шаблонного слоя
-- **ADR-016**: Ветка `oss`; «Respond in the user's language»; слэш-команды в шаблоне реализованы вместе с переводом
-- **ADR-017**: Переименование `/status` → `/report` (конфликт со встроенной командой CC)
-- **ADR-018**: Мейнтейнерский слой переведён на английский; слэш-команды добавлены в `.claude/commands/`
-- **ADR-019**: `/retro` добавлен как регулярный инструмент рабочего процесса; hybrid-mode
-- **ADR-020**: Явная языковая настройка в установщике: три плейсхолдера, вопрос [one/multi], workflow docs всегда English
+- **ADR-001–ADR-020**: все действующие (список в `decisions.md`)
+- Последнее решение — ADR-020: явная языковая настройка в установщике и CLAUDE.md
 
 ---
 
@@ -121,12 +105,12 @@ workflow-template/
 
 ```text
 CLAUDE.md ← .claude/commands/ (слэш-команды → режимы/скиллы)
-CLAUDE.md ← .claude/index.md (навигация)
-CLAUDE.md ← .claude/skills/meta/ (файлы скиллов)
-template/CLAUDE.md ← template/.claude/commands/ (слэш-команды)
+CLAUDE.md ← .claude/index.md
+CLAUDE.md ← .claude/skills/meta/
+template/CLAUDE.md ← template/.claude/commands/
 template/CLAUDE.md ← template/.claude/index.md
 template/CLAUDE.md ← template/.claude/skills/meta/
-scripts/install.sh → template/ (скачивает как tar.gz; подставляет 4 плейсхолдера: PROJECT_NAME + 3 языковых)
+scripts/install.sh → template/ (tar.gz; 4 плейсхолдера: PROJECT_NAME + 3 языковых)
 scripts/uninstall.sh → .claude/, .context/, CLAUDE.md, WORKFLOW.md, .gitignore, .git/info/exclude
 .claude/commands/retro.md → .claude/skills/meta/cc-retrospective.md
 template/.claude/commands/retro.md → template/.claude/skills/meta/cc-retrospective.md
@@ -136,9 +120,9 @@ template/.claude/commands/retro.md → template/.claude/skills/meta/cc-retrospec
 
 ## Что не реализовано из запланированного
 
-- **Демо-скринкаст** (Приоритет 1): записать одну сессию от `/architect` до `/commit` — не начато
-- **README полная перезапись** (Приоритет 1): объяснить двухслойную структуру — добавлены секции Demo walkthrough и Contributing, но полной перезаписи не было
-- **Управление decisions.md (ADR-004)** (Приоритет 2): `cc-architect-sync` не расширен, история ADR не архивируется
+- **Демо-скринкаст** (Приоритет 1): одна сессия от `/architect` до `/commit` — не начато
+- **README полная перезапись** (Приоритет 1): двухслойная структура, демо — не начато
+- **Управление decisions.md (ADR-004)** (Приоритет 2): `cc-architect-sync` не расширен в части архивации ADR со статусом «Заменено»; `.context/history/decisions/` не создана
 - **Тест install.sh end-to-end** (Приоритет 2): не начато
 - **Полнота шаблона** (Приоритет 3): нет `.claudeignore` в `template/`, нет `template/.claude/skills/project/`
 
@@ -148,5 +132,6 @@ template/.claude/commands/retro.md → template/.claude/skills/meta/cc-retrospec
 
 - Демо: формат (GIF / скринкаст / ASCII), инструмент записи — не выбраны
 - `uninstall.sh` доступен через curl, но URL в `SETUP.md` не проверен end-to-end — нужен тест
-- Обсуждение 2026-06-18: идея локального LLM-агента (Pydantic AI + vLLM + Qwen3-30B) как альтернативы CC — где будет жить, не решено
-- `memory/` появился в корне репо (автопамять CC) — исключён из git; статус папки в долгосрочной перспективе не определён
+- `plan.md` содержит завершённую задачу (fix-install-oss-to-main) — нужно очистить или сбросить для следующей задачи
+- Обсуждение 2026-06-18: идея локального LLM-агента как альтернативы CC — где будет жить, не решено
+- `memory/` в корне репо (автопамять CC) — исключён из git; статус в долгосрочной перспективе не определён
