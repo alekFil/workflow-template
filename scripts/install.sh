@@ -131,9 +131,30 @@ EXISTING_GITIGNORE=""
 [ -f ".gitignore" ] && EXISTING_GITIGNORE=$(cat .gitignore)
 
 # Download template/ from repo
+TMPFILE=$(mktemp /tmp/workflow-template-XXXXXX.tar.gz)
+trap 'rm -f "$TMPFILE"' EXIT
+
 echo "Downloading template..."
-curl -fsSL "${REPO}/archive/refs/heads/main.tar.gz" \
-    | tar xz --strip-components=2 "workflow-template-main/template"
+MAX_ATTEMPTS=3
+RETRY_DELAY=5
+DOWNLOAD_OK=false
+for attempt in $(seq 1 $MAX_ATTEMPTS); do
+    if curl -fsSL "${REPO}/archive/refs/heads/main.tar.gz" -o "$TMPFILE"; then
+        DOWNLOAD_OK=true
+        break
+    fi
+    if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+        echo -e "${YELLOW}Warning:${NC} download failed, retrying in ${RETRY_DELAY}s... (${attempt}/${MAX_ATTEMPTS})"
+        sleep "$RETRY_DELAY"
+    fi
+done
+
+if [ "$DOWNLOAD_OK" = false ]; then
+    echo -e "${RED}Error:${NC} failed to download template after ${MAX_ATTEMPTS} attempts."
+    exit 1
+fi
+
+tar xz --strip-components=2 -f "$TMPFILE" "workflow-template-main/template"
 
 # Process .gitignore: append, do not overwrite
 TEMPLATE_GITIGNORE=$(cat .gitignore)
