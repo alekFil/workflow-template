@@ -1,126 +1,91 @@
-## Task: Добавить режим `/polish --all` и написать мейнтейнерские project rules
+## Task: Убрать правило «bold не должен использоваться как заголовок» из всех точек
 
 ### Context
 
-`/polish` (ADR-023) поддерживает только diff-based scope: `merge-base HEAD dev..HEAD`,
-конкретный `<path>` или `--staged`. Для случая «работаю прямо на `dev`, хочу пройтись
-по всему коду разом» нет режима. ADR-024 добавляет `--all` — прогон по всем tracked-файлам
-через `git ls-files` с опциональным исключением через `.polishignore`. В этом режиме
-встроенный `simplify` не вызывается (рассчитан на diff, шум + риск превышения контекста),
-работают только project-rules.
+Правило (ADR-024 п. 5, продублировано в CLAUDE.md обоих слоёв) даёт 91 нарушение
+из 109 при `/polish --all` — паттерн `**Метка:**` де-факто прижился в ADR,
+снапшотах статуса, блюпринте и скиллах. Ужесточать шаблоны или переписывать
+историю — churn без пользы; правило создавало шум, а не ловило ошибки.
+ADR-025 фиксирует отмену и требует убрать правило синхронно из трёх файлов.
 
-Одновременно наполняем `.claude/skills/project/rules/` в мейнтейнерском слое двумя
-правилами — впервые задействуем точку расширения из ADR-023 п. 5.
-
-Depends on: ADR-023 (базовый `/polish`), ADR-024 (это решение).
+Depends on: ADR-025.
 
 ### What to implement
 
-1. **Алгоритм `--all` в `.claude/skills/meta/cc-code-polish.md`:**
-   - Раздел «Determine diff scope» → таблица аргументов: добавить строку `--all` со scope
-     `git ls-files` минус `.polishignore` (если файл присутствует).
-   - Явно указать: в `--all` встроенный `simplify` **не вызывается**, работают только
-     project-rules (тот же путь, что уже описан для fallback «simplify unavailable»).
-   - Перед сканированием — confirm: «Scope: N files. Continue? y/n». Отказ = выход.
-   - Раздел «Constraints» — добавить строку про `--all` и отсутствие `simplify`.
-2. **То же в `template/.claude/skills/meta/cc-code-polish.md`** — идентичные правки.
-3. **Обновить `.claude/commands/polish.md` и `template/.claude/commands/polish.md`,**
-   если добавляем описание аргументов (сейчас файлы — однострочная обёртка через
-   `$ARGUMENTS`; правка не обязательна, `--all` пробросится автоматически).
-4. **Правила мейнтейнерского слоя** — создать два prose-файла в
-   `.claude/skills/project/rules/`:
-   - `markdown-conventions.md` — H1-имя + описание: дефис-маркеры списков, язык у code
-     fences, пустые строки вокруг заголовков и списков, никаких **bold**-as-heading,
-     дивайдеры `---` только между крупными секциями. Источник — секция «Markdown
-     conventions» в CLAUDE.md.
-   - `no-placeholder-leaks.md` — H1-имя + описание: в файлах внутри `template/` токены
-     вида `{PROJECT_NAME}`, `{COMMUNICATION_LANGUAGE}` и др. должны оставаться
-     плейсхолдерами. Реальные значения (имя репо, конкретный язык) — признак утечки
-     мейнтейнерского контента в шаблонный слой.
-5. **`.context/to-do.md`** — актуализация: отложенный п. 7 ADR-023 закрыт ADR-024;
-   упомянуть, что `.claude/skills/project/rules/` в мейнтейнере теперь наполнен
-   двумя правилами.
+1. **`.claude/skills/project/rules/markdown-conventions.md`** — переписать секцию
+   правил целиком. Убрать:
+   - пункт списка «Never use `**bold**` as a heading substitute…»
+   - антипаттерн «`**Section title**` on its own line used as if it were `## Section title`»
+   - «good pattern» строку «`**bold**` used only mid-sentence for emphasis»
+
+   Остальные четыре правила (дефис-маркеры, языки у code fences, пустые строки
+   вокруг заголовков и списков, `---` только между major-секциями) сохранить
+   один в один. Секцию «Judgment notes» не трогать.
+
+2. **`CLAUDE.md` (корень)** — в разделе «Markdown conventions» удалить строку
+   «Do not use **bold** as a heading substitute — use `##`, `###`, etc.»
+   Остальные пункты списка не менять, порядок сохранить.
+
+3. **`template/CLAUDE.md`** — та же правка в той же секции.
 
 ### Files
 
-Create:
-
-- `.claude/skills/project/rules/markdown-conventions.md`
-- `.claude/skills/project/rules/no-placeholder-leaks.md`
-
 Edit:
 
-- `.claude/skills/meta/cc-code-polish.md` — таблица scope-аргументов + новый case
-  в алгоритме + правка «Constraints»
-- `template/.claude/skills/meta/cc-code-polish.md` — идентично
-- `.claude/commands/polish.md` — только если решим упомянуть `--all` в описании
-- `template/.claude/commands/polish.md` — идентично
-- `.context/to-do.md` — актуализация после закрытия отложенного пункта
+- `.claude/skills/project/rules/markdown-conventions.md` — три вырезания
+  (правила, antipattern, good pattern)
+- `CLAUDE.md` — одна строка из «Markdown conventions»
+- `template/CLAUDE.md` — одна строка из «Markdown conventions»
+
+Create: —
 
 ### Constraints
 
-- **Не создавать `.polishignore`** по умолчанию — файл опциональный, контракт совпадает
-  с `.gitignore`, отдельная документация не нужна.
-- **`--all` только добавляется** — не меняет поведение diff-режимов (без аргументов,
-  `<path>`, `--staged`).
-- **Не звать `simplify` в `--all`** — даже если он доступен. Это ключевая часть ADR-024,
-  а не оптимизация.
-- **Confirm обязателен** — `--all` без подтверждения запускаться не должен, даже если
-  scope маленький. Единообразие важнее микро-удобства.
-- **Правила — только prose** по контракту ADR-023: H1 + свободное описание, без
-  frontmatter, без секций, без severity, без auto-fix.
-- **Обвязку в `/close` не трогать** — Прочтение 2 из обсуждения отклонено, `/polish`
-  остаётся в руках пользователя.
-- **Никаких «на всякий случай» абстракций**: не вводим severity, glob-фильтры,
-  версионирование правил, per-file overrides — как и в ADR-023.
+- **Не создавать `template/.claude/skills/project/rules/markdown-conventions.md`** —
+  сохраняем текущую асимметрию (правила `/polish` живут только в мейнтейнерском
+  слое; шаблон получает их через install при копировании CLAUDE.md).
+- **Не переписывать существующие 91 нарушение** в `.context/decisions.md`,
+  `.context/history/*.md`, `.context/blueprint.md`, `.claude/skills/meta/cc-*.md`.
+  По ADR-025 п. 3 история остаётся как есть.
+- **Не менять формулировку остальных пунктов** «Markdown conventions» — только
+  вырезаем один. Никаких «пока правим, заодно поправим».
+- **Не добавлять пометку про отмену в `markdown-conventions.md`** — файл читается
+  CC как правило; исторический контекст живёт в ADR-025, дублировать не нужно.
 
 ### Verification
 
 Automatable:
 
 ```bash
-# Files created
-test -f .claude/skills/project/rules/markdown-conventions.md
-test -f .claude/skills/project/rules/no-placeholder-leaks.md
+# Правило удалено из трёх точек
+! grep -in "bold" /home/dev/projects/workflow-template/.claude/skills/project/rules/markdown-conventions.md
+! grep -in "bold.*heading\|heading.*bold" /home/dev/projects/workflow-template/CLAUDE.md
+! grep -in "bold.*heading\|heading.*bold" /home/dev/projects/workflow-template/template/CLAUDE.md
 
-# Skill files mention --all in both layers
-grep -q -- '--all' .claude/skills/meta/cc-code-polish.md
-grep -q -- '--all' template/.claude/skills/meta/cc-code-polish.md
+# Остальные четыре пункта markdown-conventions остались на месте
+grep -q "dash\|`-` " /home/dev/projects/workflow-template/.claude/skills/project/rules/markdown-conventions.md
+grep -q "language tag\|```bash" /home/dev/projects/workflow-template/.claude/skills/project/rules/markdown-conventions.md
+grep -q "empty line" /home/dev/projects/workflow-template/.claude/skills/project/rules/markdown-conventions.md
+grep -q "Horizontal rules\|`---`" /home/dev/projects/workflow-template/.claude/skills/project/rules/markdown-conventions.md
 
-# --all path explicitly disables simplify
-grep -qi 'simplify.*not.*call\|no.*simplify\|skip.*simplify' \
-  .claude/skills/meta/cc-code-polish.md
-
-# Confirm step present in --all case
-grep -qi 'confirm\|continue' .claude/skills/meta/cc-code-polish.md
-
-# ADR-024 recorded
-grep -q 'ADR-024' .context/decisions.md
+# ADR-025 записан
+grep -q "ADR-025" /home/dev/projects/workflow-template/.context/decisions.md
 ```
 
 Manual smoke:
 
-- `/polish --all` в мейнтейнерском репо → выводит количество tracked-файлов и confirm.
-- Посев: bold-as-heading в тестовом `.md` внутри `template/` → правило
-  `markdown-conventions` его ловит; отказ posit — правило не срабатывает.
-- Посев: заменить `{PROJECT_NAME}` на реальное имя в `template/CLAUDE.md` →
-  `no-placeholder-leaks` его ловит. Возврат — правило молчит.
-- Дефолтный `/polish` (без аргументов) на `feature/*` → поведение по ADR-023 не изменилось.
+- `/polish --all` после правок → правило `markdown-conventions` не флагает
+  `**Метка:**` ни в одном из 20 файлов, где нашлись прежние 91 нарушения по этому
+  пункту. Прочие правила (rule 1, 2, 3, 4, 6) работают как раньше.
+- Контроль-посев: `- item` заменить на `* item` в тестовом .md → правило по-прежнему
+  ловит.
 
 ### Changes along the way
 
-- Файлы `.claude/commands/polish.md` и `template/.claude/commands/polish.md`
-  оставлены без изменений: они однострочные обёртки через `$ARGUMENTS`, `--all`
-  пробрасывается автоматически. Правка не потребовалась.
-- Правки `CLAUDE.md` и `template/CLAUDE.md` (таблицы команд) не понадобились:
-  строка `/polish` уже описывает команду в общем виде, а не по режимам —
-  добавлять `/polish --all` отдельным пунктом было бы избыточной детализацией.
+—
 
 ### Notes
 
-Feature-ветка: `feature/polish-all-mode`.
+Feature-ветка: `feature/drop-bold-heading-rule`.
 
-Задача умещается в одну ветку — три компонента (скилл × 2 слоя + 2 правила), меньше
-порога «три компонента» из /architect. При реализации: сначала правила (изолированные,
-проще протестировать по отдельности), затем алгоритм скилла в мейнтейнерском слое,
-затем идентичный перенос в шаблон.
+Задача умещается в одну ветку — три файла, одна логическая правка (снятие правила).
