@@ -4,6 +4,7 @@ Project context for Claude Code.
 Read this file first. Details — follow the links below.
 
 **Language:**
+
 - Communication: {COMMUNICATION_LANGUAGE}
 - `.context/` files: {CONTEXT_LANGUAGE}
 - Code comments: {CODE_COMMENTS_LANGUAGE}
