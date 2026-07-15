@@ -12,8 +12,6 @@ The rules:
   is a violation.
 - Empty line before and after every heading.
 - Empty line before a list when preceded by text.
-- Never use `**bold**` as a heading substitute — use `##`, `###`, etc. Bold is
-  for in-sentence emphasis, not structure.
 - Horizontal rules (`---`) only between major sections — do not sprinkle them
   between every subsection; prefer heading hierarchy.
 
@@ -21,7 +19,6 @@ The rules:
 
 - `* item` or `+ item` in a list
 - ` ``` ` opener with no language tag
-- `**Section title**` on its own line used as if it were `## Section title`
 - Heading with no empty line above or below
 - `---` between two `###` subsections of the same `##`
 
@@ -30,7 +27,6 @@ The rules:
 - `- item` uniformly across the file
 - ` ```bash `, ` ```text `, ` ```markdown ` — language tag always present
 - Every `#`, `##`, `###` heading surrounded by blank lines
-- `**bold**` used only mid-sentence for emphasis
 
 ## Judgment notes
 

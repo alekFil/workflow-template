@@ -207,7 +207,6 @@ If a problem outside the plan scope is found during implementation — two paths
 - Code blocks: always specify language — `python`, `bash`, `yaml`, `json`, `text` for plain text
 - Empty line before and after headings
 - Empty line before lists (when preceded by text)
-- Do not use **bold** as a heading substitute — use `##`, `###`, etc.
 - Dividers `---`: use sparingly, only between major sections; prefer heading hierarchy
 
 ---
