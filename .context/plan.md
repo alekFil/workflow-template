@@ -1,108 +1,126 @@
-## Task: Add /polish command — code cleanup pipeline with pluggable rules
+## Task: Добавить режим `/polish --all` и написать мейнтейнерские project rules
 
 ### Context
 
-No workflow tool exists for cleaning up generated code between `/dev` and `/commit`.
-The built-in `simplify` skill handles reuse/quality/efficiency generically, but there is
-no wrapper that combines it with project-specific rules. Both layers need the command,
-because it belongs to the workflow contract, not to any particular project.
+`/polish` (ADR-023) поддерживает только diff-based scope: `merge-base HEAD dev..HEAD`,
+конкретный `<path>` или `--staged`. Для случая «работаю прямо на `dev`, хочу пройтись
+по всему коду разом» нет режима. ADR-024 добавляет `--all` — прогон по всем tracked-файлам
+через `git ls-files` с опциональным исключением через `.polishignore`. В этом режиме
+встроенный `simplify` не вызывается (рассчитан на diff, шум + риск превышения контекста),
+работают только project-rules.
 
-Depends on: —
+Одновременно наполняем `.claude/skills/project/rules/` в мейнтейнерском слое двумя
+правилами — впервые задействуем точку расширения из ADR-023 п. 5.
+
+Depends on: ADR-023 (базовый `/polish`), ADR-024 (это решение).
 
 ### What to implement
 
-1. Skill `cc-code-polish.md` in both layers — pipeline algorithm: diff selection by argument, invoke `simplify`, scan `rules/*.md`, apply each rule to diff, group findings, per-item `apply / skip / discuss` loop.
-2. Command `polish.md` in both layers — one-line trigger; forwards args.
-3. Rules directory in both layers:
-   - `.claude/skills/project/rules/` (maintainer) — `.gitkeep` only, currently no rules
-   - `template/.claude/skills/project/rules/` — `README.md` (explains prose format + how the skill discovers rules) + one example rule (`no-dead-code.md`)
-4. Wire `/polish` into all navigation surfaces:
-   - `CLAUDE.md` (maintainer) — add row to slash commands table
-   - `.claude/index.md` (maintainer) — add trigger line
-   - `template/CLAUDE.md` — add row to slash commands table
-   - `template/.claude/index.md` — add trigger line
-   - `template/WORKFLOW.md` — add row to commands table + insert step in "Typical workday" between current 4 (`/commit`) and current 5 (`/close`), or as a sub-step of 4
-5. `template/WORKFLOW.md` "Initial setup" section — add note that `.claude/skills/project/rules/` is where project-specific rules live.
+1. **Алгоритм `--all` в `.claude/skills/meta/cc-code-polish.md`:**
+   - Раздел «Determine diff scope» → таблица аргументов: добавить строку `--all` со scope
+     `git ls-files` минус `.polishignore` (если файл присутствует).
+   - Явно указать: в `--all` встроенный `simplify` **не вызывается**, работают только
+     project-rules (тот же путь, что уже описан для fallback «simplify unavailable»).
+   - Перед сканированием — confirm: «Scope: N files. Continue? y/n». Отказ = выход.
+   - Раздел «Constraints» — добавить строку про `--all` и отсутствие `simplify`.
+2. **То же в `template/.claude/skills/meta/cc-code-polish.md`** — идентичные правки.
+3. **Обновить `.claude/commands/polish.md` и `template/.claude/commands/polish.md`,**
+   если добавляем описание аргументов (сейчас файлы — однострочная обёртка через
+   `$ARGUMENTS`; правка не обязательна, `--all` пробросится автоматически).
+4. **Правила мейнтейнерского слоя** — создать два prose-файла в
+   `.claude/skills/project/rules/`:
+   - `markdown-conventions.md` — H1-имя + описание: дефис-маркеры списков, язык у code
+     fences, пустые строки вокруг заголовков и списков, никаких **bold**-as-heading,
+     дивайдеры `---` только между крупными секциями. Источник — секция «Markdown
+     conventions» в CLAUDE.md.
+   - `no-placeholder-leaks.md` — H1-имя + описание: в файлах внутри `template/` токены
+     вида `{PROJECT_NAME}`, `{COMMUNICATION_LANGUAGE}` и др. должны оставаться
+     плейсхолдерами. Реальные значения (имя репо, конкретный язык) — признак утечки
+     мейнтейнерского контента в шаблонный слой.
+5. **`.context/to-do.md`** — актуализация: отложенный п. 7 ADR-023 закрыт ADR-024;
+   упомянуть, что `.claude/skills/project/rules/` в мейнтейнере теперь наполнен
+   двумя правилами.
 
 ### Files
 
 Create:
 
-- `.claude/commands/polish.md`
-- `.claude/skills/meta/cc-code-polish.md`
-- `.claude/skills/project/rules/.gitkeep`
-- `template/.claude/commands/polish.md`
-- `template/.claude/skills/meta/cc-code-polish.md`
-- `template/.claude/skills/project/rules/README.md`
-- `template/.claude/skills/project/rules/no-dead-code.md`
+- `.claude/skills/project/rules/markdown-conventions.md`
+- `.claude/skills/project/rules/no-placeholder-leaks.md`
 
 Edit:
 
-- `CLAUDE.md` — `/polish` row in slash commands table
-- `.claude/index.md` — `/polish` trigger line
-- `template/CLAUDE.md` — `/polish` row in slash commands table
-- `template/.claude/index.md` — `/polish` trigger line
-- `template/WORKFLOW.md` — `/polish` row in commands table + entry in "Typical workday" + note in "Initial setup" about `rules/` directory
+- `.claude/skills/meta/cc-code-polish.md` — таблица scope-аргументов + новый case
+  в алгоритме + правка «Constraints»
+- `template/.claude/skills/meta/cc-code-polish.md` — идентично
+- `.claude/commands/polish.md` — только если решим упомянуть `--all` в описании
+- `template/.claude/commands/polish.md` — идентично
+- `.context/to-do.md` — актуализация после закрытия отложенного пункта
 
 ### Constraints
 
-- **Wrapper only.** `cc-code-polish.md` invokes the built-in `simplify` skill by name — does not reimplement its logic. If `simplify` is unavailable in the CC version — skill degrades gracefully to "rules only" mode with a warning.
-- **No security-review in default pipeline.** Separate task.
-- **Prose rule format.** Rule file = free-form markdown: title (H1) + description. No YAML frontmatter, no fixed sections, no auto-fix flag. CC reads content and applies judgment. `README.md` in `rules/` documents this contract.
-- **Convention-driven discovery.** Skill scans `.claude/skills/project/rules/*.md` at runtime. No config file, no explicit registration.
-- **Command name `/polish`** — chosen to avoid clash with existing/future built-in `/review`, `/simplify`, `/clean` (ADR-017 precedent).
-- **Do not touch `security-review`, `simplify`, or `review`** — they are Claude Code built-ins, not ours.
-- **Both layers stay in sync** for this feature — command, skill, and rules directory added to both. Divergence would defeat the point.
-- **Scope creep guard.** Do not add: severity levels, glob filters, auto-fix machinery, rule versioning, per-file overrides. If those turn out to be needed — separate discussion and separate ADR.
+- **Не создавать `.polishignore`** по умолчанию — файл опциональный, контракт совпадает
+  с `.gitignore`, отдельная документация не нужна.
+- **`--all` только добавляется** — не меняет поведение diff-режимов (без аргументов,
+  `<path>`, `--staged`).
+- **Не звать `simplify` в `--all`** — даже если он доступен. Это ключевая часть ADR-024,
+  а не оптимизация.
+- **Confirm обязателен** — `--all` без подтверждения запускаться не должен, даже если
+  scope маленький. Единообразие важнее микро-удобства.
+- **Правила — только prose** по контракту ADR-023: H1 + свободное описание, без
+  frontmatter, без секций, без severity, без auto-fix.
+- **Обвязку в `/close` не трогать** — Прочтение 2 из обсуждения отклонено, `/polish`
+  остаётся в руках пользователя.
+- **Никаких «на всякий случай» абстракций**: не вводим severity, glob-фильтры,
+  версионирование правил, per-file overrides — как и в ADR-023.
 
 ### Verification
 
+Automatable:
+
 ```bash
-# Files exist in both layers
-test -f .claude/commands/polish.md
-test -f .claude/skills/meta/cc-code-polish.md
-test -d .claude/skills/project/rules
-test -f template/.claude/commands/polish.md
-test -f template/.claude/skills/meta/cc-code-polish.md
-test -f template/.claude/skills/project/rules/README.md
-test -f template/.claude/skills/project/rules/no-dead-code.md
+# Files created
+test -f .claude/skills/project/rules/markdown-conventions.md
+test -f .claude/skills/project/rules/no-placeholder-leaks.md
 
-# /polish referenced in navigation surfaces
-grep -q '/polish' CLAUDE.md
-grep -q '/polish' .claude/index.md
-grep -q '/polish' template/CLAUDE.md
-grep -q '/polish' template/.claude/index.md
-grep -q '/polish' template/WORKFLOW.md
+# Skill files mention --all in both layers
+grep -q -- '--all' .claude/skills/meta/cc-code-polish.md
+grep -q -- '--all' template/.claude/skills/meta/cc-code-polish.md
 
-# Skill files mention scanning rules/*.md
-grep -q 'rules/\*.md' .claude/skills/meta/cc-code-polish.md
-grep -q 'rules/\*.md' template/.claude/skills/meta/cc-code-polish.md
+# --all path explicitly disables simplify
+grep -qi 'simplify.*not.*call\|no.*simplify\|skip.*simplify' \
+  .claude/skills/meta/cc-code-polish.md
 
-# Skill files reference the built-in simplify by name
-grep -q 'simplify' .claude/skills/meta/cc-code-polish.md
-grep -q 'simplify' template/.claude/skills/meta/cc-code-polish.md
+# Confirm step present in --all case
+grep -qi 'confirm\|continue' .claude/skills/meta/cc-code-polish.md
+
+# ADR-024 recorded
+grep -q 'ADR-024' .context/decisions.md
 ```
 
-Manual smoke: after implementation, open a test session and invoke `/polish` on a small diff — verify skill loads, pipeline steps run in order, findings are presented before edits.
+Manual smoke:
+
+- `/polish --all` в мейнтейнерском репо → выводит количество tracked-файлов и confirm.
+- Посев: bold-as-heading в тестовом `.md` внутри `template/` → правило
+  `markdown-conventions` его ловит; отказ posit — правило не срабатывает.
+- Посев: заменить `{PROJECT_NAME}` на реальное имя в `template/CLAUDE.md` →
+  `no-placeholder-leaks` его ловит. Возврат — правило молчит.
+- Дефолтный `/polish` (без аргументов) на `feature/*` → поведение по ADR-023 не изменилось.
 
 ### Changes along the way
 
-- **`/retro` добавлен в оба `.claude/index.md`.** Обнаружено на пути: строка была пропущена
-  в таблицах Slash commands и Meta-skills обоих файлов (пре-существующая нестыковка со
-  времени ADR-019). Раз всё равно правил эти таблицы под `/polish` — добавил и `/retro`.
-- **`.claude/skills/project/rules/` добавлена в `template/WORKFLOW.md` → «Project documentation».**
-  Обнаружено на пути: раздел документировал `.context/notes/`, но `.claude/skills/project/`
-  вообще не упоминался. Добавил строку для полноты карты — согласовано с общей задачей.
-- **`.claude/skills/project/rules/` упоминается в «Initial setup» шаблона** — как рекомендация
-  «настроить пораньше». Не placeholder, но по смыслу секции — «что подготовить перед первой
-  сессией».
+- Файлы `.claude/commands/polish.md` и `template/.claude/commands/polish.md`
+  оставлены без изменений: они однострочные обёртки через `$ARGUMENTS`, `--all`
+  пробрасывается автоматически. Правка не потребовалась.
+- Правки `CLAUDE.md` и `template/CLAUDE.md` (таблицы команд) не понадобились:
+  строка `/polish` уже описывает команду в общем виде, а не по режимам —
+  добавлять `/polish --all` отдельным пунктом было бы избыточной детализацией.
 
 ### Notes
 
-Plan touches 12 files across two layers. This is intentional — adding one command
-requires wiring into all navigation surfaces of both layers to stay coherent.
-Splitting would leave the command orphaned in half the docs.
+Feature-ветка: `feature/polish-all-mode`.
 
-Before starting `/dev`: create ADR-023 via `/record` — fixes the design decisions
-that shaped this plan (wrapper vs replacement, prose rules, `/polish` naming,
-security-review deferred).
+Задача умещается в одну ветку — три компонента (скилл × 2 слоя + 2 правила), меньше
+порога «три компонента» из /architect. При реализации: сначала правила (изолированные,
+проще протестировать по отдельности), затем алгоритм скилла в мейнтейнерском слое,
+затем идентичный перенос в шаблон.
