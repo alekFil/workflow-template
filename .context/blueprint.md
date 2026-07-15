@@ -43,6 +43,8 @@
 | ADR-018 | Мейнтейнерский слой переведён на английский; слэш-команды добавлены в `.claude/commands/` |
 | ADR-019 | `/retro` добавлен как регулярный инструмент рабочего процесса; hybrid-mode: CC анализирует историю, пользователь корректирует черновик |
 | ADR-020 | Явная языковая настройка в установщике: 3 плейсхолдера, вопрос [one/multi], workflow docs всегда English |
+| ADR-021 | Отклонено: хранение файлов ассистента только в ветке `dev` — цена механизма выше выгоды |
+| ADR-022 | Retry-логика в `install.sh`: 3 попытки скачивания через shell-loop, `mktemp` + `trap EXIT` |
 
 ---
 
@@ -60,7 +62,6 @@
 - `.claude/skills/meta/` — пять мета-скиллов рабочего процесса (ADR-019)
 - `.context/` — рабочая документация мейнтейнера (blueprint, status, plan, to-do, decisions)
 - `.context/notes/` — личные заметки владельца (не коммитятся, исключены через `.gitignore`)
-- `memory/` — персистентная память CC между сессиями (создаётся автоматически, не коммитится, исключена через `.gitignore`)
 - `scripts/install.sh` — curl-установка шаблона для пользователей
 - `scripts/uninstall.sh` — удаление ассистента из проекта через curl
 
@@ -86,7 +87,7 @@
 3. Интерактивно запрашивает: название проекта, remote URL, языковой режим [one/multi] и до трёх языковых настроек
 4. Спрашивает: скрыть файлы ассистента (→ `.git/info/exclude`), скрыть из коммитов (→ `.claude/settings.json`)
 5. Спрашивает: создать начальный коммит? (дефолт `n`), создать ветку `dev`? (дефолт `n`)
-6. Скачивает `template/` из репо через GitHub tar.gz
+6. Скачивает `template/` из репо через GitHub tar.gz (retry 3×, delay 5 s, через `mktemp` + `trap EXIT`) — ADR-022
 7. Заполняет плейсхолдеры во всех `.md`: `{PROJECT_NAME}`, `{COMMUNICATION_LANGUAGE}`, `{CONTEXT_LANGUAGE}`, `{CODE_COMMENTS_LANGUAGE}`
 8. Дополняет `.gitignore` с маркером `# workflow-template:start/end` (не перезаписывает)
 9. Применяет выбранные настройки видимости
@@ -134,7 +135,8 @@ template/CLAUDE.md ← template/.claude/commands/
 template/CLAUDE.md ← template/.claude/index.md
 template/CLAUDE.md ← template/.claude/skills/meta/
 scripts/install.sh → template/ (скачивает и разворачивает шаблонный слой; подставляет 4 плейсхолдера: PROJECT_NAME + 3 языковых)
-scripts/uninstall.sh → .claude/, .context/, memory/, CLAUDE.md, WORKFLOW.md, .gitignore, .git/info/exclude
+scripts/uninstall.sh → .claude/, .context/, CLAUDE.md, WORKFLOW.md, .gitignore, .git/info/exclude
+  (defensive: также удаляет memory/ на случай локального создания CC)
 .claude/commands/retro.md → .claude/skills/meta/cc-retrospective.md
 template/.claude/commands/retro.md → template/.claude/skills/meta/cc-retrospective.md
 ```
@@ -155,4 +157,4 @@ template/.claude/commands/retro.md → template/.claude/skills/meta/cc-retrospec
 - Перевод мейнтейнерского слоя на английский, слэш-команды в `.claude/commands/` (ADR-015, ADR-016, ADR-017, ADR-018)
 - `/retro` реализован в обоих слоях: скилл + команда + обновление CLAUDE.md и WORKFLOW.md (ADR-019)
 - Явная языковая настройка при установке: 3 плейсхолдера в `template/CLAUDE.md`, вопрос [one/multi] в `install.sh` (ADR-020)
-- `memory/` — персистентная память CC, документирована и включена в uninstall.sh
+- Retry-логика скачивания в `install.sh`: устойчивость к транзиентным сбоям GitHub (ADR-022)
