@@ -125,6 +125,7 @@ In this mode you:
 | `/next` | Architect mode: first incomplete item from `.context/to-do.md` |
 | `/record` | Add ADR to `.context/decisions.md` |
 | `/dev` | Switch to Developer mode — implement `.context/plan.md` |
+| `/polish` | Clean up generated code — built-in `simplify` + project rules |
 | `/close` | Merge feature branch, close the task |
 | `/report` | Archive and write new `.context/status.md` |
 | `/sync` | Compare code with documentation, suggest changes |

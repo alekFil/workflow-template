@@ -28,10 +28,12 @@ Each file in `.claude/commands/` defines a CC slash command invoked by the proje
 | `/next` | `commands/next.md` | First incomplete task |
 | `/record` | `commands/record.md` | Add ADR |
 | `/dev` | `commands/dev.md` | Developer mode — implement |
+| `/polish` | `commands/polish.md` | Clean up code (simplify + project rules) |
 | `/commit` | `commands/commit.md` | Commit changes |
 | `/close` | `commands/close.md` | Merge and close branch |
 | `/report` | `commands/report.md` | Update status.md |
 | `/sync` | `commands/sync.md` | Sync docs with code |
+| `/retro` | `commands/retro.md` | Retrospective |
 
 ---
 
@@ -45,6 +47,8 @@ Detailed algorithms backing the workflow commands. Read via the corresponding co
 | `.claude/skills/meta/cc-architect-sync.md` | `/sync` |
 | `.claude/skills/meta/cc-commit.md` | `/commit` |
 | `.claude/skills/meta/cc-close-task.md` | `/close` |
+| `.claude/skills/meta/cc-retrospective.md` | `/retro` |
+| `.claude/skills/meta/cc-code-polish.md` | `/polish` |
 
 ---
 
