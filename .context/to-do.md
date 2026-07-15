@@ -41,7 +41,7 @@
 ### Приоритет 3: Полнота шаблона
 
 - [ ] Добавить `.claudeignore` в `template/` (исключить `.context/history/` из контекста CC)
-- [ ] Добавить `template/.claude/skills/project/` — каталог для проектных скиллов (пустой, с README)
+- [x] Добавить `template/.claude/skills/project/` — каталог для проектных скиллов (ADR-023: `rules/` с README и примером)
 - [ ] Проверить что `template/.gitignore` корректно разворачивается через `install.sh`
 
 ---
@@ -65,6 +65,8 @@
 - [x] Cookiecutter отклонён — продукт workflow-слой, не project starter (ADR-003 → ADR-014)
 - [x] `.context/notes/` исключена из git в обоих слоях, описана в WORKFLOW.md (ADR-011)
 - [x] Явная языковая настройка: 3 плейсхолдера в `template/CLAUDE.md`, вопрос [one/multi] в `install.sh`, Language-секция в обоих `CLAUDE.md` (ADR-020)
+- [x] Команда `/polish` — пайплайн вычистки сгенерированного кода в обоих слоях (ADR-023)
+- [x] Режим `/polish --all` — полный прогон по проекту, project-rules only, `.polishignore` опционально; наполнены мейнтейнерские правила `markdown-conventions` и `no-placeholder-leaks` (ADR-024)
 
 ---
 

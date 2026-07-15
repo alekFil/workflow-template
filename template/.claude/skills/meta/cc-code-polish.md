@@ -17,20 +17,39 @@ Not the same as `security-review` — that skill is separate and not invoked her
 
 ## Algorithm
 
-### 1. Determine diff scope from `$ARGUMENTS`
+### 1. Determine scope from `$ARGUMENTS`
 
-| Argument | Diff selected |
+| Argument | Scope |
 | --- | --- |
 | (empty) | `git diff $(git merge-base HEAD dev)..HEAD` — feature branch vs branch point |
 | `<path>` | `git diff -- <path>` — targeted file or directory |
 | `--staged` | `git diff --staged` — only staged changes |
+| `--all` | all tracked files (`git ls-files`), minus patterns in optional `.polishignore` — see step 1a |
 
-If diff is empty — report: "Nothing to polish. Working tree clean." and exit.
+If scope is empty — report: "Nothing to polish. Working tree clean." and exit.
 
 If not on a feature branch and no argument given — report:
-"On `main`/`dev` — pass a path or `--staged`, or switch to a feature branch."
+"On `main`/`dev` — pass a path, `--staged`, or `--all`, or switch to a feature branch."
+
+### 1a. `--all` mode — enumerate and confirm
+
+Only runs when `--all` was passed.
+
+1. Enumerate tracked files: `git ls-files`.
+2. If `.polishignore` exists at repo root — exclude files matching its patterns
+   (same format as `.gitignore`).
+3. Ask for confirmation:
+
+   ```text
+   Scope: <N> files (~<M> lines). This will run project rules only (no simplify).
+   Continue? y/n
+   ```
+
+4. If `n` — exit. If `y` — proceed directly to step 3 (skip step 2).
 
 ### 2. Invoke built-in `simplify`
+
+Skipped when `--all` was passed (see step 1a).
 
 Run the built-in `simplify` skill on the diff scope. Collect its findings verbatim.
 
@@ -51,8 +70,8 @@ what to check. No frontmatter, no fixed schema.
 For each rule:
 
 - Read the rule content
-- Judge whether any part of the diff violates it — use the rule's description
-  as the criterion, apply judgment (not literal pattern matching)
+- Judge whether any part of the scope (diff or file list) violates it — use the
+  rule's description as the criterion, apply judgment (not literal pattern matching)
 - If violation found — record a finding: file, line, quote, why it violates
 
 ### 4. Present grouped findings
@@ -130,6 +149,7 @@ See `.claude/skills/project/rules/README.md` for the contract and
 
 - Do not commit — surface findings, apply on confirmation, then stop
 - Do not chain to `/commit`, `/close`, or any other command
-- Do not touch files outside the diff scope
+- Do not touch files outside the scope
 - Do not invoke `security-review` — separate concern, separate command
 - Do not reimplement `simplify` logic — always delegate to the built-in
+- In `--all` mode, do not call `simplify` — even if available, only project rules run
