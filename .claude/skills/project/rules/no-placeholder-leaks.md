@@ -4,7 +4,7 @@ Files inside `template/` are the shipping scaffold. They must keep their
 `{PLACEHOLDER}` tokens intact — `{PROJECT_NAME}`, `{PROJECT_DESCRIPTION}`,
 `{COMMUNICATION_LANGUAGE}`, `{CONTEXT_LANGUAGE}`, `{CODE_COMMENTS_LANGUAGE}`,
 `{LAYER_1}`, `{TECH_1}`, `{REPO_URL}`, `{ARCHITECTURE_RULES}`, `{RUNTIME_SETUP}`,
-`{CODE_CONVENTIONS}`, `{PROJECT_STRUCTURE}`, and any other
+`{CODE_CONVENTIONS}`, `{PROJECT_LAYOUT}`, and any other
 `{ALL_CAPS_WITH_UNDERSCORES}` identifier surrounded by braces.
 
 If real data (a concrete project name, a specific language, a real URL) leaks

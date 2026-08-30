@@ -48,7 +48,7 @@ For each document find:
 
 **CLAUDE.md:**
 
-- Project structure if it has changed
+- `Components` section: new or renamed top-level component; entry outdated relative to actual purpose
 - Links to non-existent files
 
 **.context/decisions.md (orphan-archival check, trigger Y):**

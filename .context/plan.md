@@ -1,77 +1,61 @@
-## Task: Убрать file-архив status.md — реализовать ADR-027
+## Task: Разделить логическую карту и физическое дерево — реализовать ADR-028
 
 ### Context
 
-Реализация ADR-027: убираем `.context/history/{N}-status-*.md` как файловый слой, заменяем git-указателем в самом `status.md`. Снимает утечку архива в контекст CC (`.claudeignore` не создан), избавляет `/report` от шага архивации, сокращает шум в репо на ~150 KB и 14 файлов. Затрагивает только status-архив; `.context/history/decisions/<year>.md` не трогаем (референсы из активных ADR по ADR-026).
+Реализация ADR-028: `CLAUDE.md` в обоих слоях содержит блок с файловым деревом, который дублирует «Структура проекта» из `status.md` и уже отстал (нет упоминаний `cc-code-polish.md`, `cc-retrospective.md`). Заменяем на компактный блок «Components» — одна строка на компонент, без ASCII-веток. Физическое дерево остаётся в `status.md` (auto-generated при `/report`). В шаблонном слое — симметрично, полностью схематичный вариант с одним плейсхолдером `{PROJECT_LAYOUT}` для проекто-специфичных областей.
 
-Depends on: ADR-027.
+Depends on: ADR-028.
 
 ### What to implement
 
-1. **Обновить `.claude/skills/meta/cc-status-report.md`:**
-   - Убрать шаг 1 «Archive the previous status.md» целиком.
-   - Добавить новый шаг 1: получить commit hash и дату последнего изменения `status.md` через `git log -1 --format='%h %ai' -- .context/status.md`. Если история пуста (первый `/report`) — pointer не вставляется.
-   - В формате нового `status.md` (шаг 2 → станет шаг 3) первой строкой после `# Заголовок` и `Дата:` вставляется pointer:
+1. **Обновить `CLAUDE.md` (root):** заменить раздел «Repo structure» с ASCII-деревом на раздел «Components» с 5-6 строками (одна на компонент). Формат по ADR-028 п.1:
 
-     ```markdown
-     > Previous state: commit <shortsha> (<YYYY-MM-DD>)
-     ```
+   ```markdown
+   ## Components
 
-   - Убрать секцию «Working with the history archive» целиком.
-   - Финальный report (в конце алгоритма) — не упоминает архивный файл.
+   - `.claude/` — CC tooling (index, commands, meta-skills, project rules)
+   - `.context/` — workflow artifacts (blueprint, plan, to-do, status, decisions, discussions, history/decisions)
+   - `scripts/` — user-facing installers (install/uninstall via curl)
+   - `template/` — payload deployed into new projects
+   - Top-level: `CLAUDE.md`, `CONTRIBUTION.md`, `SETUP.md`, `README.md`, `LICENSE`
+   ```
 
-2. **Обновить `template/.claude/skills/meta/cc-status-report.md`:** те же правки, английский текст, единая структура.
+2. **Обновить `template/CLAUDE.md`:** заменить раздел «Project structure» с плейсхолдерным деревом `{PROJECT_STRUCTURE}` на «Components», полностью схематичный:
 
-3. **Удалить 14 файлов `.context/history/{N}-status-*.md`** (001–014) и `.context/history/.gitkeep`. `.context/history/decisions/2026.md` остаётся нетронутым.
+   ```markdown
+   ## Components
 
-4. **Ретрофит `.context/status.md`:** добавить pointer-строку с указанием на актуальный на момент этого коммита hash последнего изменения status.md (до текущей задачи). Определяется через `git log -1 --format='%h %ai' -- .context/status.md` перед началом работы.
+   - `.claude/` — CC tooling (index, commands, meta-skills, project rules)
+   - `.context/` — workflow artifacts (blueprint, plan, to-do, status, decisions)
+   - `{PROJECT_LAYOUT}` — project-specific areas (source code, tests, docs, infrastructure). Fill in during initial setup with a couple of top-level lines.
+   ```
 
-5. **Обновить `.context/to-do.md`:** пункт Приоритета 3 «Добавить `.claudeignore` в `template/` (исключить `.context/history/` из контекста CC)» — снять как неактуальный (после ADR-027 в `history/` остаётся только `decisions/`, а его CC должен читать). Перенести в «Готово» с пометкой «отпало (ADR-027)».
+3. **Обновить плейсхолдеры в `template/WORKFLOW.md`:** если `{PROJECT_STRUCTURE}` документирован там в таблице плейсхолдеров, заменить на `{PROJECT_LAYOUT}` с обновлённым описанием («logical component map, not a file tree»); если не документирован — добавить строку про `{PROJECT_LAYOUT}` в таблице.
 
-6. **Обновить `CLAUDE.md` (root):** в блоке «Repo structure» строку `history/          ← status.md archive` заменить на `history/decisions/ ← archived ADRs (ADR-026)`.
+4. **Проверить внешние ссылки на «Repo structure» / «Project structure»** в `CONTRIBUTION.md`, `README.md`, `SETUP.md`, `.claude/index.md`, `template/.claude/index.md`. При наличии — заменить формулировку на «Components» или скорректировать описание. При отсутствии — оставить.
 
-7. **Обновить `template/CLAUDE.md`:** в блоке «Project structure» строку `{  history/     ← status.md archive (not in CC context)}` заменить на `{  history/decisions/ ← archived ADRs}`. Плейсхолдерная разметка `{}` сохраняется.
-
-8. **Проверить `.claude/index.md` и `template/.claude/index.md`** на упоминания status-архива. При наличии — согласовать формулировки. При отсутствии — оставить.
+5. **Проверить упоминания плейсхолдера `{PROJECT_STRUCTURE}`** в `scripts/install.sh` — если скрипт делает `sed`-подстановку на него, заменить на `{PROJECT_LAYOUT}` или снять подстановку (если пользователь заполняет вручную).
 
 ### Files
 
 Edit:
 
-- `.claude/skills/meta/cc-status-report.md` — убрать архивацию, добавить pointer-логику, убрать раздел «Working with the history archive»
-- `template/.claude/skills/meta/cc-status-report.md` — то же
-- `.context/status.md` — вставить pointer-строку (ретрофит)
-- `.context/to-do.md` — снять пункт про `.claudeignore` для `history/`
-- `CLAUDE.md` — обновить блок «Repo structure»
-- `template/CLAUDE.md` — обновить блок «Project structure» (плейсхолдерная разметка `{}` сохраняется)
-- `.claude/index.md`, `template/.claude/index.md` — сверить и при необходимости обновить
+- `CLAUDE.md` — раздел «Repo structure» → «Components»
+- `template/CLAUDE.md` — раздел «Project structure» → «Components», плейсхолдер `{PROJECT_STRUCTURE}` → `{PROJECT_LAYOUT}`
+- `template/WORKFLOW.md` — таблица плейсхолдеров: `{PROJECT_STRUCTURE}` → `{PROJECT_LAYOUT}` (или добавить)
+- `scripts/install.sh` — если есть `sed s/{PROJECT_STRUCTURE}/.../` — снять или переименовать под `{PROJECT_LAYOUT}`
+- Возможно `CONTRIBUTION.md`, `README.md`, `SETUP.md`, `.claude/index.md`, `template/.claude/index.md` — сверить и при необходимости обновить
 
-Delete:
-
-- `.context/history/001-status-2026-06-05.md`
-- `.context/history/002-status-2026-06-05.md`
-- `.context/history/003-status-2026-06-12.md`
-- `.context/history/004-status-2026-06-13.md`
-- `.context/history/005-status-2026-06-13.md`
-- `.context/history/006-status-2026-06-20.md`
-- `.context/history/007-status-2026-06-20.md`
-- `.context/history/008-status-2026-06-20.md`
-- `.context/history/009-status-2026-06-20.md`
-- `.context/history/010-status-2026-06-21.md`
-- `.context/history/011-status-2026-06-21.md`
-- `.context/history/012-status-2026-07-08.md`
-- `.context/history/013-status-2026-07-15.md`
-- `.context/history/014-status-2026-08-30.md`
-- `.context/history/.gitkeep`
+Create: —
 
 ### Constraints
 
-- **`.context/history/decisions/2026.md` не трогать.** Другой вид истории (ADR-026, references из активных ADR).
-- **`template/.context/history/.gitkeep` не удалять.** Шаблонный слой начинает с пустой структуры для нового проекта; там ещё нет ни `decisions/`, ни статусов.
-- **Формат pointer-строки строго `> Previous state: commit <shortsha> (<YYYY-MM-DD>)`.** Идентичен в обоих скиллах. `<shortsha>` — 7 символов, `<date>` — только дата коммита, без времени и часового пояса.
-- **Ретрофит `.context/status.md`** делается один раз, в этой задаче. Значение `<shortsha>` — из `git log -1 --format='%h %ai' -- .context/status.md`, полученное *до* правок status.md в рамках этой задачи (т.е. hash последнего commit'а, где status.md был обновлён предыдущим `/report`-циклом).
-- **Feature-ветка:** `feature/drop-status-archive`.
-- **Один атомарный commit** — задача маленькая и связная. Не разбивать.
+- **`status.md` в обоих слоях не трогать** — там уже auto-generated физическое дерево, оно единственный источник правды по «где что реально лежит».
+- **Не восстанавливать ASCII-деревья.** Даже краткое дерево на 5 строк — соблазн, но противоречит ADR-028 (дрейф + смешение уровней). Строго строчный формат «Components».
+- **Формулировки «Components» в обоих слоях согласованы по стилю** — «`path/` — one-line purpose». Не путать с длинными описаниями.
+- **Плейсхолдеры в `template/CLAUDE.md` остаются в фигурных скобках** и не заполняются реальными значениями (`{PROJECT_LAYOUT}` — только плейсхолдер, не подставляется).
+- **Feature-ветка:** `feature/split-structure-map`.
+- **Один атомарный commit** — задача маленькая, изменения связаны единой темой (ADR-028). Не разбивать.
 
 ### Verification
 
@@ -80,49 +64,36 @@ Automatable:
 ```bash
 cd /home/dev/projects/workflow-template
 
-# 1. Status-архива больше нет
-! ls .context/history/*.md 2>/dev/null | grep -q status
-! test -f .context/history/.gitkeep
+# 1. ASCII-деревья убраны из CLAUDE.md обоих слоёв
+if grep -qE "^├──|^│  |^└──" CLAUDE.md; then echo "FAIL: root ASCII tree remains"; else echo "OK root"; fi
+if grep -qE "^├──|^│  |^└──" template/CLAUDE.md; then echo "FAIL: template ASCII tree remains"; else echo "OK template"; fi
 
-# 2. decisions-архив на месте
-test -f .context/history/decisions/2026.md
+# 2. Секция «Components» появилась в обоих
+grep -q "^## Components" CLAUDE.md && echo "OK: root Components"
+grep -q "^## Components" template/CLAUDE.md && echo "OK: template Components"
 
-# 3. Скилл в обоих слоях не упоминает архивацию status.md
-! grep -qi "three-digit\|Archive the previous\|001-status\|N-status-" .claude/skills/meta/cc-status-report.md
-! grep -qi "three-digit\|Archive the previous\|001-status\|N-status-" template/.claude/skills/meta/cc-status-report.md
+# 3. Секция «Repo structure» / «Project structure» удалена
+! grep -q "^## Repo structure" CLAUDE.md && echo "OK: root has no old section"
+! grep -q "^## Project structure" template/CLAUDE.md && echo "OK: template has no old section"
 
-# 4. Скилл в обоих слоях содержит pointer-логику
-grep -q "Previous state:" .claude/skills/meta/cc-status-report.md
-grep -q "Previous state:" template/.claude/skills/meta/cc-status-report.md
-grep -qE "git log.*status.md" .claude/skills/meta/cc-status-report.md
-grep -qE "git log.*status.md" template/.claude/skills/meta/cc-status-report.md
+# 4. Плейсхолдер {PROJECT_STRUCTURE} не остался нигде
+! grep -rq "{PROJECT_STRUCTURE}" template/ scripts/ && echo "OK: no PROJECT_STRUCTURE leftover"
 
-# 5. Секция "Working with the history archive" удалена
-! grep -qi "Working with the history archive" .claude/skills/meta/cc-status-report.md
-! grep -qi "Working with the history archive" template/.claude/skills/meta/cc-status-report.md
+# 5. Новый плейсхолдер {PROJECT_LAYOUT} присутствует в template/CLAUDE.md
+grep -q "{PROJECT_LAYOUT}" template/CLAUDE.md && echo "OK: PROJECT_LAYOUT in template"
 
-# 6. Текущий status.md содержит pointer-строку
-grep -qE "^> Previous state: commit [0-9a-f]{7,} \([0-9]{4}-[0-9]{2}-[0-9]{2}\)" .context/status.md
-
-# 7. Шаблонная структура сохраняется
-test -f template/.context/history/.gitkeep
-
-# 8. to-do.md обновлён — пункт про .claudeignore для history отсутствует в активных
-! grep -q "\[ \] Добавить .claudeignore.*history" .context/to-do.md
-
-# 9. CLAUDE.md обоих слоёв обновлён
-! grep -q "history/.*status.md archive" CLAUDE.md
-! grep -q "history/.*status.md archive" template/CLAUDE.md
-grep -q "history/decisions" CLAUDE.md
-grep -q "history/decisions" template/CLAUDE.md
+# 6. status.md обоих слоёв не тронут
+! git diff --name-only HEAD | grep -q "^\.context/status\.md$" && echo "OK: root status.md untouched"
+! git diff --name-only HEAD | grep -q "^template/\.context/status\.md$" && echo "OK: template status.md untouched"
 ```
 
 Manual smoke:
 
-- Открыть текущий `status.md` — pointer-строка видна первой после заголовка и даты, hash кликабельно копируется.
-- `git show <shortsha>:.context/status.md` возвращает содержимое предыдущего status.md — проверка реальной работоспособности механизма.
-- Прочитать обновлённый `cc-status-report.md` в обоих слоях — алгоритм пошаговый, без упоминаний архивации.
+- Прочитать раздел «Components» в обоих `CLAUDE.md` — на глаз соответствует ADR-028, покрывает все реально существующие верхнеуровневые компоненты.
+- `status.md` открыть — физическое дерево на месте и актуально (было обновлено недавним `/report`).
+- Если `install.sh` содержал `sed` на `{PROJECT_STRUCTURE}` — прогнать `bash -n scripts/install.sh`, убедиться в отсутствии синтаксических ошибок после правок.
 
 ### Changes along the way
 
-—
+- **`.claude/skills/project/rules/no-placeholder-leaks.md`** — обновлено упоминание `{PROJECT_STRUCTURE}` → `{PROJECT_LAYOUT}`. Файл перечисляет ожидаемые плейсхолдеры шаблонного слоя; при переименовании плейсхолдера этот список — часть контракта.
+- **`.claude/skills/meta/cc-architect-sync.md` и `template/.claude/skills/meta/cc-architect-sync.md`** — блок проверок для `CLAUDE.md` содержал строку «Project structure if it has changed»; после ADR-028 нет секции «Project structure», есть «Components». Строка обновлена — теперь проверяется «`Components` section: new or renamed top-level component; entry outdated relative to actual purpose».
