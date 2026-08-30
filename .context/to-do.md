@@ -31,11 +31,11 @@
 - [ ] Снять демо: одна сессия от `/architect` до `/commit`
 - [ ] Переписать `README.md`: объяснить двухслойную структуру, добавить демо
 
-### Приоритет 2: Управление decisions.md (ADR-004)
+### Приоритет 2: Управление decisions.md
 
-- [ ] Расширить `cc-architect-sync.md`: добавить шаг проверки ADR со статусом "Заменено" и предложения архивировать в `.context/history/decisions/`
-- [ ] То же для `template/.claude/skills/meta/cc-architect-sync.md`
-- [ ] Создать `.context/history/decisions/` (`.gitkeep`)
+- [x] Расширить `cc-architect-sync.md`: добавить шаг проверки ADR со статусом "Заменено" и предложения архивировать в `.context/history/decisions/` (ADR-026, реализовано в рамках дисциплины ADR)
+- [x] То же для `template/.claude/skills/meta/cc-architect-sync.md` (ADR-026)
+- [x] Создать `.context/history/decisions/` — теперь директория с реальным содержимым (ADR-026)
 - [ ] Тест: проверить что развёртывание через install.sh работает end-to-end
 
 ### Приоритет 3: Полнота шаблона
@@ -43,6 +43,21 @@
 - [ ] Добавить `.claudeignore` в `template/` (исключить `.context/history/` из контекста CC)
 - [x] Добавить `template/.claude/skills/project/` — каталог для проектных скиллов (ADR-023: `rules/` с README и примером)
 - [ ] Проверить что `template/.gitignore` корректно разворачивается через `install.sh`
+
+### Приоритет 4: `plan.md` как branch-local артефакт
+
+Проблема: сейчас `plan.md` живёт на всех ветках, но фактически используется как task-local (пишется под задачу, чистится под следующую). Для соло-работы это работает; для команды ломается — параллельные feature-ветки → конфликты и перезатирания `plan.md` при merge в `dev`.
+
+Модель: `plan.md` существует только на `feature/*`. На `main`/`dev` — отсутствует (или содержит пустую заглушку). Создаётся `/architect`-ом после ветки, удаляется `/close`-ом при merge.
+
+- [ ] Решить: полное отсутствие `plan.md` на `dev`/`main` или пустой шаблон-заглушка
+- [ ] Обновить команду `/architect`: убедиться что feature-ветка создана до записи `plan.md`
+- [ ] Обновить команду `/close`: удаление/reset `plan.md` при merge в `dev`
+- [ ] Обновить `cc-architect-sync.md`: отсутствие `plan.md` на `dev`/`main` — норма, не ошибка
+- [ ] Обновить `template/CLAUDE.md`: описать модель в разделе про артефакты (какие project-wide, какие task-local)
+- [ ] То же для мейнтейнерского `CLAUDE.md`
+- [ ] Ревизия остальных артефактов: подтвердить что `product.md` (если появится), `blueprint.md`, `status.md`, `to-do.md`, `decisions.md`, `discussions/`, `history/` — все project-wide
+- [ ] ADR: зафиксировать решение о branch-local `plan.md` и явно классифицировать все артефакты по scope
 
 ---
 
@@ -67,6 +82,7 @@
 - [x] Явная языковая настройка: 3 плейсхолдера в `template/CLAUDE.md`, вопрос [one/multi] в `install.sh`, Language-секция в обоих `CLAUDE.md` (ADR-020)
 - [x] Команда `/polish` — пайплайн вычистки сгенерированного кода в обоих слоях (ADR-023)
 - [x] Режим `/polish --all` — полный прогон по проекту, project-rules only, `.polishignore` опционально; наполнены мейнтейнерские правила `markdown-conventions` и `no-placeholder-leaks` (ADR-024)
+- [x] Дисциплина ADR — двухуровневая модель, чек-лист, архивация; переклассификация 25 существующих ADR; синхронизировано в шаблонный слой (ADR-026)
 
 ---
 

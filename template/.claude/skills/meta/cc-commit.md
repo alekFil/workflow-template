@@ -72,6 +72,19 @@ git commit -m "{prefix}: {what was done, one line, present tense}
 Implements: .context/plan.md — \"{task name}\""
 ```
 
+**"Why:" section for non-trivial fixes.**
+For fixes and non-obvious changes, include a short "Why:" section after the reference line — one or two sentences on the reason behind the choice (constraint, incident, trade-off). This is where operational context lives — most tactical decisions no longer belong in `decisions.md` (see ADR discipline in `CLAUDE.md`).
+Skip the section for cosmetic changes and refactors without meaningful "why".
+
+```text
+fix: retry request on transient 5xx
+
+Implements: .context/plan.md — "Robust API client"
+
+Why: single attempt failed opaquely under network hiccups.
+3 attempts × 5s delay chosen over full exponential backoff — simplest thing that works.
+```
+
 ### 6. Report the result
 
 ```text

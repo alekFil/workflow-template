@@ -51,6 +51,12 @@ For each document find:
 - Project structure if it has changed
 - Links to non-existent files
 
+**.context/decisions.md (orphan-archival check, trigger Y):**
+
+- ADRs with status "Rejected" or "Superseded" that were not archived via `/record` (trigger X) — propose moving to `.context/history/decisions/<year>.md` (year = year the ADR was written).
+- For each: add marker `> Rejected (YYYY-MM-DD)` or `> Replaced by ADR-N (YYYY-MM-DD) — see .context/decisions.md` at the top.
+- Update references to archived ADRs in remaining active ADRs to the form `ADR-NNN (archived, see history/decisions/YYYY.md)`.
+
 ### 3. Produce proposals
 
 Output concrete changes — not "needs updating", but exactly what to change:
@@ -109,8 +115,10 @@ When the developer has confirmed the list of changes:
 If the implementation has intentionally diverged from the documentation — update the documentation.
 If the divergence is accidental — record it and plan to fix the implementation.
 
-**ADRs are never deleted.**
-If a decision has changed — add a new ADR with a note "replaces ADR-XXX".
+**Active decisions.md holds only current decisions.**
+Superseded and rejected ADRs live in `.context/history/decisions/<year>.md`.
+Replacement is handled by `/record` at write time (trigger X); orphan-archival — by `/sync` step 2 (trigger Y).
+The active file is not append-only.
 
 **Skills must match the actual code.**
 A divergence between a skill and the implementation is always an error. One of them is wrong.
