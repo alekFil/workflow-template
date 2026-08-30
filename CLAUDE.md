@@ -48,7 +48,7 @@ scripts/
   to-do.md
   status.md
   decisions.md
-  history/          ← status.md archive
+  history/decisions/ ← archived ADRs (ADR-026)
   discussions/      ← discussions
 template/                        ← template layer (goes into new project)
   CLAUDE.md

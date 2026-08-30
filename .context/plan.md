@@ -1,67 +1,77 @@
-## Task: Ввести дисциплину ADR — двухуровневая модель, чек-лист, архивация, переклассификация
+## Task: Убрать file-архив status.md — реализовать ADR-027
 
 ### Context
 
-`.context/decisions.md` эродировал: из 25 записей около трети — тактические фиксы, переименования и punch-list; ещё 4 — развороты и отклонения, которые не архивированы. Плотность разворотов в активном срезе создаёт впечатление «автор часто передумывает», а мусорные ADR размывают планку. Настоящая проблема — не «где хранить контекст», а *дисциплина курирования*: сейчас нет барьера между архитектурным решением и коммит-сообщением.
+Реализация ADR-027: убираем `.context/history/{N}-status-*.md` как файловый слой, заменяем git-указателем в самом `status.md`. Снимает утечку архива в контекст CC (`.claudeignore` не создан), избавляет `/report` от шага архивации, сокращает шум в репо на ~150 KB и 14 файлов. Затрагивает только status-архив; `.context/history/decisions/<year>.md` не трогаем (референсы из активных ADR по ADR-026).
 
-Обсуждение (сессия 2026-08-30) зафиксировало модель: 2 уровня (ADR + commit messages, без промежуточных файлов), чек-лист из 4 пунктов как gatekeeper `/record`, архивация разворотов в `.context/history/decisions/<year>.md` (триггеры X реактивно в `/record` и Y периодически в `/sync`), bulk-переклассификация текущих 25 (13 active, 4 archive, 8 remove). Дисциплина применяется единообразно в мейнтейнерском и шаблонном слоях.
-
-Depends on: —
+Depends on: ADR-027.
 
 ### What to implement
 
-1. **Записать ADR-026** в `.context/decisions.md`: «Дисциплина ADR — двухуровневая модель, чек-лист, архивация». Включает: 4-пункт чек-лист, определение уровней, механику архивации (X+Y триггеры), маркер шапки для архива, конвенцию ссылок `ADR-NNN (archived, see history/decisions/YYYY.md)`. ADR-026 явно замещает ADR-004.
+1. **Обновить `.claude/skills/meta/cc-status-report.md`:**
+   - Убрать шаг 1 «Archive the previous status.md» целиком.
+   - Добавить новый шаг 1: получить commit hash и дату последнего изменения `status.md` через `git log -1 --format='%h %ai' -- .context/status.md`. Если история пуста (первый `/report`) — pointer не вставляется.
+   - В формате нового `status.md` (шаг 2 → станет шаг 3) первой строкой после `# Заголовок` и `Дата:` вставляется pointer:
 
-2. **Создать структуру архива** `.context/history/decisions/` (директория) и файлы `2025.md`, `2026.md` с шапкой (описание назначения архива).
+     ```markdown
+     > Previous state: commit <shortsha> (<YYYY-MM-DD>)
+     ```
 
-3. **Bulk-переклассификация 25 ADR:**
-   - **Архивировать (4)**: ADR-003, ADR-004 → `history/decisions/2025.md`; ADR-016, ADR-021 → `history/decisions/2026.md`. В шапку каждого добавить маркер вида `> Заменено ADR-N (YYYY-MM-DD) — см. .context/decisions.md` или `> Отклонено (YYYY-MM-DD)`.
-   - **Удалить из активного (8)**: ADR-002, ADR-006, ADR-008, ADR-009, ADR-011, ADR-015, ADR-017, ADR-022. Содержимое не переносится никуда — остаётся только в git-истории.
-   - **Отредактировать ADR-024**: убрать п.5 (правило bold-as-heading), добавить в «Последствия» строку «п.5 отменён ADR-025». Основная часть (режим `--all`) остаётся.
-   - **Обновить ссылки** в оставшихся активных ADR (14 = 13 старых + ADR-026): вхождения ADR-003, ADR-004, ADR-016, ADR-021 → формат `ADR-NNN (archived, see history/decisions/YYYY.md)`.
+   - Убрать секцию «Working with the history archive» целиком.
+   - Финальный report (в конце алгоритма) — не упоминает архивный файл.
 
-4. **Обновить `/record`** (`.claude/commands/record.md` + `template/.claude/commands/record.md`): встроить чек-лист как первый шаг команды. Если хоть один пункт «нет» — вывести сообщение о непрохождении и предложить commit-message с секцией «Why». ADR не пишется.
+2. **Обновить `template/.claude/skills/meta/cc-status-report.md`:** те же правки, английский текст, единая структура.
 
-5. **Обновить `cc-architect-sync.md`** (оба слоя): добавить шаг Y — проверка активных ADR на статус «Отклонено» / «Заменено» без явной замены, предложение архивировать. Учесть, что явная замена уже обработана `/record` через X.
+3. **Удалить 14 файлов `.context/history/{N}-status-*.md`** (001–014) и `.context/history/.gitkeep`. `.context/history/decisions/2026.md` остаётся нетронутым.
 
-6. **Обновить `cc-commit.md`** (оба слоя): добавить конвенцию — для нетривиальных фиксов сообщение содержит секцию «Why» (короткое обоснование выбора). Не менять базовый формат; секция необязательна для косметики/refactor без содержательного «почему».
+4. **Ретрофит `.context/status.md`:** добавить pointer-строку с указанием на актуальный на момент этого коммита hash последнего изменения status.md (до текущей задачи). Определяется через `git log -1 --format='%h %ai' -- .context/status.md` перед началом работы.
 
-7. **Обновить корневой `CLAUDE.md`**: добавить раздел «ADR discipline» (после «Markdown conventions» или в соседней позиции). Кратко: 4-пункт чек-лист, ссылка на архив, конвенция ссылок. Формулировки по-английски (мейнтейнерский `CLAUDE.md` на английском — ADR-018).
+5. **Обновить `.context/to-do.md`:** пункт Приоритета 3 «Добавить `.claudeignore` в `template/` (исключить `.context/history/` из контекста CC)» — снять как неактуальный (после ADR-027 в `history/` остаётся только `decisions/`, а его CC должен читать). Перенести в «Готово» с пометкой «отпало (ADR-027)».
 
-8. **Синхронизировать в шаблонный слой `template/CLAUDE.md`**: та же секция «ADR discipline». Формулировки идентичны мейнтейнерскому в содержательной части (шаблонный `CLAUDE.md` тоже на английском).
+6. **Обновить `CLAUDE.md` (root):** в блоке «Repo structure» строку `history/          ← status.md archive` заменить на `history/decisions/ ← archived ADRs (ADR-026)`.
 
-9. **Обновить `.context/to-do.md`**: перенести пункт «Приоритет 2 → Расширить cc-architect-sync.md: добавить шаг проверки ADR со статусом "Заменено"…» в «Готово» с пометкой «замещено ADR-026, реализовано в рамках дисциплины ADR». То же для пункта «Создать `.context/history/decisions/` (.gitkeep)» — теперь директория создаётся с реальным содержимым.
+7. **Обновить `template/CLAUDE.md`:** в блоке «Project structure» строку `{  history/     ← status.md archive (not in CC context)}` заменить на `{  history/decisions/ ← archived ADRs}`. Плейсхолдерная разметка `{}` сохраняется.
+
+8. **Проверить `.claude/index.md` и `template/.claude/index.md`** на упоминания status-архива. При наличии — согласовать формулировки. При отсутствии — оставить.
 
 ### Files
 
-Create:
-
-- `.context/history/decisions/2025.md` — архив ADR-003, ADR-004
-- `.context/history/decisions/2026.md` — архив ADR-016, ADR-021
-
 Edit:
 
-- `.context/decisions.md` — добавить ADR-026; удалить 8 ADR (002, 006, 008, 009, 011, 015, 017, 022); удалить 4 архивируемых ADR (003, 004, 016, 021); отредактировать ADR-024; обновить ссылки на архивированные во всех оставшихся
-- `.claude/commands/record.md` — встроить 4-пункт чек-лист как gating-шаг
-- `.claude/skills/meta/cc-architect-sync.md` — добавить шаг Y (orphan-отклонения)
-- `.claude/skills/meta/cc-commit.md` — конвенция «Why» для нетривиальных фиксов
-- `CLAUDE.md` — новая секция «ADR discipline»
-- `template/.claude/commands/record.md` — та же правка что и в мейнтейнерском
-- `template/.claude/skills/meta/cc-architect-sync.md` — та же
-- `template/.claude/skills/meta/cc-commit.md` — та же
-- `template/CLAUDE.md` — новая секция «ADR discipline»
-- `.context/to-do.md` — снять два пункта из «Приоритет 2», перенести в «Готово» с пометкой о замещении
+- `.claude/skills/meta/cc-status-report.md` — убрать архивацию, добавить pointer-логику, убрать раздел «Working with the history archive»
+- `template/.claude/skills/meta/cc-status-report.md` — то же
+- `.context/status.md` — вставить pointer-строку (ретрофит)
+- `.context/to-do.md` — снять пункт про `.claudeignore` для `history/`
+- `CLAUDE.md` — обновить блок «Repo structure»
+- `template/CLAUDE.md` — обновить блок «Project structure» (плейсхолдерная разметка `{}` сохраняется)
+- `.claude/index.md`, `template/.claude/index.md` — сверить и при необходимости обновить
+
+Delete:
+
+- `.context/history/001-status-2026-06-05.md`
+- `.context/history/002-status-2026-06-05.md`
+- `.context/history/003-status-2026-06-12.md`
+- `.context/history/004-status-2026-06-13.md`
+- `.context/history/005-status-2026-06-13.md`
+- `.context/history/006-status-2026-06-20.md`
+- `.context/history/007-status-2026-06-20.md`
+- `.context/history/008-status-2026-06-20.md`
+- `.context/history/009-status-2026-06-20.md`
+- `.context/history/010-status-2026-06-21.md`
+- `.context/history/011-status-2026-06-21.md`
+- `.context/history/012-status-2026-07-08.md`
+- `.context/history/013-status-2026-07-15.md`
+- `.context/history/014-status-2026-08-30.md`
+- `.context/history/.gitkeep`
 
 ### Constraints
 
-- **Порядок исполнения важен.** ADR-026 записывается **до** архивации ADR-004 (потому что ADR-004 архивируется как «замещено ADR-026»). Bulk-переклассификация — после записи ADR-026.
-- **Ретроактив git-истории не переписываем.** 8 удаляемых ADR остаются в git log; переписывать историю не нужно и вредно. Информация о них восстанавливаема через `git log -- .context/decisions.md`.
-- **Плейсхолдеры в `template/` не трогать.** `template/CLAUDE.md` содержит `{PLACEHOLDERS}` — новую секцию «ADR discipline» вставить в существующую разметку, не заполняя плейсхолдеры реальными значениями.
-- **Формулировки в CLAUDE.md обоих слоёв идентичны в содержательной части.** Расхождения допустимы только там, где обусловлены различием слоёв (например, ссылка на examples).
-- **Не создавать промежуточных operational-файлов.** Вариант A финализирован: `.context/operational.md`, `CHANGELOG.md` не создаются в рамках этой задачи. Если понадобятся позже — отдельное решение.
-- **Обсуждение сессии в `.context/discussions/`.** Оформить как discussion-файл до/во время реализации: `2026-08-30-adr-discipline.md`. Содержит короткий summary развилок и выборов, ссылку на ADR-026.
-- **Коммиты.** Разбить на два: (1) design — новый ADR-026, обновление скиллов и CLAUDE.md; (2) cleanup — bulk-переклассификация (архивация + удаление + правки ссылок). Не смешивать design и cleanup в одном коммите.
-- **Обычные правила репо:** ff-only merge, feature-ветка → dev.
+- **`.context/history/decisions/2026.md` не трогать.** Другой вид истории (ADR-026, references из активных ADR).
+- **`template/.context/history/.gitkeep` не удалять.** Шаблонный слой начинает с пустой структуры для нового проекта; там ещё нет ни `decisions/`, ни статусов.
+- **Формат pointer-строки строго `> Previous state: commit <shortsha> (<YYYY-MM-DD>)`.** Идентичен в обоих скиллах. `<shortsha>` — 7 символов, `<date>` — только дата коммита, без времени и часового пояса.
+- **Ретрофит `.context/status.md`** делается один раз, в этой задаче. Значение `<shortsha>` — из `git log -1 --format='%h %ai' -- .context/status.md`, полученное *до* правок status.md в рамках этой задачи (т.е. hash последнего commit'а, где status.md был обновлён предыдущим `/report`-циклом).
+- **Feature-ветка:** `feature/drop-status-archive`.
+- **Один атомарный commit** — задача маленькая и связная. Не разбивать.
 
 ### Verification
 
@@ -70,58 +80,49 @@ Automatable:
 ```bash
 cd /home/dev/projects/workflow-template
 
-# 1. ADR-026 записан, ADR-004 из активного удалён
-grep -q "^## ADR-026" .context/decisions.md
-! grep -q "^## ADR-004" .context/decisions.md
+# 1. Status-архива больше нет
+! ls .context/history/*.md 2>/dev/null | grep -q status
+! test -f .context/history/.gitkeep
 
-# 2. Активные ADR: 14 записей (13 старых + ADR-026)
-[ "$(grep -c '^## ADR-' .context/decisions.md)" = "14" ]
+# 2. decisions-архив на месте
+test -f .context/history/decisions/2026.md
 
-# 3. Удалённые 8 ADR отсутствуют в активном
-for n in 002 006 008 009 011 015 017 022; do
-  ! grep -q "^## ADR-$n" .context/decisions.md || { echo "ADR-$n leaked into active"; exit 1; }
-done
+# 3. Скилл в обоих слоях не упоминает архивацию status.md
+! grep -qi "three-digit\|Archive the previous\|001-status\|N-status-" .claude/skills/meta/cc-status-report.md
+! grep -qi "three-digit\|Archive the previous\|001-status\|N-status-" template/.claude/skills/meta/cc-status-report.md
 
-# 4. Архив создан и содержит правильные ADR
-grep -q "^## ADR-003" .context/history/decisions/2025.md
-grep -q "^## ADR-004" .context/history/decisions/2025.md
-grep -q "^## ADR-016" .context/history/decisions/2026.md
-grep -q "^## ADR-021" .context/history/decisions/2026.md
+# 4. Скилл в обоих слоях содержит pointer-логику
+grep -q "Previous state:" .claude/skills/meta/cc-status-report.md
+grep -q "Previous state:" template/.claude/skills/meta/cc-status-report.md
+grep -qE "git log.*status.md" .claude/skills/meta/cc-status-report.md
+grep -qE "git log.*status.md" template/.claude/skills/meta/cc-status-report.md
 
-# 5. Маркер в шапке архивированных
-grep -q "^> Отклонено\|^> Заменено" .context/history/decisions/2025.md
-grep -q "^> Отклонено\|^> Заменено" .context/history/decisions/2026.md
+# 5. Секция "Working with the history archive" удалена
+! grep -qi "Working with the history archive" .claude/skills/meta/cc-status-report.md
+! grep -qi "Working with the history archive" template/.claude/skills/meta/cc-status-report.md
 
-# 6. Ссылки на архивированные обновлены (формат "(archived,")
-! grep -E "ADR-(003|004|016|021)([^0-9]|$)" .context/decisions.md | grep -v "archived,"
+# 6. Текущий status.md содержит pointer-строку
+grep -qE "^> Previous state: commit [0-9a-f]{7,} \([0-9]{4}-[0-9]{2}-[0-9]{2}\)" .context/status.md
 
-# 7. Скиллы содержат новые элементы
-grep -qi "checklist\|чек-лист" .claude/commands/record.md
-grep -qi "checklist\|чек-лист" template/.claude/commands/record.md
-grep -qi "orphan\|заменено\|отклонено" .claude/skills/meta/cc-architect-sync.md
-grep -qi "orphan\|заменено\|отклонено" template/.claude/skills/meta/cc-architect-sync.md
-grep -qi "why\|почему" .claude/skills/meta/cc-commit.md
-grep -qi "why\|почему" template/.claude/skills/meta/cc-commit.md
+# 7. Шаблонная структура сохраняется
+test -f template/.context/history/.gitkeep
 
-# 8. Секция ADR discipline в обоих CLAUDE.md
-grep -qi "ADR discipline\|ADR-дисциплина" CLAUDE.md
-grep -qi "ADR discipline\|ADR-дисциплина" template/CLAUDE.md
+# 8. to-do.md обновлён — пункт про .claudeignore для history отсутствует в активных
+! grep -q "\[ \] Добавить .claudeignore.*history" .context/to-do.md
 
-# 9. to-do.md обновлён
-! grep -q "Расширить \`cc-architect-sync.md\`.*Заменено" .context/to-do.md
-
-# 10. Discussion-файл создан
-test -f .context/discussions/2026-08-30-adr-discipline.md
+# 9. CLAUDE.md обоих слоёв обновлён
+! grep -q "history/.*status.md archive" CLAUDE.md
+! grep -q "history/.*status.md archive" template/CLAUDE.md
+grep -q "history/decisions" CLAUDE.md
+grep -q "history/decisions" template/CLAUDE.md
 ```
 
 Manual smoke:
 
-- Запустить `/record` в текущей сессии — команда первым шагом показывает 4-пункт чек-лист и требует ответов «да» по каждому.
-- Прочитать активный `decisions.md` целиком — 14 записей, все проходят чек-лист, ни одной тактической/тривиальной.
-- Прочитать `history/decisions/2025.md` и `2026.md` — маркер в шапке каждой записи виден сразу.
+- Открыть текущий `status.md` — pointer-строка видна первой после заголовка и даты, hash кликабельно копируется.
+- `git show <shortsha>:.context/status.md` возвращает содержимое предыдущего status.md — проверка реальной работоспособности механизма.
+- Прочитать обновлённый `cc-status-report.md` в обоих слоях — алгоритм пошаговый, без упоминаний архивации.
 
 ### Changes along the way
 
-- **`.context/history/decisions/2025.md` не создан** — по git-истории все 4 архивируемых ADR (003, 004, 016, 021) написаны в 2026 году. Создан только `2026.md`.
-- **ADR-024 отредактирован мягче, чем формулировал план.** План говорил «убрать п.5 (правило bold-as-heading)». Фактически п.5 в исходном ADR-024 вводил *два* правила (`markdown-conventions.md` и `no-placeholder-leaks.md`), а не только bold-as-heading; полное удаление стёрло бы историю введения `no-placeholder-leaks.md`. Итог: п.5 удалён из «Решение» целиком (bold-as-heading содержится в его тексте), но соответствующие consequences отредактированы, чтобы сохранить факт введения двух файлов правил и явно указать «п.5 отменён ADR-025».
-- **Обновление verification** (см. ниже) под факт единственного архивного файла `2026.md`.
+—

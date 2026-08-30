@@ -259,7 +259,7 @@ Two levels of artifacts:
 {tests/}
 {.context/}
 {  blueprint.md / status.md / to-do.md / plan.md / decisions.md}
-{  history/     ← status.md archive (not in CC context)}
+{  history/decisions/ ← archived ADRs}
 {  discussions/ ← discussions and research}
 ```
 
