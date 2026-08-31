@@ -19,7 +19,21 @@ git status
 
 If the working directory is clean — report: "Nothing to commit, working directory is clean."
 
-### 3. Show the list of changes and ask for confirmation
+### 3. Include untracked/modified plan.md
+
+`.context/plan.md` is a design artifact — it should land in the feature branch alongside the implementation so reviewers see it. If `.context/plan.md` appears as untracked or modified in `git status` — ask:
+
+```text
+Detected untracked/modified .context/plan.md — design artifact for the current task.
+Include in this commit? [Y/n] (default: Y)
+```
+
+- On `Y` or empty response — `git add .context/plan.md`, then continue to step 4.
+- On `n` — skip, continue to step 4.
+
+If `.context/plan.md` is absent from `git status` (already committed or doesn't exist) — skip this step silently.
+
+### 4. Show the list of changes and ask for confirmation
 
 ```bash
 git diff --stat
@@ -35,7 +49,7 @@ Confirm or clarify what to include.
 
 Wait for explicit confirmation before proceeding.
 
-### 4. Determine commit type and order
+### 5. Determine commit type and order
 
 | Prefix | When to use |
 | --- | --- |
@@ -63,7 +77,7 @@ feat: short description of what was done
 Implements: .context/plan.md — "{task name from ## Task:}"
 ```
 
-### 5. Execute the commit
+### 6. Execute the commit
 
 ```bash
 git add {agreed files}
@@ -85,7 +99,7 @@ Why: single attempt failed opaquely under network hiccups.
 3 attempts × 5s delay chosen over full exponential backoff — simplest thing that works.
 ```
 
-### 6. Report the result
+### 7. Report the result
 
 ```text
 Committed: {commit message}

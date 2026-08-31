@@ -56,3 +56,11 @@ Edit:
 - Explicit dependencies. If a task depends on something unimplemented — mark as blocker.
 - Constraints over wishes. One hard prohibition beats three soft "preferably".
 - Verification must be automatable. "pytest passes" — good. "code is readable" — bad.
+
+## After writing plan.md
+
+After `plan.md` has been written and the developer is aligned on it — remind them:
+
+> Plan written. Run `/commit` before `/dev` to include `plan.md` in the feature branch — reviewers see it alongside the implementation.
+
+Only a text suggestion — do NOT invoke `/commit` automatically (see CLAUDE.md → Skill boundaries).

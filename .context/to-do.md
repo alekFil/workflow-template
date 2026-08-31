@@ -68,6 +68,7 @@
 - [x] Three-way split артефактов: notes (private, AI-user) / discussions (team) / history/retros (archived retros); 4 AI-файла перенесены в notes/, retro — в history/retros/2026-06-21.md; `/retro` обновлён (ADR-029)
 - [x] `plan.md` как task-local: жизненный цикл (создаётся `/architect`, удаляется `/close`), классификация артефактов по scope (project-wide / task-local / private) в CLAUDE.md обоих слоёв (ADR-030)
 - [x] Skill boundaries: команда не исполняет соседний скилл автоматически; секция в CLAUDE.md обоих слоёв, усиленный запрет в dev.md (ADR-031)
+- [x] Commit plan.md после /architect: two-point defense — подсказка в /architect + untracked-check в /commit (ADR-032)
 
 ---
 
