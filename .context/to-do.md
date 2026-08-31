@@ -39,6 +39,24 @@
 - [x] Уточнить в `.claude/commands/dev.md` (оба слоя): по завершении — только отчёт (замещено ADR-031 в рамках Skill boundaries)
 - [x] Проверить симметрично `.claude/commands/architect.md` и другие команды на зоны сползания (замещено ADR-031, ревизия провела: единственное явное нарушение — dev.md; `cc-code-polish.md` уже реализует правило)
 
+### Приоритет 5: Hook-based enforcement (Уровень 1 + Уровень 3)
+
+Идея: перейти от soft-enforcement (правило в тексте скилла + дисциплина модели) к hard-enforcement через CC hooks для критичных инвариантов. `skill boundaries` (ADR-031) целиком автоматизировать не получается — hooks не знают «в каком скилле мы сейчас», — но state-based инварианты и запреты грубых действий закрываются чисто.
+
+**Порядок работы важен: сначала документировать модель, потом реализовывать.**
+
+- [ ] **Документировать модель enforcement:** какие правила подлежат hard-hook (state-инварианты + грубые действия), какие остаются soft (текст скилла + дисциплина), критерии отнесения. Возможно — новый ADR или раздел в CLAUDE.md.
+- [ ] **Реализовать Уровень 1 (инвариант-хуки):**
+  - `PostToolUse` на `git commit`: блок, если на `main`/`dev` в diff есть `.context/plan.md` (нарушение ADR-030)
+  - `Stop` hook: warn, если `.context/plan.md` untracked/modified на feature-ветке (напоминание ADR-032)
+- [ ] **Реализовать Уровень 3 (hard-block опасных действий):**
+  - `PreToolUse` matcher на `Bash git push` → deny
+  - `PreToolUse` matcher на `Bash git commit` при branch=`main`/`dev` → deny
+  - `PreToolUse` matcher на `git commit --amend`, `git rebase -i`, `git reset --hard` → deny
+  - `PreToolUse` matcher на Write/Edit `.context/plan.md` при branch=`main`/`dev` → deny
+- [ ] **Синхронизация в шаблонный слой:** `template/.claude/settings.json` с теми же hooks (плейсхолдерная структура при необходимости).
+- [ ] **Уровень 2 (prompt-injection reminders) — отложить как experiment** после того как Уровень 1+3 в деле.
+
 ---
 
 ## Готово
