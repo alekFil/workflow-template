@@ -19,8 +19,13 @@ Edits are made only after explicit agreement with the owner.
 - `.context/blueprint.md` — current documentation
 - `.context/status.md` — current implementation state
 - `.context/to-do.md` — task queue
+- `.context/plan.md` — current task (only on `feature/*`; absent on `main`/`dev` by design per ADR-030)
 - `.claude/skills/project/*.md` — technical conventions (if directory exists)
 - `CLAUDE.md` — entry file
+
+If `.context/plan.md` exists on `main`/`dev` — flag as an ADR-030 violation:
+
+> `.context/plan.md` is a task-local artifact and should not exist on `main`/`dev`. Remove it (usually via `/close` on the originating feature branch). Continuing regardless.
 
 If `.context/status.md` is missing or outdated — report:
 > "No current status.md. First run: `/report`"

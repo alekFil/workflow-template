@@ -88,12 +88,14 @@ CC **never does `git push`** without explicit request.
 
 2. Discuss
    → /architect
-   CC asks questions, records decisions, writes .context/plan.md
+   CC asks questions, records decisions.
+   Before writing .context/plan.md, CC asks about feature branch (plan.md is task-local, ADR-030).
    To record an architecture decision: /record
 
 3. Implement
    → /dev
-   CC creates branch feature/..., reads plan.md, writes code + tests
+   Already on feature branch (from step 2). CC reads plan.md, writes code + tests.
+   If invoked without a feature branch, /dev will create one.
 
 4. During work — commits
    → /commit

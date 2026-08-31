@@ -44,21 +44,6 @@
 - [x] Добавить `template/.claude/skills/project/` — каталог для проектных скиллов (ADR-023: `rules/` с README и примером)
 - [ ] Проверить что `template/.gitignore` корректно разворачивается через `install.sh`
 
-### Приоритет 4: `plan.md` как branch-local артефакт
-
-Проблема: сейчас `plan.md` живёт на всех ветках, но фактически используется как task-local (пишется под задачу, чистится под следующую). Для соло-работы это работает; для команды ломается — параллельные feature-ветки → конфликты и перезатирания `plan.md` при merge в `dev`.
-
-Модель: `plan.md` существует только на `feature/*`. На `main`/`dev` — отсутствует (или содержит пустую заглушку). Создаётся `/architect`-ом после ветки, удаляется `/close`-ом при merge.
-
-- [ ] Решить: полное отсутствие `plan.md` на `dev`/`main` или пустой шаблон-заглушка
-- [ ] Обновить команду `/architect`: убедиться что feature-ветка создана до записи `plan.md`
-- [ ] Обновить команду `/close`: удаление/reset `plan.md` при merge в `dev`
-- [ ] Обновить `cc-architect-sync.md`: отсутствие `plan.md` на `dev`/`main` — норма, не ошибка
-- [ ] Обновить `template/CLAUDE.md`: описать модель в разделе про артефакты (какие project-wide, какие task-local)
-- [ ] То же для мейнтейнерского `CLAUDE.md`
-- [ ] Ревизия остальных артефактов: подтвердить что `product.md` (если появится), `blueprint.md`, `status.md`, `to-do.md`, `decisions.md`, `discussions/`, `history/` — все project-wide
-- [ ] ADR: зафиксировать решение о branch-local `plan.md` и явно классифицировать все артефакты по scope
-
 ---
 
 ## Готово
@@ -86,6 +71,7 @@
 - [x] Убрать file-архив status.md — перезапись + git-указатель; удалены 14 архивных файлов; `/report` упрощён в обоих слоях (ADR-027)
 - [x] Разделить логическую карту (CLAUDE.md → «Components») и физическое дерево (status.md); плейсхолдер `{PROJECT_STRUCTURE}` → `{PROJECT_LAYOUT}` (ADR-028)
 - [x] Three-way split артефактов: notes (private, AI-user) / discussions (team) / history/retros (archived retros); 4 AI-файла перенесены в notes/, retro — в history/retros/2026-06-21.md; `/retro` обновлён (ADR-029)
+- [x] `plan.md` как task-local: жизненный цикл (создаётся `/architect`, удаляется `/close`), классификация артефактов по scope (project-wide / task-local / private) в CLAUDE.md обоих слоёв (ADR-030)
 
 ---
 

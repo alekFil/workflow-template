@@ -1,90 +1,67 @@
-## Task: Three-way split — notes / discussions / history-retros — реализовать ADR-029
+## Task: `plan.md` как branch-local — реализовать ADR-030
 
 ### Context
 
-Реализация ADR-029: `.context/discussions/` перестаёт быть свалкой AI-думания. Семантика разделяется на три директории по источнику и режиму видимости — `notes/` (private, AI-user), `discussions/` (committed, team-only), `history/retros/` (committed, archived retros). Ретроактив: 4 AI-файла и 1 retro переезжают на правильные места. Скилл `/retro` обновляется, `CLAUDE.md` в обоих слоях получает актуальную Components-строку.
+Реализация ADR-030: `plan.md` перестаёт жить на `main`/`dev` и становится строго task-local — создаётся `/architect`-ом после feature-ветки, удаляется `/close`-ом перед merge. Ретроактив: текущий `plan.md` на `dev` (этот файл) удаляется естественным образом — как последний шаг `/close` этой самой задачи. Скилл `/close` обновляется первым, чтобы применить новую механику ко всей задаче.
 
-Depends on: ADR-029, ADR-028 (Components-строка), ADR-011 (`notes/` в `.gitignore`).
+Depends on: ADR-030, ADR-029 (артефакты .context/).
 
 ### What to implement
 
-1. **Создать директорию `.context/history/retros/`.** Она будет непустой сразу (переезжает retro-файл), `.gitkeep` не нужен.
+1. **Обновить `.claude/skills/meta/cc-close-task.md`** (мейнтейнерский слой):
+   - Добавить новый шаг между «Rebase» и «Merge»: удалить `.context/plan.md`, сделать отдельный commit `chore: clean plan.md` (единственный файл в коммите — `plan.md`).
+   - Уточнить в описании: `plan.md` — task-local артефакт, живёт только на feature-ветке; ff-merge доставляет чистое состояние на `dev`.
 
-2. **Переместить retro-файл в новую директорию:**
+2. **Обновить `template/.claude/skills/meta/cc-close-task.md`** — те же правки.
 
-   ```bash
-   git mv .context/discussions/retro-2026-06-21.md .context/history/retros/2026-06-21.md
-   ```
+3. **Обновить `.claude/skills/meta/cc-architect-sync.md`** (оба слоя): убрать проверку «наличие `plan.md`» как обязательное (её нет прямо, но проверить формулировки шага 1 «Read the current context» — `plan.md` там числится; поменять на условное чтение, «если существует»). Добавить проверку fail-loud: если `plan.md` обнаружен на `main`/`dev` — это нарушение правила ADR-030, предложить удалить через `/close`.
 
-   Префикс `retro-` снят — папка сама говорит «что это»; формат согласован с `history/decisions/`.
+4. **Обновить `.claude/commands/architect.md`** и `.claude/commands/next.md` в обоих слоях:
+   - Уточнить в тексте команды, что перед записью `plan.md` следует проверить текущую ветку. Если не `feature/*` или `hotfix/*` — задать вопрос «на feature-ветке? если нет, создать?». Ветка не создаётся автоматически.
+   - Обсуждение без записи `plan.md` — валидно на любой ветке.
 
-3. **Переместить 4 AI-файла в `notes/`:**
+5. **Обновить `CLAUDE.md` (root):** добавить раздел «Artifact scope» с явной классификацией (project-wide / task-local / private). Разместить после «Components» или «ADR discipline», где логичнее.
 
-   ```bash
-   git mv .context/discussions/2026-06-08-install-and-mini.md .context/notes/
-   git mv .context/discussions/2026-06-08-mini-claude-md-design.md .context/notes/
-   git mv .context/discussions/2026-06-18-local-llm-agent.md .context/notes/
-   git mv .context/discussions/2026-08-30-adr-discipline.md .context/notes/
-   ```
+6. **Обновить `template/CLAUDE.md`:** та же секция «Artifact scope», формулировки идентичны в содержательной части.
 
-   Так как `.context/notes/` в `.gitignore`, git видит источник как удалённый, destination — как untracked (не попадает в commit). Локальная копия у мейнтейнера остаётся.
+7. **Удалить `template/.context/plan.md`.** Новый проект стартует без активной задачи. Плейсхолдеры, которые в нём были, уходят вместе с файлом (проверить в `template/WORKFLOW.md` таблице плейсхолдеров: если упомянуто что-то про `plan.md`, снять).
 
-4. **Обеспечить `.gitkeep` в `.context/discussions/`.** Проверить наличие; если нет — создать (директория пустая после переезда, git её не сохранит без stub'а).
+8. **Обновить `.context/to-do.md`:**
+   - Приоритет 4 (branch-local `plan.md`) — все подпункты в «Готово».
+   - Пункт про `.context/history/decisions/` — уже закрыт ADR-026, если ещё не отмечен.
 
-5. **Обновить `cc-retrospective.md` в мейнтейнерском слое:**
-   - Найти все ссылки на путь записи (`discussions/retro-*` или подобное).
-   - Заменить на `.context/history/retros/YYYY-MM-DD.md` (без префикса `retro-`).
-   - Также обновить формулировки в описании скилла, если упоминают «в discussions».
-
-6. **Обновить `template/.claude/skills/meta/cc-retrospective.md`:** те же правки, что и в мейнтейнерском.
-
-7. **Обновить `CLAUDE.md` (root) — Components-строка `.context/`:** сейчас перечисляет `blueprint, plan, to-do, status, decisions, discussions, history/decisions`. Добавить `history/retros`:
-
-   ```markdown
-   - `.context/` — workflow artifacts (blueprint, plan, to-do, status, decisions, discussions, history/decisions, history/retros)
-   ```
-
-8. **Обновить `template/CLAUDE.md` — Components-строка `.context/`:** сверить текущий текст, при необходимости синхронизировать.
-
-9. **Проверить `cc-status-report.md`, `cc-architect-sync.md` и другие скиллы** в обоих слоях — не ссылаются ли на `discussions/retro-*` или `discussions/` как на shared-архив. При наличии — обновить.
-
-10. **Обратные ссылки:** сверить активные ADR (в том числе ADR-026) на упоминания `discussions/2026-08-30-adr-discipline.md`. Скорее всего таких ссылок нет, но проверить и при наличии обновить (файл уходит из git).
-
-11. **Обновить `.context/to-do.md`:** отметить ADR-029 в Готово.
+9. **Естественный ретроактив:** этот `plan.md` живёт на feature-ветке весь цикл реализации; удаляется обновлённым `/close` перед ff-merge; `dev` заканчивает задачу без `plan.md`.
 
 ### Files
 
-Create:
-
-- `.context/history/retros/2026-06-21.md` — через `git mv`, не через новое создание содержимого
-- `.context/discussions/.gitkeep` — если отсутствует
-
 Edit:
 
-- `.claude/skills/meta/cc-retrospective.md` — write-path, формулировки
-- `template/.claude/skills/meta/cc-retrospective.md` — то же
-- `CLAUDE.md` — Components-строка `.context/`
-- `template/CLAUDE.md` — Components-строка `.context/`
-- `.context/to-do.md` — ADR-029 в Готово
-- Другие скиллы/файлы — по факту обнаружения ссылок на `discussions/retro-*`
+- `.claude/skills/meta/cc-close-task.md` — новый шаг удаления `plan.md`
+- `template/.claude/skills/meta/cc-close-task.md` — то же
+- `.claude/skills/meta/cc-architect-sync.md` — чтение `plan.md` условно; fail-loud на защищённой ветке
+- `template/.claude/skills/meta/cc-architect-sync.md` — то же
+- `.claude/commands/architect.md` — branch-check перед записью
+- `template/.claude/commands/architect.md` — то же
+- `.claude/commands/next.md` — то же
+- `template/.claude/commands/next.md` — то же
+- `CLAUDE.md` — новая секция «Artifact scope»
+- `template/CLAUDE.md` — то же
+- `template/WORKFLOW.md` — сверить плейсхолдеры на упоминания `plan.md` (снять при наличии)
+- `.context/to-do.md` — Приоритет 4 → Готово
 
-Move (git mv):
+Delete:
 
-- `.context/discussions/retro-2026-06-21.md` → `.context/history/retros/2026-06-21.md`
-- `.context/discussions/2026-06-08-install-and-mini.md` → `.context/notes/`
-- `.context/discussions/2026-06-08-mini-claude-md-design.md` → `.context/notes/`
-- `.context/discussions/2026-06-18-local-llm-agent.md` → `.context/notes/`
-- `.context/discussions/2026-08-30-adr-discipline.md` → `.context/notes/`
+- `template/.context/plan.md` — новый проект стартует без задач
 
 ### Constraints
 
-- **`git mv` в `notes/` — не `git rm`.** Локальная копия у мейнтейнера сохраняется by design.
-- **Не восстанавливать префикс `retro-`** в новом пути. Папка = семантика; префикс избыточен.
-- **`.gitkeep` в `.context/discussions/`** сохраняется/добавляется в мейнтейнерском слое; в `template/.context/discussions/` уже есть.
-- **Директория `.context/history/retros/` — без `.gitkeep`.** Сразу с содержимым (2026-06-21.md), stub не нужен.
-- **Не создавать `.context/history/retros/` в `template/`** — шаблон стартует с пустой историей, retros там нет.
-- **Feature-ветка:** `feature/split-notes-discussions-retros`.
-- **Один атомарный commit** — задача единая тематически (ADR-029), небольшая по объёму. Не разбивать.
+- **`.claude/commands/architect.md` не должен создавать ветку автоматически.** Только вопрос пользователю. Автоматика — риск случайных веток при абстрактных обсуждениях.
+- **`/close` удаляет `plan.md` отдельным коммитом**, не смешивая с другими правками. Читаемость истории.
+- **Не заменять `template/.context/plan.md` на заглушку.** Отсутствие лучше пустого файла (ADR-030 п.1 (a)).
+- **`template/.context/plan.md` при `install.sh`** — скрипт не должен пытаться заполнить плейсхолдеры в несуществующем файле. Если install делает `sed` по `.context/*.md`, проверить: работает через find (пропускает несуществующее), не завалится.
+- **Не создавать `.context/plan.md` где-либо шаблонной заглушкой.** Артефакт возникает только через `/architect` на feature-ветке.
+- **Feature-ветка:** `feature/branch-local-plan`.
+- **Один атомарный commit** для правок (skills + CLAUDE.md + delete + to-do). Плюс отдельный `chore: clean plan.md` в самом конце как часть новой механики `/close`.
 
 ### Verification
 
@@ -93,46 +70,42 @@ Automatable:
 ```bash
 cd /home/dev/projects/workflow-template
 
-# 1. Retro переехал
-test -f .context/history/retros/2026-06-21.md && echo "OK: retro moved"
-! test -f .context/discussions/retro-2026-06-21.md && echo "OK: old retro path empty"
+# 1. cc-close-task.md содержит шаг удаления plan.md
+grep -qi "clean plan\.md\|delete .context/plan.md\|remove plan.md" .claude/skills/meta/cc-close-task.md && echo "OK root close"
+grep -qi "clean plan\.md\|delete .context/plan.md\|remove plan.md" template/.claude/skills/meta/cc-close-task.md && echo "OK template close"
 
-# 2. AI-файлы ушли из committed корпуса
-for f in 2026-06-08-install-and-mini.md 2026-06-08-mini-claude-md-design.md 2026-06-18-local-llm-agent.md 2026-08-30-adr-discipline.md; do
-  if git ls-files --error-unmatch ".context/discussions/$f" 2>/dev/null; then
-    echo "FAIL: $f still tracked"
-  fi
-done
-echo "OK: 4 AI files no longer tracked in discussions/"
+# 2. cc-architect-sync.md — plan.md не обязателен
+grep -qi "plan.md.*if.*exist\|optional.*plan\|only.*feature.*plan" .claude/skills/meta/cc-architect-sync.md && echo "OK root sync"
+grep -qi "plan.md.*if.*exist\|optional.*plan\|only.*feature.*plan" template/.claude/skills/meta/cc-architect-sync.md && echo "OK template sync"
 
-# 3. discussions/ в мейнтейнерском слое — только .gitkeep
-ls .context/discussions/ | grep -qxF ".gitkeep" && [ "$(ls .context/discussions/ | wc -l)" = "1" ] && echo "OK: discussions has only .gitkeep"
+# 3. architect.md и next.md — branch-check
+grep -qi "feature.*branch\|branch.*check" .claude/commands/architect.md && echo "OK root architect"
+grep -qi "feature.*branch\|branch.*check" template/.claude/commands/architect.md && echo "OK template architect"
 
-# 4. Скилл /retro в обоих слоях пишет в новую директорию
-grep -q "history/retros" .claude/skills/meta/cc-retrospective.md && echo "OK: root retro path"
-grep -q "history/retros" template/.claude/skills/meta/cc-retrospective.md && echo "OK: template retro path"
-! grep -q "discussions/retro-" .claude/skills/meta/cc-retrospective.md && echo "OK: no old path root"
-! grep -q "discussions/retro-" template/.claude/skills/meta/cc-retrospective.md && echo "OK: no old path template"
+# 4. CLAUDE.md обоих слоёв содержит «Artifact scope»
+grep -q "Artifact scope\|## Artifact" CLAUDE.md && echo "OK root scope"
+grep -q "Artifact scope\|## Artifact" template/CLAUDE.md && echo "OK template scope"
 
-# 5. CLAUDE.md обоих слоёв упоминает history/retros
-grep -q "history/retros" CLAUDE.md && echo "OK: root CLAUDE"
-grep -q "history/retros" template/CLAUDE.md && echo "OK: template CLAUDE"
+# 5. template/.context/plan.md удалён
+! test -f template/.context/plan.md && echo "OK: template plan.md removed"
 
-# 6. Другие скиллы не ссылаются на discussions/retro-*
-! grep -rq "discussions/retro-" .claude/skills/ template/.claude/skills/ && echo "OK: no orphan retro refs"
+# 6. install.sh не ссылается на несуществующий plan.md напрямую
+if grep -q "\.context/plan\.md" scripts/install.sh; then echo "REVIEW: install.sh mentions plan.md"; else echo "OK: install.sh clean of plan.md refs"; fi
 
-# 7. template/.context/history/ и template/.context/discussions/ по-прежнему .gitkeep-стабы
-[ "$(ls template/.context/history/)" = ".gitkeep" ] && echo "OK: template history stub"
-[ "$(ls template/.context/discussions/)" = ".gitkeep" ] && echo "OK: template discussions stub"
+# 7. Финальное состояние после /close: plan.md отсутствует на dev
+# (Проверяется в момент /close, не в этой verification-фазе.)
+
+# 8. to-do.md: Приоритет 4 закрыт
+! grep -qE "^- \[ \].*Приоритет 4|^- \[ \].*Обновить команду `/architect`.*ветка|^- \[ \].*plan.md.*branch-local" .context/to-do.md && echo "OK: Priority 4 items closed"
 ```
 
 Manual smoke:
 
-- Открыть `.context/history/retros/2026-06-21.md` — содержимое ретро на месте.
-- `.context/notes/` — 4 AI-файла лежат локально, `git status` их не показывает (в `.gitignore`).
-- `git log --follow .context/history/retros/2026-06-21.md` — история сохранилась через `git mv`.
+- Открыть обновлённый `cc-close-task.md` — шаг про `chore: clean plan.md` явно и до merge.
+- Открыть обновлённый `cc-architect-sync.md` — чтение `plan.md` условное; отсутствие на `dev` — норма; наличие на защищённой ветке — предупреждение.
+- Обновлённая `CLAUDE.md` — раздел «Artifact scope» покрывает три класса.
+- Проверить, что при следующем `/close` этой самой задачи механика срабатывает: `plan.md` удаляется отдельным коммитом, ff-merge оставляет `dev` без него.
 
 ### Changes along the way
 
-- **`cc-retrospective.md` step 1 в обоих слоях** — было `.context/history/*.md` — previous status snapshots (if any)`. После ADR-027 файлового status-архива нет; читать `history/*.md` теперь бессмысленно (там `decisions/2026.md` и после этой задачи — `retros/`). Заменено на `.context/history/retros/*.md` — previous retrospectives (for continuity across sessions)`. Это правка тех-долга на пути (устаревшая ссылка после ADR-027), и она осмысленно легла на новый путь: `/retro` теперь читает прошлые ретро, что естественно для continuity.
-
+—
