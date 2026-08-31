@@ -1,61 +1,90 @@
-## Task: Разделить логическую карту и физическое дерево — реализовать ADR-028
+## Task: Three-way split — notes / discussions / history-retros — реализовать ADR-029
 
 ### Context
 
-Реализация ADR-028: `CLAUDE.md` в обоих слоях содержит блок с файловым деревом, который дублирует «Структура проекта» из `status.md` и уже отстал (нет упоминаний `cc-code-polish.md`, `cc-retrospective.md`). Заменяем на компактный блок «Components» — одна строка на компонент, без ASCII-веток. Физическое дерево остаётся в `status.md` (auto-generated при `/report`). В шаблонном слое — симметрично, полностью схематичный вариант с одним плейсхолдером `{PROJECT_LAYOUT}` для проекто-специфичных областей.
+Реализация ADR-029: `.context/discussions/` перестаёт быть свалкой AI-думания. Семантика разделяется на три директории по источнику и режиму видимости — `notes/` (private, AI-user), `discussions/` (committed, team-only), `history/retros/` (committed, archived retros). Ретроактив: 4 AI-файла и 1 retro переезжают на правильные места. Скилл `/retro` обновляется, `CLAUDE.md` в обоих слоях получает актуальную Components-строку.
 
-Depends on: ADR-028.
+Depends on: ADR-029, ADR-028 (Components-строка), ADR-011 (`notes/` в `.gitignore`).
 
 ### What to implement
 
-1. **Обновить `CLAUDE.md` (root):** заменить раздел «Repo structure» с ASCII-деревом на раздел «Components» с 5-6 строками (одна на компонент). Формат по ADR-028 п.1:
+1. **Создать директорию `.context/history/retros/`.** Она будет непустой сразу (переезжает retro-файл), `.gitkeep` не нужен.
 
-   ```markdown
-   ## Components
+2. **Переместить retro-файл в новую директорию:**
 
-   - `.claude/` — CC tooling (index, commands, meta-skills, project rules)
-   - `.context/` — workflow artifacts (blueprint, plan, to-do, status, decisions, discussions, history/decisions)
-   - `scripts/` — user-facing installers (install/uninstall via curl)
-   - `template/` — payload deployed into new projects
-   - Top-level: `CLAUDE.md`, `CONTRIBUTION.md`, `SETUP.md`, `README.md`, `LICENSE`
+   ```bash
+   git mv .context/discussions/retro-2026-06-21.md .context/history/retros/2026-06-21.md
    ```
 
-2. **Обновить `template/CLAUDE.md`:** заменить раздел «Project structure» с плейсхолдерным деревом `{PROJECT_STRUCTURE}` на «Components», полностью схематичный:
+   Префикс `retro-` снят — папка сама говорит «что это»; формат согласован с `history/decisions/`.
 
-   ```markdown
-   ## Components
+3. **Переместить 4 AI-файла в `notes/`:**
 
-   - `.claude/` — CC tooling (index, commands, meta-skills, project rules)
-   - `.context/` — workflow artifacts (blueprint, plan, to-do, status, decisions)
-   - `{PROJECT_LAYOUT}` — project-specific areas (source code, tests, docs, infrastructure). Fill in during initial setup with a couple of top-level lines.
+   ```bash
+   git mv .context/discussions/2026-06-08-install-and-mini.md .context/notes/
+   git mv .context/discussions/2026-06-08-mini-claude-md-design.md .context/notes/
+   git mv .context/discussions/2026-06-18-local-llm-agent.md .context/notes/
+   git mv .context/discussions/2026-08-30-adr-discipline.md .context/notes/
    ```
 
-3. **Обновить плейсхолдеры в `template/WORKFLOW.md`:** если `{PROJECT_STRUCTURE}` документирован там в таблице плейсхолдеров, заменить на `{PROJECT_LAYOUT}` с обновлённым описанием («logical component map, not a file tree»); если не документирован — добавить строку про `{PROJECT_LAYOUT}` в таблице.
+   Так как `.context/notes/` в `.gitignore`, git видит источник как удалённый, destination — как untracked (не попадает в commit). Локальная копия у мейнтейнера остаётся.
 
-4. **Проверить внешние ссылки на «Repo structure» / «Project structure»** в `CONTRIBUTION.md`, `README.md`, `SETUP.md`, `.claude/index.md`, `template/.claude/index.md`. При наличии — заменить формулировку на «Components» или скорректировать описание. При отсутствии — оставить.
+4. **Обеспечить `.gitkeep` в `.context/discussions/`.** Проверить наличие; если нет — создать (директория пустая после переезда, git её не сохранит без stub'а).
 
-5. **Проверить упоминания плейсхолдера `{PROJECT_STRUCTURE}`** в `scripts/install.sh` — если скрипт делает `sed`-подстановку на него, заменить на `{PROJECT_LAYOUT}` или снять подстановку (если пользователь заполняет вручную).
+5. **Обновить `cc-retrospective.md` в мейнтейнерском слое:**
+   - Найти все ссылки на путь записи (`discussions/retro-*` или подобное).
+   - Заменить на `.context/history/retros/YYYY-MM-DD.md` (без префикса `retro-`).
+   - Также обновить формулировки в описании скилла, если упоминают «в discussions».
+
+6. **Обновить `template/.claude/skills/meta/cc-retrospective.md`:** те же правки, что и в мейнтейнерском.
+
+7. **Обновить `CLAUDE.md` (root) — Components-строка `.context/`:** сейчас перечисляет `blueprint, plan, to-do, status, decisions, discussions, history/decisions`. Добавить `history/retros`:
+
+   ```markdown
+   - `.context/` — workflow artifacts (blueprint, plan, to-do, status, decisions, discussions, history/decisions, history/retros)
+   ```
+
+8. **Обновить `template/CLAUDE.md` — Components-строка `.context/`:** сверить текущий текст, при необходимости синхронизировать.
+
+9. **Проверить `cc-status-report.md`, `cc-architect-sync.md` и другие скиллы** в обоих слоях — не ссылаются ли на `discussions/retro-*` или `discussions/` как на shared-архив. При наличии — обновить.
+
+10. **Обратные ссылки:** сверить активные ADR (в том числе ADR-026) на упоминания `discussions/2026-08-30-adr-discipline.md`. Скорее всего таких ссылок нет, но проверить и при наличии обновить (файл уходит из git).
+
+11. **Обновить `.context/to-do.md`:** отметить ADR-029 в Готово.
 
 ### Files
 
+Create:
+
+- `.context/history/retros/2026-06-21.md` — через `git mv`, не через новое создание содержимого
+- `.context/discussions/.gitkeep` — если отсутствует
+
 Edit:
 
-- `CLAUDE.md` — раздел «Repo structure» → «Components»
-- `template/CLAUDE.md` — раздел «Project structure» → «Components», плейсхолдер `{PROJECT_STRUCTURE}` → `{PROJECT_LAYOUT}`
-- `template/WORKFLOW.md` — таблица плейсхолдеров: `{PROJECT_STRUCTURE}` → `{PROJECT_LAYOUT}` (или добавить)
-- `scripts/install.sh` — если есть `sed s/{PROJECT_STRUCTURE}/.../` — снять или переименовать под `{PROJECT_LAYOUT}`
-- Возможно `CONTRIBUTION.md`, `README.md`, `SETUP.md`, `.claude/index.md`, `template/.claude/index.md` — сверить и при необходимости обновить
+- `.claude/skills/meta/cc-retrospective.md` — write-path, формулировки
+- `template/.claude/skills/meta/cc-retrospective.md` — то же
+- `CLAUDE.md` — Components-строка `.context/`
+- `template/CLAUDE.md` — Components-строка `.context/`
+- `.context/to-do.md` — ADR-029 в Готово
+- Другие скиллы/файлы — по факту обнаружения ссылок на `discussions/retro-*`
 
-Create: —
+Move (git mv):
+
+- `.context/discussions/retro-2026-06-21.md` → `.context/history/retros/2026-06-21.md`
+- `.context/discussions/2026-06-08-install-and-mini.md` → `.context/notes/`
+- `.context/discussions/2026-06-08-mini-claude-md-design.md` → `.context/notes/`
+- `.context/discussions/2026-06-18-local-llm-agent.md` → `.context/notes/`
+- `.context/discussions/2026-08-30-adr-discipline.md` → `.context/notes/`
 
 ### Constraints
 
-- **`status.md` в обоих слоях не трогать** — там уже auto-generated физическое дерево, оно единственный источник правды по «где что реально лежит».
-- **Не восстанавливать ASCII-деревья.** Даже краткое дерево на 5 строк — соблазн, но противоречит ADR-028 (дрейф + смешение уровней). Строго строчный формат «Components».
-- **Формулировки «Components» в обоих слоях согласованы по стилю** — «`path/` — one-line purpose». Не путать с длинными описаниями.
-- **Плейсхолдеры в `template/CLAUDE.md` остаются в фигурных скобках** и не заполняются реальными значениями (`{PROJECT_LAYOUT}` — только плейсхолдер, не подставляется).
-- **Feature-ветка:** `feature/split-structure-map`.
-- **Один атомарный commit** — задача маленькая, изменения связаны единой темой (ADR-028). Не разбивать.
+- **`git mv` в `notes/` — не `git rm`.** Локальная копия у мейнтейнера сохраняется by design.
+- **Не восстанавливать префикс `retro-`** в новом пути. Папка = семантика; префикс избыточен.
+- **`.gitkeep` в `.context/discussions/`** сохраняется/добавляется в мейнтейнерском слое; в `template/.context/discussions/` уже есть.
+- **Директория `.context/history/retros/` — без `.gitkeep`.** Сразу с содержимым (2026-06-21.md), stub не нужен.
+- **Не создавать `.context/history/retros/` в `template/`** — шаблон стартует с пустой историей, retros там нет.
+- **Feature-ветка:** `feature/split-notes-discussions-retros`.
+- **Один атомарный commit** — задача единая тематически (ADR-029), небольшая по объёму. Не разбивать.
 
 ### Verification
 
@@ -64,36 +93,46 @@ Automatable:
 ```bash
 cd /home/dev/projects/workflow-template
 
-# 1. ASCII-деревья убраны из CLAUDE.md обоих слоёв
-if grep -qE "^├──|^│  |^└──" CLAUDE.md; then echo "FAIL: root ASCII tree remains"; else echo "OK root"; fi
-if grep -qE "^├──|^│  |^└──" template/CLAUDE.md; then echo "FAIL: template ASCII tree remains"; else echo "OK template"; fi
+# 1. Retro переехал
+test -f .context/history/retros/2026-06-21.md && echo "OK: retro moved"
+! test -f .context/discussions/retro-2026-06-21.md && echo "OK: old retro path empty"
 
-# 2. Секция «Components» появилась в обоих
-grep -q "^## Components" CLAUDE.md && echo "OK: root Components"
-grep -q "^## Components" template/CLAUDE.md && echo "OK: template Components"
+# 2. AI-файлы ушли из committed корпуса
+for f in 2026-06-08-install-and-mini.md 2026-06-08-mini-claude-md-design.md 2026-06-18-local-llm-agent.md 2026-08-30-adr-discipline.md; do
+  if git ls-files --error-unmatch ".context/discussions/$f" 2>/dev/null; then
+    echo "FAIL: $f still tracked"
+  fi
+done
+echo "OK: 4 AI files no longer tracked in discussions/"
 
-# 3. Секция «Repo structure» / «Project structure» удалена
-! grep -q "^## Repo structure" CLAUDE.md && echo "OK: root has no old section"
-! grep -q "^## Project structure" template/CLAUDE.md && echo "OK: template has no old section"
+# 3. discussions/ в мейнтейнерском слое — только .gitkeep
+ls .context/discussions/ | grep -qxF ".gitkeep" && [ "$(ls .context/discussions/ | wc -l)" = "1" ] && echo "OK: discussions has only .gitkeep"
 
-# 4. Плейсхолдер {PROJECT_STRUCTURE} не остался нигде
-! grep -rq "{PROJECT_STRUCTURE}" template/ scripts/ && echo "OK: no PROJECT_STRUCTURE leftover"
+# 4. Скилл /retro в обоих слоях пишет в новую директорию
+grep -q "history/retros" .claude/skills/meta/cc-retrospective.md && echo "OK: root retro path"
+grep -q "history/retros" template/.claude/skills/meta/cc-retrospective.md && echo "OK: template retro path"
+! grep -q "discussions/retro-" .claude/skills/meta/cc-retrospective.md && echo "OK: no old path root"
+! grep -q "discussions/retro-" template/.claude/skills/meta/cc-retrospective.md && echo "OK: no old path template"
 
-# 5. Новый плейсхолдер {PROJECT_LAYOUT} присутствует в template/CLAUDE.md
-grep -q "{PROJECT_LAYOUT}" template/CLAUDE.md && echo "OK: PROJECT_LAYOUT in template"
+# 5. CLAUDE.md обоих слоёв упоминает history/retros
+grep -q "history/retros" CLAUDE.md && echo "OK: root CLAUDE"
+grep -q "history/retros" template/CLAUDE.md && echo "OK: template CLAUDE"
 
-# 6. status.md обоих слоёв не тронут
-! git diff --name-only HEAD | grep -q "^\.context/status\.md$" && echo "OK: root status.md untouched"
-! git diff --name-only HEAD | grep -q "^template/\.context/status\.md$" && echo "OK: template status.md untouched"
+# 6. Другие скиллы не ссылаются на discussions/retro-*
+! grep -rq "discussions/retro-" .claude/skills/ template/.claude/skills/ && echo "OK: no orphan retro refs"
+
+# 7. template/.context/history/ и template/.context/discussions/ по-прежнему .gitkeep-стабы
+[ "$(ls template/.context/history/)" = ".gitkeep" ] && echo "OK: template history stub"
+[ "$(ls template/.context/discussions/)" = ".gitkeep" ] && echo "OK: template discussions stub"
 ```
 
 Manual smoke:
 
-- Прочитать раздел «Components» в обоих `CLAUDE.md` — на глаз соответствует ADR-028, покрывает все реально существующие верхнеуровневые компоненты.
-- `status.md` открыть — физическое дерево на месте и актуально (было обновлено недавним `/report`).
-- Если `install.sh` содержал `sed` на `{PROJECT_STRUCTURE}` — прогнать `bash -n scripts/install.sh`, убедиться в отсутствии синтаксических ошибок после правок.
+- Открыть `.context/history/retros/2026-06-21.md` — содержимое ретро на месте.
+- `.context/notes/` — 4 AI-файла лежат локально, `git status` их не показывает (в `.gitignore`).
+- `git log --follow .context/history/retros/2026-06-21.md` — история сохранилась через `git mv`.
 
 ### Changes along the way
 
-- **`.claude/skills/project/rules/no-placeholder-leaks.md`** — обновлено упоминание `{PROJECT_STRUCTURE}` → `{PROJECT_LAYOUT}`. Файл перечисляет ожидаемые плейсхолдеры шаблонного слоя; при переименовании плейсхолдера этот список — часть контракта.
-- **`.claude/skills/meta/cc-architect-sync.md` и `template/.claude/skills/meta/cc-architect-sync.md`** — блок проверок для `CLAUDE.md` содержал строку «Project structure if it has changed»; после ADR-028 нет секции «Project structure», есть «Components». Строка обновлена — теперь проверяется «`Components` section: new or renamed top-level component; entry outdated relative to actual purpose».
+- **`cc-retrospective.md` step 1 в обоих слоях** — было `.context/history/*.md` — previous status snapshots (if any)`. После ADR-027 файлового status-архива нет; читать `history/*.md` теперь бессмысленно (там `decisions/2026.md` и после этой задачи — `retros/`). Заменено на `.context/history/retros/*.md` — previous retrospectives (for continuity across sessions)`. Это правка тех-долга на пути (устаревшая ссылка после ADR-027), и она осмысленно легла на новый путь: `/retro` теперь читает прошлые ретро, что естественно для continuity.
+

@@ -85,6 +85,7 @@
 - [x] Дисциплина ADR — двухуровневая модель, чек-лист, архивация; переклассификация 25 существующих ADR; синхронизировано в шаблонный слой (ADR-026)
 - [x] Убрать file-архив status.md — перезапись + git-указатель; удалены 14 архивных файлов; `/report` упрощён в обоих слоях (ADR-027)
 - [x] Разделить логическую карту (CLAUDE.md → «Components») и физическое дерево (status.md); плейсхолдер `{PROJECT_STRUCTURE}` → `{PROJECT_LAYOUT}` (ADR-028)
+- [x] Three-way split артефактов: notes (private, AI-user) / discussions (team) / history/retros (archived retros); 4 AI-файла перенесены в notes/, retro — в history/retros/2026-06-21.md; `/retro` обновлён (ADR-029)
 
 ---
 

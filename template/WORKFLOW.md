@@ -116,7 +116,7 @@ CC **never does `git push`** without explicit request.
 7. Periodically — retrospective
    → /retro
    CC reads decisions, history, git log — presents analysis draft
-   You correct → CC writes .context/discussions/retro-YYYY-MM-DD.md
+   You correct → CC writes .context/history/retros/YYYY-MM-DD.md
    Proposes to-do and ADR updates with per-item confirmation
 ```
 

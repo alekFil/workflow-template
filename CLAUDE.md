@@ -28,7 +28,7 @@ Used as the foundation when starting a new project.
 ## Components
 
 - `.claude/` — CC tooling (index, commands, meta-skills, project rules)
-- `.context/` — workflow artifacts (blueprint, plan, to-do, status, decisions, discussions, history/decisions)
+- `.context/` — workflow artifacts (blueprint, plan, to-do, status, decisions, discussions, history/decisions, history/retros)
 - `scripts/` — user-facing installers (install/uninstall via curl)
 - `template/` — payload deployed into new projects
 - Top-level: `CLAUDE.md`, `CONTRIBUTION.md`, `SETUP.md`, `README.md`, `LICENSE`
