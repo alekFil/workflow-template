@@ -36,10 +36,8 @@
 
 ### Приоритет 4: Дисциплина команд — устранить `/dev` → авто-commit
 
-Проблема: `.claude/commands/dev.md` заканчивается инструкцией «report what was done and what remains», но модель на практике предлагает commit-сообщение и просит подтверждения — фактически частично исполняет `/commit` без явного вызова. Границы между `/dev` и `/commit` размыты.
-
-- [ ] Уточнить в `.claude/commands/dev.md` (оба слоя): по завершении — только отчёт, никаких предложений commit-сообщения и вопросов «коммичу?». Commit — только через явный `/commit`.
-- [ ] Проверить симметрично `.claude/commands/architect.md` и другие команды — нет ли аналогичных зон сползания в соседний скилл.
+- [x] Уточнить в `.claude/commands/dev.md` (оба слоя): по завершении — только отчёт (замещено ADR-031 в рамках Skill boundaries)
+- [x] Проверить симметрично `.claude/commands/architect.md` и другие команды на зоны сползания (замещено ADR-031, ревизия провела: единственное явное нарушение — dev.md; `cc-code-polish.md` уже реализует правило)
 
 ---
 
@@ -69,6 +67,7 @@
 - [x] Разделить логическую карту (CLAUDE.md → «Components») и физическое дерево (status.md); плейсхолдер `{PROJECT_STRUCTURE}` → `{PROJECT_LAYOUT}` (ADR-028)
 - [x] Three-way split артефактов: notes (private, AI-user) / discussions (team) / history/retros (archived retros); 4 AI-файла перенесены в notes/, retro — в history/retros/2026-06-21.md; `/retro` обновлён (ADR-029)
 - [x] `plan.md` как task-local: жизненный цикл (создаётся `/architect`, удаляется `/close`), классификация артефактов по scope (project-wide / task-local / private) в CLAUDE.md обоих слоёв (ADR-030)
+- [x] Skill boundaries: команда не исполняет соседний скилл автоматически; секция в CLAUDE.md обоих слоёв, усиленный запрет в dev.md (ADR-031)
 
 ---
 

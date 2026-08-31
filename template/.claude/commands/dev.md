@@ -7,7 +7,7 @@ In this mode:
 - Stay within the plan scope — do not expand independently
 - If uncertainty arises — stop and ask
 - Write tests for new code
-- After completion report what was done and what remains
+- **After completion, report only** — what was done and what remains. Do NOT propose commit messages, run `/commit`, `/close`, or invoke any other skill automatically. Suggesting a next step in text ("Ready for /commit?") is allowed; executing it is not. See CLAUDE.md → Skill boundaries.
 
 ## Main rule — problem outside the plan scope
 

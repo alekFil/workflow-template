@@ -223,6 +223,19 @@ If in doubt about a new artifact — decide its class first, then place it. Pres
 
 ---
 
+## Skill boundaries
+
+Each command/skill completes strictly within its own scope. Suggesting a next step in text is allowed; executing it automatically is not.
+
+- **Allowed:** at the end of `/report`, print `Status updated → status.md`. At the end of `/sync`, print `Done. Commit? (/commit)`. These are text suggestions — the developer decides whether to invoke.
+- **Not allowed:** `/dev` proposing a commit message and asking for confirmation to commit. `/architect` writing code alongside the plan. `/close` running `/commit` on uncommitted changes automatically.
+
+Commit actions that are part of a skill's own algorithm (e.g. `/close` step "Clean plan.md") are internal mechanics, not cross-skill bleed — they stay.
+
+Enforcement is currently soft (rule in skill text, discipline by the model).
+
+---
+
 ## ADR discipline
 
 Two levels of artifacts:
