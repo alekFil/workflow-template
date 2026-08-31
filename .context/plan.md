@@ -1,55 +1,59 @@
-## Task: Реализовать ADR-031 — раздел Skill boundaries + ревизия скиллов
+## Task: Реализовать ADR-032 — подсказка plan.md в /architect + untracked-check в /commit
 
 ### Context
 
-Реализация ADR-031: фиксируем правило «команда не исполняет соседний скилл автоматически, подсказка допустима» как раздел в `CLAUDE.md` обоих слоёв. Усиливаем `dev.md` (главный источник нарушений) явным запретом на предложение commit'а и вызов `/commit`/`/close`. Ревизуем commands/ и skills/meta/ на аналогичные зоны сползания — правим только явно нарушающие. Приоритет 4 в to-do закрывается как замещённый ADR-031.
+Реализация ADR-032: закрываем workflow-гэп, из-за которого `plan.md` мог остаться untracked и не попасть в git-историю ветки (потеря для review). Two-point defense: `/architect` подсказывает `/commit` перед `/dev`; `/commit` при обнаружении untracked `plan.md` спрашивает включить (дефолт Yes). Оба фикса в границах ADR-031 (текст-подсказка + git-add как часть собственного scope /commit).
 
-Depends on: ADR-031, ADR-030 (task-local `plan.md`).
+Работа продолжается на текущей ветке `feature/skill-boundaries` — бандлится с ADR-031-реализацией, так как оба фикса — единая workflow-дисциплина.
+
+Depends on: ADR-032, ADR-031 (skill boundaries), ADR-030 (plan.md task-local).
 
 ### What to implement
 
-1. **Добавить раздел «Skill boundaries» в `CLAUDE.md` (root)** — 6-10 строк после «Artifact scope» или в соседней позиции. Формат: правило + один пример (допустимо vs недопустимо) + ссылка на ADR-031. Пример должен быть про `/dev` (реальный случай нарушения).
+1. **Обновить `.claude/commands/architect.md`** — добавить финальную секцию/строку про подсказку `/commit`. Формулировка (пример):
 
-2. **Добавить тот же раздел в `template/CLAUDE.md`.** Идентичный содержательный текст (шаблонный слой на английском, мейнтейнерский — тоже, разница только в контексте окружения).
+   > When you finish writing `plan.md`, remind the user: "Plan written. Run `/commit` before `/dev` to include `plan.md` in the feature branch (reviewers see it alongside the implementation)."
 
-3. **Усилить `.claude/commands/dev.md`** (оба слоя): добавить в раздел «In this mode» явный запрет:
+   Разместить в отдельном подразделе (например, `## After writing plan.md`) для видимости.
 
-   ```markdown
-   - **After completion, report only.** Do NOT propose commit messages, run `/commit`, `/close`, or invoke any other skill automatically. Suggesting a next step in text (e.g. "Ready for /commit?") is allowed; executing it is not. See CLAUDE.md → Skill boundaries.
-   ```
+2. **Обновить `template/.claude/commands/architect.md`** — тот же подраздел, идентичная формулировка.
 
-4. **Ревизия `.claude/commands/*.md` и `.claude/skills/meta/*.md` в обоих слоях** — прочесть, найти места, где скилл автоматически исполняет соседний (не путать с внутренней логикой скилла типа `/close` step 3 `chore: clean plan.md` — это не сползание, ADR-031 п.5 в согласовании). Править только явно нарушающие. Ожидание: скорее всего только `dev.md`, но проверка обязательна.
+3. **Обновить `.claude/skills/meta/cc-commit.md`** — новый шаг между текущим step 2 («Check there is something to commit») и step 3 («Show the list of changes and ask for confirmation»). Логика:
 
-5. **Закрыть Приоритет 4 в `to-do.md`:** пункт «устранить `/dev` → авто-commit» пометить как выполненный «— замещён ADR-031, реализация в рамках Skill boundaries».
+   - Если `.context/plan.md` untracked (или modified) — вывести:
+
+     ```text
+     Detected untracked/modified .context/plan.md — design artifact for the current task.
+     Include in this commit? [Y/n] (default: Y)
+     ```
+
+   - При `Y` (или пустом ответе) — `git add .context/plan.md` перед формированием diff.
+   - При `n` — пропустить, продолжить обычный поток.
+
+4. **Обновить `template/.claude/skills/meta/cc-commit.md`** — те же правки.
+
+5. **Обновить `.context/to-do.md`** — добавить запись в «Готово» про ADR-032.
 
 ### Files
 
 Edit:
 
-- `CLAUDE.md` — новый раздел «Skill boundaries»
-- `template/CLAUDE.md` — тот же раздел
-- `.claude/commands/dev.md` — усиленный запрет + ссылка
-- `template/.claude/commands/dev.md` — то же
-- `.context/to-do.md` — Приоритет 4 в Готово
-
-Возможные edits (по факту ревизии):
-
-- `.claude/commands/architect.md`, `close.md`, `report.md`, `sync.md`, `commit.md`, `record.md`, `retro.md`, `polish.md`, `next.md`, `organize.md` — при обнаружении нарушений
-- `.claude/skills/meta/cc-*.md` (все 6 файлов) — при обнаружении нарушений
-- Симметрично в `template/`
+- `.claude/commands/architect.md` — финальная подсказка про `/commit`
+- `template/.claude/commands/architect.md` — то же
+- `.claude/skills/meta/cc-commit.md` — новый шаг «untracked plan.md check»
+- `template/.claude/skills/meta/cc-commit.md` — то же
+- `.context/to-do.md` — запись в «Готово»
 
 Create: —
 
 ### Constraints
 
-- **Правило в единственном месте.** Полный текст правила — только в CLAUDE.md обоих слоёв. В `dev.md` — усиленная формулировка запрета + ссылка «See CLAUDE.md → Skill boundaries», не полное дублирование.
-- **`report.md` и `sync.md` не трогать** — они уже соответствуют (подсказка в тексте, не автоматическое исполнение). Trigger для правки — только явное нарушение.
-- **Commit внутри собственного алгоритма скилла — не нарушение.** Пример: `/close` step 3 `chore: clean plan.md` — это часть собственной механики `/close` per ADR-030, не сползание в `/commit`. Не удалять и не «исправлять» такие места.
-- **Не добавлять formal disclaimer в каждый скилл** («this skill does not execute /X automatically») — избыточное дублирование правила из CLAUDE.md.
-- **Плейсхолдеры в `template/` не трогать.** Раздел «Skill boundaries» не содержит подстановочных значений, вставляется как есть.
-- **Формулировки в обоих слоях идентичны в содержательной части.** Английский, стиль как в «Artifact scope» / «ADR discipline».
-- **Feature-ветка:** `feature/skill-boundaries` (уже создана).
-- **Один атомарный commit** — задача связная (ADR-031 через несколько мелких файлов). Плюс отдельный `chore: clean plan.md` в `/close` per механика ADR-030.
+- **Обе правки — в границах ADR-031.** `/architect`-подсказка — текст, не автоматическое исполнение. `/commit`-вопрос с дефолтом Y — не auto-execute (пользователь может ответить n), плюс git-add — часть собственного scope `/commit`, не сползание.
+- **Идентичность формулировок в обоих слоях** в содержательной части. Английский, стиль как в существующих секциях.
+- **Не добавлять раздел про plan.md-workflow в CLAUDE.md** — частный случай, живёт в скиллах. Общее правило skill-boundaries (ADR-031) уже в CLAUDE.md; ADR-032 — детализация в скиллах.
+- **`/dev` не трогаем.** Проверка на committed plan.md туда не добавляется — по решению из обсуждения (лишний шум для редкого edge-case).
+- **Feature-ветка:** `feature/skill-boundaries` (уже на ней, продолжаем бандл с ADR-031).
+- **Один атомарный commit** для правок этой задачи. Плюс отдельный `chore: clean plan.md` в `/close` (по механике ADR-030 закроет всю ветку).
 
 ### Verification
 
@@ -58,32 +62,28 @@ Automatable:
 ```bash
 cd /home/dev/projects/workflow-template
 
-# 1. Раздел «Skill boundaries» присутствует в обоих CLAUDE.md
-grep -q "^## Skill boundaries" CLAUDE.md && echo "OK root"
-grep -q "^## Skill boundaries" template/CLAUDE.md && echo "OK template"
+# 1. architect.md содержит подсказку про /commit
+grep -qi "run.*/commit.*before.*/dev\|/commit.*before.*/dev.*reviewers" .claude/commands/architect.md && echo "OK root architect"
+grep -qi "run.*/commit.*before.*/dev\|/commit.*before.*/dev.*reviewers" template/.claude/commands/architect.md && echo "OK template architect"
 
-# 2. dev.md содержит усиленный запрет
-grep -qi "do not propose commit\|do not run /commit\|do not invoke.*automatic" .claude/commands/dev.md && echo "OK root dev.md"
-grep -qi "do not propose commit\|do not run /commit\|do not invoke.*automatic" template/.claude/commands/dev.md && echo "OK template dev.md"
+# 2. cc-commit.md содержит шаг про untracked plan.md
+grep -qi "untracked.*plan.md\|plan.md.*untracked\|Include.*plan.md" .claude/skills/meta/cc-commit.md && echo "OK root commit"
+grep -qi "untracked.*plan.md\|plan.md.*untracked\|Include.*plan.md" template/.claude/skills/meta/cc-commit.md && echo "OK template commit"
 
-# 3. dev.md ссылается на CLAUDE.md → Skill boundaries
-grep -q "Skill boundaries" .claude/commands/dev.md && echo "OK root ref"
-grep -q "Skill boundaries" template/.claude/commands/dev.md && echo "OK template ref"
+# 3. to-do.md содержит запись про ADR-032 в Готово
+grep -q "ADR-032" .context/to-do.md && echo "OK to-do"
 
-# 4. to-do.md: Приоритет 4 в Готово
-if grep -qE "^### Приоритет 4:.*/dev" .context/to-do.md; then echo "FAIL: P4 still active"; else echo "OK: P4 closed"; fi
-grep -q "устранить.*dev.*ADR-031\|замещён ADR-031" .context/to-do.md && echo "OK: closure note in Готово"
-
-# 5. Ревизия не оставила orphan'ов (все правки — либо dev.md, либо документированы в Changes along the way)
-git diff --stat HEAD~ 2>/dev/null || git diff --stat --cached | head -20
+# 4. Оба слоя симметричны (тот же контент правки)
+diff <(grep -A 5 "Include.*plan.md" .claude/skills/meta/cc-commit.md) \
+     <(grep -A 5 "Include.*plan.md" template/.claude/skills/meta/cc-commit.md) \
+     && echo "OK symmetric commit skills"
 ```
 
 Manual smoke:
 
-- Прочитать секцию «Skill boundaries» в обоих `CLAUDE.md` — правило и пример явно противопоставляют «suggest next step» и «execute next skill».
-- Прочитать `dev.md` в обоих слоях — запрет виден при беглом прочтении, ссылка на CLAUDE.md есть.
-- Прочитать `/close` step 3 в `cc-close-task.md` — не сломан (внутренняя механика, не сползание).
-- Прочитать `report.md`, `sync.md` — подсказки на выход (`Commit? (/commit)`) остались как текст, автоматически не исполняются.
+- Прочитать `architect.md` в обоих слоях — финальная подсказка про `/commit` видна отдельным разделом или чётко выделенной строкой.
+- Прочитать `cc-commit.md` — новый шаг явно между step 2 и старым step 3; порядок и нумерация сохранены.
+- Проверить, что в скилле нет автоматического `git commit` без пользовательского подтверждения — только вопрос с дефолтом Y.
 
 ### Changes along the way
 
