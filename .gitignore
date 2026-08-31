@@ -2,4 +2,3 @@
 .claude/settings.local.json
 .claude/chat_history/
 .env
-memory/

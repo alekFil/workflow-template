@@ -19,8 +19,13 @@ Edits are made only after explicit agreement with the developer.
 - `.context/blueprint.md` — current documentation
 - `.context/status.md` — current implementation state
 - `.context/to-do.md` — task queue
+- `.context/plan.md` — current task (only on `feature/*`; absent on `main`/`dev` by design)
 - `.claude/skills/project/*.md` — technical conventions (if directory exists)
 - `CLAUDE.md` — entry file
+
+If `.context/plan.md` exists on `main`/`dev` — flag as a violation:
+
+> `.context/plan.md` is a task-local artifact and should not exist on `main`/`dev`. Remove it (usually via `/close` on the originating feature branch). Continuing regardless.
 
 If `.context/status.md` is missing or outdated — report:
 > "No current status.md. First run: `/report`"
@@ -48,8 +53,14 @@ For each document find:
 
 **CLAUDE.md:**
 
-- Project structure if it has changed
+- `Components` section: new or renamed top-level component; entry outdated relative to actual purpose
 - Links to non-existent files
+
+**.context/decisions.md (orphan-archival check, trigger Y):**
+
+- ADRs with status "Rejected" or "Superseded" that were not archived via `/record` (trigger X) — propose moving to `.context/history/decisions/<year>.md` (year = year the ADR was written).
+- For each: add marker `> Rejected (YYYY-MM-DD)` or `> Replaced by ADR-N (YYYY-MM-DD) — see .context/decisions.md` at the top.
+- Update references to archived ADRs in remaining active ADRs to the form `ADR-NNN (archived, see history/decisions/YYYY.md)`.
 
 ### 3. Produce proposals
 
@@ -109,8 +120,10 @@ When the developer has confirmed the list of changes:
 If the implementation has intentionally diverged from the documentation — update the documentation.
 If the divergence is accidental — record it and plan to fix the implementation.
 
-**ADRs are never deleted.**
-If a decision has changed — add a new ADR with a note "replaces ADR-XXX".
+**Active decisions.md holds only current decisions.**
+Superseded and rejected ADRs live in `.context/history/decisions/<year>.md`.
+Replacement is handled by `/record` at write time (trigger X); orphan-archival — by `/sync` step 2 (trigger Y).
+The active file is not append-only.
 
 **Skills must match the actual code.**
 A divergence between a skill and the implementation is always an error. One of them is wrong.

@@ -10,6 +10,14 @@ In this mode:
 - Write the implementation plan in `.context/plan.md` at the end of the discussion
 - Do not write code — design and plan only
 
+## Branch check (before writing `plan.md`)
+
+`plan.md` is a task-local artifact — it lives only on `feature/*`. Before writing `plan.md`:
+
+- If current branch is `feature/*` or `hotfix/*` — proceed.
+- If current branch is `main` or `dev` — ask: "On a feature branch? If not, create one? Name?" Do NOT create the branch automatically.
+- Discussion without writing `plan.md` (only exploration, `/record` of an ADR, clarification) is valid on any branch — no branch check required.
+
 ## `.context/plan.md` format
 
 ````markdown
@@ -48,3 +56,11 @@ Edit:
 - Explicit dependencies. If a task depends on something unimplemented — mark as blocker.
 - Constraints over wishes. One hard prohibition beats three soft "preferably".
 - Verification must be automatable. "pytest passes" — good. "code is readable" — bad.
+
+## After writing plan.md
+
+After `plan.md` has been written and the developer is aligned on it — remind them:
+
+> Plan written. Run `/commit` before `/dev` to include `plan.md` in the feature branch — reviewers see it alongside the implementation.
+
+Only a text suggestion — do NOT invoke `/commit` automatically (see CLAUDE.md → Skill boundaries).

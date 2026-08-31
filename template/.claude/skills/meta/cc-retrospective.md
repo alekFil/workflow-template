@@ -22,7 +22,7 @@ Read:
 
 - `.context/decisions.md` — architectural decisions and rationale
 - `.context/status.md` — current implementation snapshot
-- `.context/history/*.md` — previous status snapshots (if any)
+- `.context/history/retros/*.md` — previous retrospectives (for continuity across sessions)
 - `.context/to-do.md` — task queue: completed vs pending
 - `git log --oneline -50` — recent commit history
 
@@ -80,9 +80,9 @@ Then ask:
 
 Apply user corrections to the draft. If the user confirms without changes — proceed.
 
-### 5. Write discussion file
+### 5. Write retrospective file
 
-Create `.context/discussions/retro-YYYY-MM-DD.md` (use today's date):
+Create `.context/history/retros/YYYY-MM-DD.md` (use today's date):
 
 ```markdown
 # Ретроспектива YYYY-MM-DD
@@ -96,7 +96,7 @@ Create `.context/discussions/retro-YYYY-MM-DD.md` (use today's date):
 ## Действия
 ```
 
-Report: "Записано в `.context/discussions/retro-YYYY-MM-DD.md`"
+Report: "Записано в `.context/history/retros/YYYY-MM-DD.md`"
 
 ### 6. Propose to-do updates
 
@@ -126,5 +126,5 @@ If confirmed — add directly to `.context/decisions.md`.
 ## Constraints
 
 - Do not modify any files without explicit user confirmation
-- Discussion file name format: `retro-YYYY-MM-DD.md`
+- Retrospective file name format: `.context/history/retros/YYYY-MM-DD.md` (no `retro-` prefix — the directory conveys the type)
 - Each to-do item and each ADR — confirmed individually, not in bulk

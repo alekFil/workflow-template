@@ -24,7 +24,20 @@ git status
 
 If there are uncommitted changes — suggest running `/commit` first.
 
-### 3. Rebase onto the target branch
+### 3. Clean `plan.md` (task-local artifact)
+
+`.context/plan.md` is a task-local artifact — it lives only on `feature/*` and must not reach `main`/`dev`. Before rebase, remove it with a dedicated commit:
+
+```bash
+if [ -f .context/plan.md ]; then
+  git rm .context/plan.md
+  git commit -m "chore: clean plan.md"
+fi
+```
+
+The commit isolates the cleanup step — readable history, one file per commit. If `.context/plan.md` is absent already — skip this step silently.
+
+### 4. Rebase onto the target branch
 
 ```bash
 git fetch origin
@@ -39,20 +52,20 @@ Conflict during rebase. Resolve manually, then:
 After that repeat /close.
 ```
 
-### 4. Merge into the target branch (ff-only)
+### 5. Merge into the target branch (ff-only)
 
 ```bash
 git checkout <target branch>
 git merge --ff-only <feature/hotfix branch>
 ```
 
-### 5. Delete the feature/hotfix branch
+### 6. Delete the feature/hotfix branch
 
 ```bash
 git branch -d <feature/hotfix branch>
 ```
 
-### 6. Report the result
+### 7. Report the result
 
 ```text
 Task closed: <branch> → <target branch>

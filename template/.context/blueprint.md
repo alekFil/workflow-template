@@ -33,8 +33,6 @@ All decisions with rationale — in `.context/decisions.md`.
 
 {Component description, its responsibilities, key classes/modules.}
 
----
-
 ### 3.2 {COMPONENT_2}
 
 {Component description.}

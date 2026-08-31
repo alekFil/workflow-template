@@ -7,21 +7,23 @@ Triggered by: `/report`, "what's done", "show status" and variations.
 ## What it does
 
 Generates an up-to-date snapshot of the project implementation state.
-Archives the previous version. Saves the new one.
+Overwrites `.context/status.md`. No file archive — the previous version is preserved through git history, referenced from the new `status.md` via a pointer line.
 
 ---
 
 ## Algorithm
 
-### 1. Archive the previous status.md
+### 1. Capture the previous commit
 
-If `.context/status.md` exists:
+Before overwriting `.context/status.md`, get the last commit that touched it:
 
-- Determine the next sequential number: find all files `.context/history/*-status-*.md`, take the maximum number and increment. If no files exist — start with `001`.
-- Copy `.context/status.md` → `.context/history/{N}-status-{timestamp}.md`
-  - N — three-digit number with leading zeros: `001`, `002`, `003`...
-  - timestamp — format `YYYY-MM-DD`
-  - Example: `.context/history/003-status-2025-08-14.md`
+```bash
+git log -1 --format='%h %ai' -- .context/status.md
+```
+
+Take `<shortsha>` (first field) and the date portion of the timestamp (`YYYY-MM-DD`). This becomes the pointer inserted into the new `status.md` (step 4).
+
+If the command returns nothing (first `/report`, no prior commit touched `status.md`) — skip the pointer line entirely.
 
 ### 2. Collect information
 
@@ -63,14 +65,27 @@ Cross-reference the collected information with `.context/to-do.md`:
 
 ### 4. Write .context/status.md
 
-Save the collected report to `.context/status.md`.
+Save the collected report to `.context/status.md`. First line after the title and `Date:` — the pointer captured in step 1:
+
+```markdown
+# {PROJECT_NAME} — status
+
+Date: {YYYY-MM-DD hh:mm:ss}
+
+> Previous state: commit {shortsha} ({YYYY-MM-DD})
+
+---
+
+## ...
+```
+
+If step 1 returned nothing (first `/report`), omit the pointer line.
 
 Report the result:
 
 ```text
-Status updated.
-Previous version → .context/history/{N}-status-{date}.md
-Current version → .context/status.md
+Status updated → .context/status.md
+Previous version → git show {shortsha}:.context/status.md
 ```
 
 ---
@@ -81,21 +96,4 @@ Current version → .context/status.md
 - Describe deviations from blueprint neutrally, with technical reason
 - Formulate questions concretely, not abstractly
 - Do not write code, do not make edits — only collect information
-
----
-
-## Working with the history archive
-
-`.context/history/` **is not read by default** — it is excluded from context via `.claudeignore`.
-
-Read the archive only on explicit request from the owner:
-
-- "what were we doing in early May"
-- "check the status archive"
-- "what happened before X"
-
-For all regular work, these are sufficient:
-
-- `.context/status.md` — current state
-- `.context/decisions.md` — recorded decisions
-- `.context/to-do.md` — task queue
+- Do not create files under `.context/history/` — status.md has no file archive by design. Prior snapshots live in git history only.
