@@ -8,11 +8,11 @@ Date: {YYYY-MM-DD} (updated)
 
 **{COMPONENT_GROUP_1}:**
 
-- `{file_path}` — {what it does}
+- `{file_path}` – {what it does}
 
 **{COMPONENT_GROUP_2}:**
 
-- `{file_path}` — {what it does}
+- `{file_path}` – {what it does}
 
 **Total: {N} tests, all passing.**
 
@@ -43,7 +43,7 @@ Date: {YYYY-MM-DD} (updated)
 
 ### What's not implemented from planned
 
-- {component}: {reason — not started / blocked / decision changed}
+- {component}: {reason – not started / blocked / decision changed}
 
 ---
 

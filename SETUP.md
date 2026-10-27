@@ -1,4 +1,4 @@
-# workflow-template — Setup guide
+# workflow-template – Setup guide
 
 This template brings Claude Code workflow structure to your new project.
 
@@ -17,7 +17,7 @@ If Claude Code is not yet installed:
    npm install -g @anthropic-ai/claude-code
    ```
 
-3. Authorize — run `claude` and follow the instructions
+3. Authorize – run `claude` and follow the instructions
 4. Verify: `claude --version`
 
 ---
@@ -42,7 +42,7 @@ To remove the assistant from a project:
 curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scripts/uninstall.sh | bash
 ```
 
-The script removes the assistant files and cleans up related entries from `.gitignore` and `.git/info/exclude`. No commit is created — stage and commit the changes manually.
+The script removes the assistant files and cleans up related entries from `.gitignore` and `.git/info/exclude`. No commit is created – stage and commit the changes manually.
 
 ---
 
@@ -86,5 +86,5 @@ WORKFLOW.md                        ← workflow quick reference
 
 ## Want to improve the template?
 
-Work directly in this repo — it has its own `CLAUDE.md` with maintainer instructions.
+Work directly in this repo – it has its own `CLAUDE.md` with maintainer instructions.
 See `CONTRIBUTION.md` for details.

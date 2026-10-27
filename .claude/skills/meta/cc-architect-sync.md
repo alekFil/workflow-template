@@ -7,7 +7,7 @@ Triggered by: `/sync`
 ## What it does
 
 Compares the current implementation with the documentation.
-Produces proposed changes — **without making edits independently**.
+Produces proposed changes – **without making edits independently**.
 Edits are made only after explicit agreement with the owner.
 
 ---
@@ -16,18 +16,18 @@ Edits are made only after explicit agreement with the owner.
 
 ### 1. Read the current context
 
-- `.context/blueprint.md` — current documentation
-- `.context/status.md` — current implementation state
-- `.context/to-do.md` — task queue
-- `.context/plan.md` — current task (only on `feature/*`; absent on `main`/`dev` by design per ADR-030)
-- `.claude/skills/project/*.md` — technical conventions (if directory exists)
-- `CLAUDE.md` — entry file
+- `.context/blueprint.md` – current documentation
+- `.context/status.md` – current implementation state
+- `.context/to-do.md` – task queue
+- `.context/plan.md` – current task (only on `feature/*`; absent on `main`/`dev` by design per ADR-030)
+- `.claude/skills/project/*.md` – technical conventions (if directory exists)
+- `CLAUDE.md` – entry file
 
-If `.context/plan.md` exists on `main`/`dev` — flag as an ADR-030 violation:
+If `.context/plan.md` exists on `main`/`dev` – flag as an ADR-030 violation:
 
 > `.context/plan.md` is a task-local artifact and should not exist on `main`/`dev`. Remove it (usually via `/close` on the originating feature branch). Continuing regardless.
 
-If `.context/status.md` is missing or outdated — report:
+If `.context/status.md` is missing or outdated – report:
 > "No current status.md. First run: `/report`"
 
 ### 2. Analyze divergences
@@ -42,8 +42,8 @@ For each document find:
 
 **.context/to-do.md:**
 
-- Tasks from "Next" that are already implemented per status.md — suggest moving to "Done"
-- Tasks in "In progress" that are actually complete — suggest moving to "Done"
+- Tasks from "Next" that are already implemented per status.md – suggest moving to "Done"
+- Tasks in "In progress" that are actually complete – suggest moving to "Done"
 
 **.claude/skills/project/*.md** (if directory exists):
 
@@ -58,13 +58,13 @@ For each document find:
 
 **.context/decisions.md (orphan-archival check, trigger Y):**
 
-- ADRs with status "Отклонено" / "Rejected" or "Заменено" / "Superseded" that were not archived via `/record` (trigger X) — propose moving to `.context/history/decisions/<year>.md` (year = year the ADR was written).
-- For each: add marker `> Отклонено (YYYY-MM-DD)` or `> Заменено ADR-N (YYYY-MM-DD) — см. .context/decisions.md` at the top.
+- ADRs with status "Отклонено" / "Rejected" or "Заменено" / "Superseded" that were not archived via `/record` (trigger X) – propose moving to `.context/history/decisions/<year>.md` (year = year the ADR was written).
+- For each: add marker `> Отклонено (YYYY-MM-DD)` or `> Заменено ADR-N (YYYY-MM-DD) – см. .context/decisions.md` at the top.
 - Update references to archived ADRs in remaining active ADRs to the form `ADR-NNN (archived, see history/decisions/YYYY.md)`.
 
 ### 3. Produce proposals
 
-Output concrete changes — not "needs updating", but exactly what to change:
+Output concrete changes – not "needs updating", but exactly what to change:
 
 ```text
 ## Sync proposals
@@ -97,11 +97,11 @@ that require an architectural decision (not technical):
 
 ### 5. Wait for agreement
 
-After outputting proposals — stop.
+After outputting proposals – stop.
 Do not make edits independently.
 Wait for explicit confirmation: "accepted", "apply" or clarifications per item.
 
-### 6. After agreement — apply changes
+### 6. After agreement – apply changes
 
 When the owner has confirmed the list of changes:
 
@@ -113,12 +113,12 @@ When the owner has confirmed the list of changes:
 ## Principles
 
 **Blueprint reflects reality, not plans.**
-If the implementation has intentionally diverged from the documentation — update the documentation.
-If the divergence is accidental — record it and plan to fix the implementation.
+If the implementation has intentionally diverged from the documentation – update the documentation.
+If the divergence is accidental – record it and plan to fix the implementation.
 
 **Active decisions.md holds only current decisions.**
 Superseded and rejected ADRs live in `.context/history/decisions/<year>.md`.
-Replacement is handled by `/record` at write time (trigger X); orphan-archival — by `/sync` step 2 (trigger Y).
+Replacement is handled by `/record` at write time (trigger X); orphan-archival – by `/sync` step 2 (trigger Y).
 The active file is not append-only.
 
 **Skills must match the actual code.**

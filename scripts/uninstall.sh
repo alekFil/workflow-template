@@ -26,11 +26,11 @@ TO_DELETE=()
 [ -f "WORKFLOW.md" ] && TO_DELETE+=("WORKFLOW.md")
 
 if [ ${#TO_DELETE[@]} -eq 0 ]; then
-    echo "No assistant files found — nothing to remove."
+    echo "No assistant files found – nothing to remove."
     exit 0
 fi
 
-echo -e "${YELLOW}workflow-template — removing assistant${NC}"
+echo -e "${YELLOW}workflow-template – removing assistant${NC}"
 echo ""
 
 # Show full list before confirmation
@@ -67,4 +67,4 @@ if [ -f ".git/info/exclude" ]; then
 fi
 
 echo -e "${GREEN}Done.${NC} Assistant files removed."
-echo "Changes are not committed — stage and commit manually if needed."
+echo "Changes are not committed – stage and commit manually if needed."

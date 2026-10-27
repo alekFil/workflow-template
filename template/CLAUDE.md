@@ -1,7 +1,7 @@
-# {PROJECT_NAME} — CLAUDE.md
+# {PROJECT_NAME} – CLAUDE.md
 
 Project context for Claude Code.
-Read this file first. Details — follow the links below.
+Read this file first. Details – follow the links below.
 
 **Language:**
 
@@ -72,7 +72,7 @@ In this mode you:
 - Ask clarifying questions before proposing solutions
 - Record decisions in `.context/decisions.md`
 - Write a plan in `.context/plan.md` at the end of the discussion (format below)
-- Do not write code — only design and plan
+- Do not write code – only design and plan
 
 **`.context/plan.md` format:**
 
@@ -81,7 +81,7 @@ In this mode you:
 
 ### Context
 {what this component is, why it's needed}
-Depends on: {list of already-implemented components or "—"}
+Depends on: {list of already-implemented components or "–"}
 
 ### What to implement
 1. {atomic unit of work}
@@ -92,26 +92,26 @@ Create:
 - {path}
 
 Edit:
-- {path} — {what to change}
+- {path} – {what to change}
 
 ### Constraints
-- Obvious bug or tech debt directly on the path: document in "Changes along the way" and continue. If it's an architectural decision — also add to decisions.md.
+- Obvious bug or tech debt directly on the path: document in "Changes along the way" and continue. If it's an architectural decision – also add to decisions.md.
 - Non-obvious change or affects architecture: stop. Describe the problem and options, wait for owner's choice.
 - {explicit prohibition}
 
 ### Verification
-- {automatable criterion — command or specific result}
+- {automatable criterion – command or specific result}
 
 ### Changes along the way
-- {what was changed outside scope} — {why}
+- {what was changed outside scope} – {why}
 ````
 
 **Good plan rules:**
 
-- One plan — one coherent task. Touches more than three components — suggest splitting.
-- Explicit dependencies. If a task depends on something unimplemented — mark as blocker.
+- One plan – one coherent task. Touches more than three components – suggest splitting.
+- Explicit dependencies. If a task depends on something unimplemented – mark as blocker.
 - Constraints over wishes. One hard prohibition beats three soft "preferably".
-- Verification must be automatable. "pytest passes" — good. "code is readable" — bad.
+- Verification must be automatable. "pytest passes" – good. "code is readable" – bad.
 
 ### Developer mode
 
@@ -121,15 +121,15 @@ In this mode you:
 
 - Create a `feature/<task-name>` branch from `dev` (if not already on a feature branch)
 - Read `.context/plan.md` and implement it
-- Stay within the plan scope — do not expand independently
-- If you encounter uncertainty — stop and ask
+- Stay within the plan scope – do not expand independently
+- If you encounter uncertainty – stop and ask
 - Write tests for new code
 - After completion report what was done and what remains
 
 **Developer mode main rule:**
-If a problem outside the plan scope is found during implementation — two paths:
+If a problem outside the plan scope is found during implementation – two paths:
 
-- **Obvious bug or tech debt directly on the path** → fix it, document in `### Changes along the way` in `plan.md` (what and why). If it's an architectural decision — also add ADR to `decisions.md`.
+- **Obvious bug or tech debt directly on the path** → fix it, document in `### Changes along the way` in `plan.md` (what and why). If it's an architectural decision – also add ADR to `decisions.md`.
 - **Non-obvious change or affects architecture** → stop. Describe the problem and options, wait for owner's choice.
 
 ---
@@ -142,8 +142,8 @@ If a problem outside the plan scope is found during implementation — two paths
 | `/architect` | Switch to Architect mode |
 | `/next` | Architect mode: first incomplete item from `.context/to-do.md` |
 | `/record` | Add ADR to `.context/decisions.md` |
-| `/dev` | Switch to Developer mode — implement `.context/plan.md` |
-| `/polish` | Clean up generated code — built-in `simplify` + project rules |
+| `/dev` | Switch to Developer mode – implement `.context/plan.md` |
+| `/polish` | Clean up generated code – built-in `simplify` + project rules |
 | `/close` | Merge feature branch, close the task |
 | `/report` | Archive and write new `.context/status.md` |
 | `/sync` | Compare code with documentation, suggest changes |
@@ -156,10 +156,10 @@ If a problem outside the plan scope is found during implementation — two paths
 
 {ARCHITECTURE_RULES}
 {Example:}
-{**1. Business logic — not in routers.**}
+{**1. Business logic – not in routers.**}
 {Routers: receive request → call service → return response.}
 
-{**2. State — in {STATE_STORAGE}.**}
+{**2. State – in {STATE_STORAGE}.**}
 {Do not store in process memory.}
 
 {Add rules specific to your project.}
@@ -169,10 +169,10 @@ If a problem outside the plan scope is found during implementation — two paths
 ## Branching conventions
 
 - Model: `main` / `dev` / `feature/<name>` / `hotfix/<name>`
-- Merges only via ff-only — rebase onto target branch before merging
+- Merges only via ff-only – rebase onto target branch before merging
 - `feature/*` → `dev` (automatically via `/close`)
 - `hotfix/*` → `main` (automatically via `/close`), then `dev` is rebased manually
-- `dev` → `main` — manually only, release decision
+- `dev` → `main` – manually only, release decision
 - CC never does `git push` without explicit request
 
 ---
@@ -197,14 +197,14 @@ If a problem outside the plan scope is found during implementation — two paths
 {CODE_CONVENTIONS}
 {Example:}
 {- Type hints everywhere}
-{- Commits: `type: description` — types: feat, fix, refactor, docs, test, chore}
+{- Commits: `type: description` – types: feat, fix, refactor, docs, test, chore}
 
 ---
 
 ## Markdown conventions
 
 - List markers: only `-` (not `*` or `+`)
-- Code blocks: always specify language — `python`, `bash`, `yaml`, `json`, `text` for plain text
+- Code blocks: always specify language – `python`, `bash`, `yaml`, `json`, `text` for plain text
 - Empty line before and after headings
 - Empty line before lists (when preceded by text)
 - Dividers `---`: use sparingly, only between major sections; prefer heading hierarchy
@@ -215,11 +215,11 @@ If a problem outside the plan scope is found during implementation — two paths
 
 Three classes of `.context/` artifacts by lifecycle:
 
-- **Project-wide** — live on all branches, sync through merges: `blueprint.md`, `status.md`, `to-do.md`, `decisions.md`, `discussions/`, `history/decisions/`, `history/retros/`, plus `.claude/`, `CLAUDE.md`, `WORKFLOW.md`.
-- **Task-local** — exist only on `feature/*`, deleted by `/close` before merge: `plan.md`.
-- **Private** — not in git, per-developer only: `notes/`.
+- **Project-wide** – live on all branches, sync through merges: `blueprint.md`, `status.md`, `to-do.md`, `decisions.md`, `discussions/`, `history/decisions/`, `history/retros/`, plus `.claude/`, `CLAUDE.md`, `WORKFLOW.md`.
+- **Task-local** – exist only on `feature/*`, deleted by `/close` before merge: `plan.md`.
+- **Private** – not in git, per-developer only: `notes/`.
 
-If in doubt about a new artifact — decide its class first, then place it. Presence of `plan.md` on `main`/`dev` is a scope violation.
+If in doubt about a new artifact – decide its class first, then place it. Presence of `plan.md` on `main`/`dev` is a scope violation.
 
 ---
 
@@ -227,10 +227,10 @@ If in doubt about a new artifact — decide its class first, then place it. Pres
 
 Each command/skill completes strictly within its own scope. Suggesting a next step in text is allowed; executing it automatically is not.
 
-- **Allowed:** at the end of `/report`, print `Status updated → status.md`. At the end of `/sync`, print `Done. Commit? (/commit)`. These are text suggestions — the developer decides whether to invoke.
+- **Allowed:** at the end of `/report`, print `Status updated → status.md`. At the end of `/sync`, print `Done. Commit? (/commit)`. These are text suggestions – the developer decides whether to invoke.
 - **Not allowed:** `/dev` proposing a commit message and asking for confirmation to commit. `/architect` writing code alongside the plan. `/close` running `/commit` on uncommitted changes automatically.
 
-Commit actions that are part of a skill's own algorithm (e.g. `/close` step "Clean plan.md") are internal mechanics, not cross-skill bleed — they stay.
+Commit actions that are part of a skill's own algorithm (e.g. `/close` step "Clean plan.md") are internal mechanics, not cross-skill bleed – they stay.
 
 Enforcement is currently soft (rule in skill text, discipline by the model).
 
@@ -240,12 +240,12 @@ Enforcement is currently soft (rule in skill text, discipline by the model).
 
 Two levels of artifacts:
 
-- **ADR** — `.context/decisions.md`, curated architectural decisions. Passes a 4-point checklist.
-- **Commit messages** — everything else: tactical fixes, renames, cleanup. No separate operational file.
+- **ADR** – `.context/decisions.md`, curated architectural decisions. Passes a 4-point checklist.
+- **Commit messages** – everything else: tactical fixes, renames, cleanup. No separate operational file.
 
 **Checklist for `/record` (all four must be "yes"; otherwise write a commit with a `Why:` section):**
 
-1. Alternatives considered with substantive analysis. For "do / don't do" decisions — reason why this option over the opposite.
+1. Alternatives considered with substantive analysis. For "do / don't do" decisions – reason why this option over the opposite.
 2. Explicit trade-off between alternatives.
 3. Decision shapes product or process behavior over ≥ 6 months.
 4. A reader six months from now, without context, will benefit from knowing *why*, not *what*.
@@ -263,21 +263,21 @@ Two levels of artifacts:
 
 {List environment variables or reference `.env.example`.}
 {Example:}
-{- `DATABASE_URL` — database connection string}
-{- `SECRET_KEY` — application secret key}
+{- `DATABASE_URL` – database connection string}
+{- `SECRET_KEY` – application secret key}
 
 ---
 
 ## Components
 
-- `.claude/` — CC tooling (index, commands, meta-skills, project rules)
-- `.context/` — workflow artifacts (blueprint, plan, to-do, status, decisions, discussions, history/decisions, history/retros)
-- `{PROJECT_LAYOUT}` — project-specific areas (source, tests, docs, infrastructure). Fill in during initial setup with a couple of top-level lines.
+- `.claude/` – CC tooling (index, commands, meta-skills, project rules)
+- `.context/` – workflow artifacts (blueprint, plan, to-do, status, decisions, discussions, history/decisions, history/retros)
+- `{PROJECT_LAYOUT}` – project-specific areas (source, tests, docs, infrastructure). Fill in during initial setup with a couple of top-level lines.
 
-Physical file tree — see `.context/status.md` (auto-generated by `/report`).
+Physical file tree – see `.context/status.md` (auto-generated by `/report`).
 
 ---
 
 ## Current state
 
-Current state — in `.context/status.md`.
+Current state – in `.context/status.md`.

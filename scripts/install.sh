@@ -46,7 +46,7 @@ if [ "$NON_GIT" -gt 0 ]; then
     echo ""
 fi
 
-echo -e "${BLUE}workflow-template — initializing new project${NC}"
+echo -e "${BLUE}workflow-template – initializing new project${NC}"
 echo ""
 
 # Collect data
@@ -56,7 +56,7 @@ if [ -z "$PROJECT_NAME" ]; then
     exit 1
 fi
 
-read -p "Remote URL (Enter — configure later): " REMOTE_URL <"$TTY"
+read -p "Remote URL (Enter – configure later): " REMOTE_URL <"$TTY"
 
 # --- Language ---
 echo ""

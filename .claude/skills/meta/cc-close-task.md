@@ -12,9 +12,9 @@ Triggered by: `/close`, "close the task", "task done" and variations.
 git branch --show-current
 ```
 
-- If `feature/*` — target branch: `dev`
-- If `hotfix/*` — target branch: `main`
-- If `main` or `dev` — report: "Cannot close task — you are on a protected branch. Switch to feature/* or hotfix/*."
+- If `feature/*` – target branch: `dev`
+- If `hotfix/*` – target branch: `main`
+- If `main` or `dev` – report: "Cannot close task – you are on a protected branch. Switch to feature/* or hotfix/*."
 
 ### 2. Make sure there is nothing to commit
 
@@ -22,11 +22,11 @@ git branch --show-current
 git status
 ```
 
-If there are uncommitted changes — suggest running `/commit` first.
+If there are uncommitted changes – suggest running `/commit` first.
 
 ### 3. Clean `plan.md` (task-local artifact, ADR-030)
 
-`.context/plan.md` is a task-local artifact — it lives only on `feature/*` and must not reach `main`/`dev`. Before rebase, remove it with a dedicated commit:
+`.context/plan.md` is a task-local artifact – it lives only on `feature/*` and must not reach `main`/`dev`. Before rebase, remove it with a dedicated commit:
 
 ```bash
 if [ -f .context/plan.md ]; then
@@ -35,7 +35,7 @@ if [ -f .context/plan.md ]; then
 fi
 ```
 
-The commit isolates the cleanup step — readable history, one file per commit. If `.context/plan.md` is absent already (e.g., the task was closed earlier without cleanup, or the task never had a plan) — skip this step silently.
+The commit isolates the cleanup step – readable history, one file per commit. If `.context/plan.md` is absent already (e.g., the task was closed earlier without cleanup, or the task never had a plan) – skip this step silently.
 
 ### 4. Rebase onto the target branch
 
@@ -44,7 +44,7 @@ git fetch origin
 git rebase <target branch>
 ```
 
-If conflicts arise — stop and report:
+If conflicts arise – stop and report:
 
 ```text
 Conflict during rebase. Resolve manually, then:
@@ -71,7 +71,7 @@ git branch -d <feature/hotfix branch>
 Task closed: <branch> → <target branch>
 ```
 
-If it was `hotfix/*` — add a reminder:
+If it was `hotfix/*` – add a reminder:
 
 ```text
 Hotfix merged into main. Don't forget to rebase dev:
@@ -83,4 +83,4 @@ Hotfix merged into main. Don't forget to rebase dev:
 ## Constraints
 
 - Do not do `git push` without explicit request
-- Do not merge `dev → main` — that is a release decision, done manually
+- Do not merge `dev → main` – that is a release decision, done manually

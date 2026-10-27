@@ -1,4 +1,4 @@
-# .claude/index.md — workflow-template Documentation Navigator
+# .claude/index.md – workflow-template Documentation Navigator
 
 Entry point for CC when working with this repo. Read first.
 Load only the files needed for the current task.
@@ -12,7 +12,7 @@ Load only the files needed for the current task.
 | `.context/blueprint.md` | Before a task touching template architecture |
 | `.context/status.md` | When you need to understand what has been implemented |
 | `.context/to-do.md` | When you need to understand what to do next |
-| `.context/plan.md` | Before implementation — the current task |
+| `.context/plan.md` | Before implementation – the current task |
 | `.context/decisions.md` | When you need to understand why a decision was made |
 
 ---
@@ -36,10 +36,10 @@ Each file in `.claude/commands/` defines a CC slash command.
 | Command | File | Description |
 | --- | --- | --- |
 | `/organize` | `commands/organize.md` | Organizer mode |
-| `/architect` | `commands/architect.md` | Architect mode — plan |
+| `/architect` | `commands/architect.md` | Architect mode – plan |
 | `/next` | `commands/next.md` | First incomplete task |
 | `/record` | `commands/record.md` | Add ADR |
-| `/dev` | `commands/dev.md` | Developer mode — implement |
+| `/dev` | `commands/dev.md` | Developer mode – implement |
 | `/polish` | `commands/polish.md` | Clean up code (simplify + project rules) |
 | `/commit` | `commands/commit.md` | Commit changes |
 | `/close` | `commands/close.md` | Merge and close branch |

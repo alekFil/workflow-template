@@ -23,4 +23,4 @@ but nothing calls or imports it, flag it.
 - Test helpers are used if any test imports them
 - Framework hooks (route handlers, event listeners, plugin entry points) count
   as used when the framework registers them, even without explicit import
-- If in doubt whether something is a public API — ask the owner before flagging
+- If in doubt whether something is a public API – ask the owner before flagging

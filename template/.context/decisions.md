@@ -1,7 +1,7 @@
-# {PROJECT_NAME} — Decisions (ADR)
+# {PROJECT_NAME} – Decisions (ADR)
 
 > Architecture decision log. Updated via `/record`.
-> ADRs are never deleted. If a decision changed — add a new ADR with a note "replaces ADR-XXX".
+> ADRs are never deleted. If a decision changed – add a new ADR with a note "replaces ADR-XXX".
 
 ---
 

@@ -1,4 +1,4 @@
-# .claude/index.md — {PROJECT_NAME} Documentation Map
+# .claude/index.md – {PROJECT_NAME} Documentation Map
 
 This file is the entry point for documentation. Read it first.
 Load only the files needed for the current task.
@@ -12,7 +12,7 @@ Load only the files needed for the current task.
 | `.context/blueprint.md` | Before a task touching architecture, components, or infrastructure |
 | `.context/status.md` | When you need to understand what has been implemented |
 | `.context/to-do.md` | When you need to understand what to do next |
-| `.context/plan.md` | Before implementation — the current task |
+| `.context/plan.md` | Before implementation – the current task |
 | `.context/decisions.md` | When you need to understand why a decision was made |
 
 ---
@@ -24,10 +24,10 @@ Each file in `.claude/commands/` defines a CC slash command invoked by the proje
 | Command | File | Description |
 | --- | --- | --- |
 | `/organize` | `commands/organize.md` | Organizer mode |
-| `/architect` | `commands/architect.md` | Architect mode — plan |
+| `/architect` | `commands/architect.md` | Architect mode – plan |
 | `/next` | `commands/next.md` | First incomplete task |
 | `/record` | `commands/record.md` | Add ADR |
-| `/dev` | `commands/dev.md` | Developer mode — implement |
+| `/dev` | `commands/dev.md` | Developer mode – implement |
 | `/polish` | `commands/polish.md` | Clean up code (simplify + project rules) |
 | `/commit` | `commands/commit.md` | Commit changes |
 | `/close` | `commands/close.md` | Merge and close branch |
@@ -58,4 +58,4 @@ Read the corresponding skill before implementing a new element.
 
 | File | When to read |
 | --- | --- |
-| — | — |
+| – | – |

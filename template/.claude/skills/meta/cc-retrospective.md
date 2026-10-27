@@ -20,11 +20,11 @@ then writes the result and proposes updates to `to-do.md` and `decisions.md`.
 
 Read:
 
-- `.context/decisions.md` — architectural decisions and rationale
-- `.context/status.md` — current implementation snapshot
-- `.context/history/retros/*.md` — previous retrospectives (for continuity across sessions)
-- `.context/to-do.md` — task queue: completed vs pending
-- `git log --oneline -50` — recent commit history
+- `.context/decisions.md` – architectural decisions and rationale
+- `.context/status.md` – current implementation snapshot
+- `.context/history/retros/*.md` – previous retrospectives (for continuity across sessions)
+- `.context/to-do.md` – task queue: completed vs pending
+- `git log --oneline -50` – recent commit history
 
 ### 2. Analyze across four dimensions
 
@@ -56,7 +56,7 @@ Read:
 Output the structured analysis:
 
 ```text
-## Ретроспектива — черновик
+## Ретроспектива – черновик
 
 ### Что шло хорошо
 - ...
@@ -78,7 +78,7 @@ Then ask:
 
 ### 4. Incorporate feedback
 
-Apply user corrections to the draft. If the user confirms without changes — proceed.
+Apply user corrections to the draft. If the user confirms without changes – proceed.
 
 ### 5. Write retrospective file
 
@@ -100,7 +100,7 @@ Report: "Записано в `.context/history/retros/YYYY-MM-DD.md`"
 
 ### 6. Propose to-do updates
 
-For each proposed action item — ask for confirmation separately, then apply:
+For each proposed action item – ask for confirmation separately, then apply:
 
 ```text
 Добавить в to-do.md:
@@ -119,12 +119,12 @@ propose each separately:
 Добавить? (да / пропустить)
 ```
 
-If confirmed — add directly to `.context/decisions.md`.
+If confirmed – add directly to `.context/decisions.md`.
 
 ---
 
 ## Constraints
 
 - Do not modify any files without explicit user confirmation
-- Retrospective file name format: `.context/history/retros/YYYY-MM-DD.md` (no `retro-` prefix — the directory conveys the type)
-- Each to-do item and each ADR — confirmed individually, not in bulk
+- Retrospective file name format: `.context/history/retros/YYYY-MM-DD.md` (no `retro-` prefix – the directory conveys the type)
+- Each to-do item and each ADR – confirmed individually, not in bulk

@@ -1,4 +1,4 @@
-# {PROJECT_NAME} — Blueprint
+# {PROJECT_NAME} – Blueprint
 
 > Living technical reference. Reflects the actual implementation, not plans.
 > Updated via `/sync`.
@@ -19,7 +19,7 @@
 
 ## 2. Key architectural decisions
 
-All decisions with rationale — in `.context/decisions.md`.
+All decisions with rationale – in `.context/decisions.md`.
 
 | ADR | Summary |
 | --- | --- |
