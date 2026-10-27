@@ -58,6 +58,7 @@ your-project/
 ├── WORKFLOW.md            ← slash command reference for the owner
 ├── .claude/
 │   ├── index.md           ← documentation navigator
+│   ├── technical-text-style.md, writing-style.md ← text style rules (Russian)
 │   ├── commands/          ← 11 slash command files
 │   └── skills/
 │       ├── meta/          ← 6 workflow algorithms (/architect, /commit, /close, ...)

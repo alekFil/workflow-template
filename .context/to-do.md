@@ -82,6 +82,8 @@
 - [x] Skill boundaries: команда не исполняет соседний скилл автоматически; секция в CLAUDE.md обоих слоев, усиленный запрет в dev.md (ADR-031)
 - [x] Commit plan.md после /architect: two-point defense – подсказка в /architect + untracked-check в /commit (ADR-032)
 - [x] Переписать `README.md`: двухслойность, установка через template/, ключевые концепции, entry-point для нового пользователя – P1 blocker OSS-публикации закрыт
+- [x] Правила стиля текста в обоих слоях: dash/markdown-правила /polish, technical/writing
+  style, запрет ё и длинного тире, длина строки 88; массовая замена по репозиторию (ADR-033)
 
 ---
 
