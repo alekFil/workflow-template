@@ -14,6 +14,8 @@ The rules:
 - Empty line before a list when preceded by text.
 - Horizontal rules (`---`) only between major sections – do not sprinkle them
   between every subsection; prefer heading hierarchy.
+- A line of text is at most 88 characters. Tables, code blocks and headings
+  do not wrap. Only new and edited paragraphs are checked.
 
 ## Anti-pattern
 

@@ -17,6 +17,15 @@ Load only the files needed for the current task.
 
 ---
 
+## Text style
+
+| File | When to read |
+| --- | --- |
+| `.claude/technical-text-style.md` | Before writing Russian text: docs, commit bodies, chat replies |
+| `.claude/writing-style.md` | Only when the owner asks for this style explicitly |
+
+---
+
 ## Template layer
 
 | File/folder | Purpose |

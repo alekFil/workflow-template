@@ -5,7 +5,9 @@
 - Communication: Russian
 - `.context/` files: Russian
 - Code comments: English
-- Workflow docs (`.claude/`, skills, commands): English
+- Workflow docs (`.claude/`, skills, commands): English. Exception:
+  `.claude/technical-text-style.md` and `.claude/writing-style.md` are in Russian,
+  because their rules list Russian phrasing
 
 Context for Claude Code when working with this repository.
 This is a **meta-repo**: a workflow template for new projects.
@@ -118,6 +120,15 @@ In this mode you:
 
 ---
 
+## Code conventions
+
+- The letter «ё» is not used: «еще», «все», «берет».
+- No em dash (U+2014) – only en dash (U+2013). The rule covers the whole repository.
+  The only exception is `.claude/skills/project/rules/dash-conventions.md`, which
+  quotes the forbidden character.
+
+---
+
 ## Markdown conventions
 
 - List markers: only `-` (not `*` or `+`)
@@ -125,6 +136,14 @@ In this mode you:
 - Empty line before and after headings
 - Empty line before lists (when preceded by text)
 - Dividers `---`: use sparingly, only between major sections; prefer heading hierarchy
+- A line of text is at most 88 characters. Paragraphs and list items wrap at word
+  boundaries; a list item continues with an indent. Tables, code blocks and headings
+  do not wrap. The rule applies to every new and edited paragraph; old text is wrapped
+  when its paragraph is edited
+
+Requirements for the text itself (not the markup) – `.claude/technical-text-style.md`.
+They apply to all Russian text in the repository and to replies to the owner in chat.
+`.claude/writing-style.md` applies only when the owner asks for it explicitly.
 
 ---
 
