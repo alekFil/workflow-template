@@ -92,6 +92,7 @@ your-project/
 | `/close` | Clean `plan.md` → rebase → ff-merge → delete branch |
 | `/report` | Refresh `status.md` (git-pointer to previous version) |
 | `/sync` | Compare code with documentation, suggest updates |
+| `/summary` | After a task or release: report, sync with edits applied, commit, close – no stops |
 | `/retro` | Retrospective – history analysis → written retro → proposed actions |
 
 ---

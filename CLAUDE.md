@@ -105,6 +105,7 @@ In this mode you:
 | `/close` | Merge feature branch, close the task |
 | `/report` | Archive and write new `.context/status.md` |
 | `/sync` | Compare code with documentation, suggest changes |
+| `/summary` | After a task or release: report, sync, commit, close without stops |
 | `/retro` | Retrospective: analyze history → write discussion → propose actions |
 | `/commit` | Show diff → confirm → commit |
 
@@ -172,6 +173,11 @@ Commit actions that are part of a skill's own algorithm (e.g. `/close` step "Cle
 **Exception – `/go`.** The owner's explicit permission to chain `/commit` → `/dev` →
 `/polish` → `/commit` → `/close` in one run (`.claude/commands/go.md` (ADR-034)). Its
 hard stops (owner-only steps, conflicts with ADRs, failing checks) still apply.
+
+**Exception – `/summary`.** The owner's explicit permission to chain `/report` →
+`/sync` (every recommended edit applied without the agreement step) → `/commit` →
+`/close` in one run (`.claude/commands/summary.md` (ADR-035)). Same hard stops as
+`/go`.
 
 Enforcement is currently soft (rule in skill text, discipline by the model). Migration to hooks – separate backlog item.
 

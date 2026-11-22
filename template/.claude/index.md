@@ -34,6 +34,7 @@ Each file in `.claude/commands/` defines a CC slash command invoked by the proje
 | `/close` | `commands/close.md` | Merge and close branch |
 | `/report` | `commands/report.md` | Update status.md |
 | `/sync` | `commands/sync.md` | Sync docs with code |
+| `/summary` | `commands/summary.md` | Report, sync, commit, close without stops |
 | `/retro` | `commands/retro.md` | Retrospective |
 
 ---

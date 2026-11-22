@@ -62,6 +62,7 @@ Type `/command` directly in the Claude Code prompt. Each command is defined by a
 | `/close` | Rebase + ff-merge into `dev`, delete branch |
 | `/report` | Archive old `status.md`, write new one |
 | `/sync` | Compare code with documentation, suggest changes |
+| `/summary` | After a task or release: report, sync, commit, close – without stops |
 | `/retro` | Analyze project history → write discussion → propose to-do and ADR updates |
 
 ---
@@ -124,6 +125,12 @@ CC **never does `git push`** without explicit request.
 6. Every few tasks – sync documentation
    → /report  (update status.md)
    → /sync    (check blueprint / code divergence)
+
+6a. Shortcut – after a task or a release
+   → /summary
+   CC runs /report, /sync with every recommended edit applied, commits and /close –
+   without stops. Edits it applied on its own are listed under "Decided without
+   you", questions for the architect – in the report.
 
 7. Periodically – retrospective
    → /retro
