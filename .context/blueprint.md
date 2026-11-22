@@ -51,6 +51,7 @@
 | ADR-031 | Skill boundaries – команда не исполняет соседний скилл автоматически; текст-подсказка допустима; секция в CLAUDE.md, усиленный запрет в `dev.md` |
 | ADR-032 | Commit `plan.md` after `/architect` – two-point defense: подсказка в `/architect` + untracked-check в `/commit` с дефолтом Y (в границах ADR-031) |
 | ADR-033 | Правила стиля текста в обоих слоях: тире, ё, длина строки 88, technical/writing style; заменяет п. 4 ADR-025 |
+| ADR-034 | Команда `/go` – вся задача без остановок; исключение из ADR-031; жесткие остановки остаются |
 
 **Архивированные ADR** (`.context/history/decisions/2026.md`):
 

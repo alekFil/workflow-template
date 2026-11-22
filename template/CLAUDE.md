@@ -145,6 +145,7 @@ If a problem outside the plan scope is found during implementation – two paths
 | `/next` | Architect mode: first incomplete item from `.context/to-do.md` |
 | `/record` | Add ADR to `.context/decisions.md` |
 | `/dev` | Switch to Developer mode – implement `.context/plan.md` |
+| `/go` | Whole task without stops: plan, dev, polish, verify, commit, close |
 | `/polish` | Clean up generated code – built-in `simplify` + project rules |
 | `/close` | Merge feature branch, close the task |
 | `/report` | Archive and write new `.context/status.md` |
@@ -246,6 +247,10 @@ Each command/skill completes strictly within its own scope. Suggesting a next st
 - **Not allowed:** `/dev` proposing a commit message and asking for confirmation to commit. `/architect` writing code alongside the plan. `/close` running `/commit` on uncommitted changes automatically.
 
 Commit actions that are part of a skill's own algorithm (e.g. `/close` step "Clean plan.md") are internal mechanics, not cross-skill bleed – they stay.
+
+**Exception – `/go`.** The owner's explicit permission to chain `/commit` → `/dev` →
+`/polish` → `/commit` → `/close` in one run (`.claude/commands/go.md`). Its
+hard stops (owner-only steps, conflicts with ADRs, failing checks) still apply.
 
 Enforcement is currently soft (rule in skill text, discipline by the model).
 

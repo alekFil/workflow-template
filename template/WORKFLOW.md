@@ -55,6 +55,7 @@ Type `/command` directly in the Claude Code prompt. Each command is defined by a
 | `/architect` | Switch to Architect mode – discuss architecture → write `.context/plan.md` |
 | `/next` | Architect mode: suggest first incomplete item from `.context/to-do.md` |
 | `/dev` | Switch to Developer mode – read `.context/plan.md`, create branch, write code |
+| `/go` | After the discussion: plan, code, polish, verify, commit, close – without stops |
 | `/polish` | Clean up generated code – built-in `simplify` + project rules from `.claude/skills/project/rules/` |
 | `/record` | Add ADR to `.context/decisions.md` |
 | `/commit` | Show diff → wait for confirmation → commit |
@@ -93,6 +94,13 @@ CC **never does `git push`** without explicit request.
    CC asks questions, records decisions.
    Before writing .context/plan.md, CC asks about feature branch (plan.md is task-local, ADR-030).
    To record an architecture decision: /record
+
+2a. Shortcut – everything is discussed
+   → /go
+   CC runs steps 3–5 without stops: plan.md, code, /polish, verification, commits,
+   /close. It stops only for your steps (push, release), a conflict with an ADR or a
+   check it cannot fix. Decisions it took on its own are listed in the report under
+   "Decided without you".
 
 3. Implement
    → /dev

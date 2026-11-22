@@ -49,6 +49,7 @@ Each file in `.claude/commands/` defines a CC slash command.
 | `/next` | `commands/next.md` | First incomplete task |
 | `/record` | `commands/record.md` | Add ADR |
 | `/dev` | `commands/dev.md` | Developer mode – implement |
+| `/go` | `commands/go.md` | Whole task without stops, up to `/close` |
 | `/polish` | `commands/polish.md` | Clean up code (simplify + project rules) |
 | `/commit` | `commands/commit.md` | Commit changes |
 | `/close` | `commands/close.md` | Merge and close branch |

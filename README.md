@@ -86,6 +86,7 @@ your-project/
 | `/next` | Architect mode: suggest the first incomplete item from `to-do.md` |
 | `/record` | Add an ADR to `decisions.md` (4-point checklist gate) |
 | `/dev` | Developer mode – read `plan.md`, implement on a feature branch |
+| `/go` | After the discussion: plan, code, polish, verify, commit, close – no stops |
 | `/polish` | Clean up generated code – built-in `simplify` + project rules |
 | `/commit` | Show diff → confirm → commit |
 | `/close` | Clean `plan.md` → rebase → ff-merge → delete branch |
