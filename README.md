@@ -46,7 +46,8 @@ First command inside CC:
 Read CLAUDE.md and help me fill in the remaining placeholders.
 ```
 
-Full details in [SETUP.md](SETUP.md).
+Full details, other versions (`WT_REF=dev`, `WT_REF=v1`) and local installs – in
+[SETUP.md](SETUP.md).
 
 ---
 
@@ -54,26 +55,29 @@ Full details in [SETUP.md](SETUP.md).
 
 ```text
 your-project/
-├── CLAUDE.md              ← CC reads on startup: project context, modes, conventions
-├── WORKFLOW.md            ← slash command reference for the owner
+├── CLAUDE.md              ← Claude Code reads on startup: project context, links
+├── WORKFLOW.md            ← command reference for the owner
+├── docs/
+│   ├── product.md         ← purpose, users, non-goals, product boundary
+│   └── decisions/         ← ADRs, one file each + generated README.md index
 ├── .claude/
-│   ├── index.md           ← documentation navigator
-│   ├── technical-text-style.md, writing-style.md ← text style rules (Russian)
-│   ├── commands/          ← 11 slash command files
-│   └── skills/
-│       ├── meta/          ← 6 workflow algorithms (/architect, /commit, /close, ...)
-│       └── project/rules/ ← extension point for /polish (project-specific rules)
+│   ├── workflow.conf      ← profile, branch model, merge mode, paths
+│   ├── rules/             ← workflow, text and project rules (loaded automatically)
+│   ├── skills/<name>/     ← one SKILL.md per command
+│   └── scripts/workflow.sh ← task list, done list, ADR index, devmeta bootstrap
 └── .context/
-    ├── blueprint.md       ← architecture overview
-    ├── status.md          ← implementation snapshot (git-pointer to previous)
-    ├── to-do.md           ← task queue
-    ├── decisions.md       ← ADR log
-    ├── discussions/       ← human team discussions (empty at start)
-    ├── history/           ← archived ADRs and retros (empty at start)
-    └── notes/             ← private notes, in .gitignore (AI-user drafts)
+    ├── blueprint.md       ← how the system is built
+    ├── tasks/             ← task cards; the plan of a task lives in its card
+    ├── status.md          ← implementation snapshot (generated, not committed)
+    ├── discussions/       ← discussions between people
+    ├── history/retros/    ← retrospectives
+    └── notes/             ← private notes, in .gitignore
 ```
 
-`.context/plan.md` is intentionally absent – it's created by `/architect` on a feature branch and removed by `/close` before merge.
+The installer asks for a **profile** (`project`, `own-oss`, `contribution`), a
+**branch model** (`trunk` or `dev`) and a **merge mode** (`local` or `pr`). In the
+devmeta profiles the repository you install into is private and holds only the
+context; the code is cloned into `code/` and never receives workflow files.
 
 ---
 
@@ -81,66 +85,81 @@ your-project/
 
 | Command | Action |
 | --- | --- |
-| `/organize` | Organizer mode – discuss workflow, edit skills and index |
-| `/architect` | Architect mode – discuss, record ADRs, write a plan |
-| `/next` | Architect mode: suggest the first incomplete item from `to-do.md` |
-| `/record` | Add an ADR to `decisions.md` (4-point checklist gate) |
-| `/dev` | Developer mode – read `plan.md`, implement on a feature branch |
+| `/task` | Add a task card, or reject one with a reason |
+| `/next` | Suggest the next task card for discussion |
+| `/architect` | Discuss, check the product boundary, write the plan into the card |
+| `/record` | Record an ADR (4-point checklist gate) – only the owner starts it |
+| `/dev` | Implement the plan on `feature/<slug>` |
 | `/go` | After the discussion: plan, code, polish, verify, commit, close – no stops |
-| `/polish` | Clean up generated code – built-in `simplify` + project rules |
+| `/polish` | Clean up generated code – built-in `simplify` + `.claude/rules/` |
 | `/commit` | Show diff → confirm → commit |
-| `/close` | Clean `plan.md` → rebase → ff-merge → delete branch |
-| `/report` | Refresh `status.md` (git-pointer to previous version) |
+| `/close` | Delete the card → merge the branch or open a pull request |
+| `/report` | Write `status.md` |
 | `/sync` | Compare code with documentation, suggest updates |
-| `/summary` | After a task or release: report, sync with edits applied, commit, close – no stops |
+| `/summary` | After a task or release: report, sync, commit, close – no stops |
 | `/retro` | Retrospective – history analysis → written retro → proposed actions |
+| `/organize` | Discuss and edit the workflow itself |
 
 ---
 
 ## Core concepts
 
-### ADR discipline
+### No merge conflicts in generated prose
 
-Architectural decisions live in `.context/decisions.md`. `/record` gates each new ADR through a 4-point checklist (alternatives, trade-off, long-term impact, "why" not "what") – small tactical fixes go to commit messages with a `Why:` section. Superseded and rejected ADRs move to `.context/history/decisions/`. See `CLAUDE.md → ADR discipline`.
+Shared text falls into three classes: collections with one file per entity (ADRs,
+task cards, retros), derived state that is only generated (`status.md`, the ADR
+index), and curated singletons the owner edits on purpose (`product.md`,
+`blueprint.md`, `CLAUDE.md`). ADR IDs are `YYYY-MM-DD-<slug>`, so parallel branches
+never collide. See `.claude/rules/artifacts.md`.
 
-### Artifact scope
+### ADRs are rare and the owner's
 
-`.context/` artifacts fall into three classes: **project-wide** (`blueprint.md`, `status.md`, `to-do.md`, `decisions.md`, ...) live on all branches; **task-local** (`plan.md`) exists only on `feature/*` and is cleaned by `/close`; **private** (`notes/`) is in `.gitignore` – AI-user drafts stay on your machine. See `CLAUDE.md → Artifact scope`.
+Only `/record` writes an ADR, after a 4-point checklist (alternatives, trade-off,
+long-term impact, "why" not "what"). Other skills list ADR candidates. Tactical
+decisions go to commit messages with a `Why:` section. See
+`.claude/rules/adr-discipline.md`.
+
+### Tasks without a done list
+
+A task card lives in `.context/tasks/` while the task is open. `/close` deletes it
+with a `Closes-Task:` commit trailer; the history of done tasks comes from git.
+Rejected cards stay with a reason, so the idea is not proposed again.
 
 ### Skill boundaries
 
-Each command completes strictly within its own scope. Suggesting the next step in text ("Ready for `/commit`?") is allowed; executing it automatically is not. `/dev` doesn't run `/commit`; `/architect` doesn't write code. Enforcement is soft (rule in skill text) – hooks-based hardening is on the roadmap. See `CLAUDE.md → Skill boundaries`.
+Each command completes strictly within its own scope. Suggesting the next step in
+text is allowed; executing it automatically is not. Skills that change git state or
+decisions run only when the owner types them. See `.claude/rules/skill-boundaries.md`.
 
 ---
 
 ## What a session looks like
 
 ```text
-/architect add CSV export for the reports page
+/next
+/architect
 ```
 
-CC asks clarifying questions – which data, which format, where the trigger lives. You answer. CC creates a feature branch and writes `.context/plan.md`.
+Claude suggests the next card, asks clarifying questions, checks the task against
+the product non-goals and writes `## Plan` into the card on `feature/<slug>`.
 
 ```text
 /commit
-```
-
-Plan committed alongside the branch (visible for future review).
-
-```text
 /dev
 ```
 
-CC reads the plan and implements strictly within its scope. No improvisation, no auto-commit.
+The plan travels with the branch. Claude implements strictly within its scope, with
+tests. No improvisation, no auto-commit.
 
 ```text
 /commit
 /close
 ```
 
-Diff confirmed, commit made. `/close` cleans `plan.md`, rebases, ff-merges into `dev`.
+`/close` deletes the card with a `Closes-Task:` commit, then merges the branch
+(`local`) or pushes it and opens a pull request (`pr`).
 
-*No screencast yet – see `template/WORKFLOW.md` (installed alongside the template) for the full command flow.*
+*No screencast yet – see `template/WORKFLOW.md` for the full command flow.*
 
 ---
 

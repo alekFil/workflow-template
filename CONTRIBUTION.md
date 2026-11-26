@@ -46,7 +46,7 @@ The decision to sync between them is always intentional.
 ## What NOT to touch
 
 - All `{PLACEHOLDERS}` in `template/` – do not fill with real data
-- `.context/history/` and `template/.context/history/` – empty folders (`.gitkeep`), needed for structure
+- `template/.context/` folders with `.gitkeep` – needed for structure
 
 ---
 

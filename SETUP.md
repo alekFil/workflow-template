@@ -30,7 +30,9 @@ git init
 curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scripts/install.sh | bash
 ```
 
-The script will interactively ask for a project name and remote URL, download the template, and optionally create an initial commit.
+The script asks for the profile, the project name, the remote URL, the languages,
+the branch model and the merge mode, downloads the template and optionally creates
+an initial commit.
 
 ### Install another version
 
@@ -74,28 +76,21 @@ Read CLAUDE.md and help me fill in the remaining placeholders.
 
 ## What the template includes
 
-After installation your project will contain:
+The file tree and the commands – [README.md](README.md#what-you-get) and
+`WORKFLOW.md`, installed into your project.
 
-```text
-CLAUDE.md                          ← CC instructions (with placeholders → fill in with CC)
-WORKFLOW.md                        ← workflow quick reference
-.claude/
-  index.md                         ← CC documentation map
-  skills/
-    meta/
-      cc-commit.md                 ← /commit skill
-      cc-close-task.md             ← /close skill
-      cc-status-report.md          ← /report skill
-      cc-architect-sync.md         ← /sync skill
+### Profiles
 
-.context/
-  blueprint.md                     ← project architecture
-  plan.md                          ← current task
-  to-do.md                         ← task queue
-  status.md                        ← implementation state
-  decisions.md                     ← ADR log
-  history/                         ← status.md archive (filled automatically)
-  discussions/                     ← discussions and research
+| Profile | Run the installer in | Result |
+| --- | --- | --- |
+| `project` | your project repository | code and workflow context in one repository |
+| `own-oss` | a new private repository (`my-project-devmeta`) | context here, your public repository cloned into `code/` |
+| `contribution` | a new private repository (`lib-devmeta`) | context here, your fork cloned into `code/`, pull requests go upstream |
+
+On a new machine, clone the devmeta repository and run:
+
+```bash
+.claude/scripts/workflow.sh bootstrap
 ```
 
 ---

@@ -157,7 +157,9 @@ echo "  Communication:  $COMM_LANG"
 echo "  Context files:  $CONTEXT_LANG"
 echo "  Code comments:  $CODE_LANG"
 echo "  Workflow docs:  English"
-if [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
+if [ "$PROFILE" != "project" ]; then
+    echo "  Assistant: in this private devmeta repository"
+elif [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
     echo "  Assistant: hidden (exclude)"
 else
     echo "  Assistant: visible in repo"
