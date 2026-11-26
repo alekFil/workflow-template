@@ -11,8 +11,9 @@ card format – `.claude/rules/artifacts.md`, branches – `.claude/rules/branch
 
 In this mode:
 
-- Work in the code repository (`CODE_DIR`). If not on `feature/<slug>` of the
-  current task – create it from the integration branch
+- Work in the code repository (`CODE_DIR`). If not on the task branch of the
+  current task (`feature/<slug>`, `hotfix/<slug>` or the card's `branch:`) – create
+  `feature/<slug>` from the integration branch (`.claude/rules/branching.md`)
 - Read the `## Plan` of the current task card and implement it
 - Stay within the plan scope – do not expand independently
 - If uncertainty arises – stop and ask

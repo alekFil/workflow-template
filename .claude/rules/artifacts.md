@@ -47,6 +47,8 @@ What and why, in a few sentences.
 ```
 
 - `status`: `next`, `in-progress` or `rejected`. Lower `priority` goes first.
+- `branch` (optional): the task branch when it is not `feature/<slug>`
+  (`.claude/rules/branching.md`).
 - `/architect` adds the `## Plan` section to the card and sets `in-progress`.
 - `/close` deletes the card of a finished task. The deleting commit carries the
   trailer `Closes-Task: <slug>`, so the history of done tasks is
@@ -59,9 +61,9 @@ What and why, in a few sentences.
   idea is not proposed again. An architectural rejection is an ADR instead.
 - Open tasks: `.claude/scripts/workflow.sh tasks`.
 
-**Current task** – the card whose slug matches the current branch of the code
-repository (`feature/<slug>`, `hotfix/<slug>`). If no card matches, the single card
-with `status: in-progress`; if there are several, ask.
+**Current task** – the card whose `branch:` field equals the current branch of the
+code repository, or whose slug matches it (`feature/<slug>`, `hotfix/<slug>`). If no
+card matches, the single card with `status: in-progress`; if there are several, ask.
 
 The `## Plan` section is task-local: it exists only while the task is open and goes
 away with the card.

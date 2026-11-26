@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Settings – `.claude/workflow.conf`. Branch model and merge mode –
 `.claude/rules/branching.md`. Task cards – `.claude/rules/artifacts.md`.
-Missing keys mean `BRANCH_MODEL=dev`, `MERGE_MODE=local`.
+Missing keys mean `BRANCH_MODEL=trunk`, `MERGE_MODE=local`.
 
 The **code repository** is `CODE_DIR`; run its git commands as `git -C <CODE_DIR>`.
 The **context repository** is the root. With `CODE_DIR=.` they are the same.
@@ -23,12 +23,13 @@ In the code repository:
 git -C <CODE_DIR> branch --show-current
 ```
 
-- `feature/<slug>` – target: the integration branch (`main` in the trunk model,
-  `dev` in the dev model).
+- `feature/<slug>` – target: the integration branch
+  (`.claude/rules/branching.md`).
 - `hotfix/<slug>` – dev model only; target: `main`.
+- A branch recorded in a card's `branch:` field – target: the integration branch.
 - Any other branch – report: "Cannot close – not on a task branch." Stop.
 
-The slug names the task card `<TASKS_DIR>/<slug>.md`.
+The card is the current task card (`.claude/rules/artifacts.md`).
 
 ### 2. Nothing left to commit
 
@@ -37,7 +38,9 @@ Run `git status` in both repositories. If there are uncommitted changes – sugg
 
 ### 3. Delete the task card
 
-With `CODE_DIR=.` the card is on the task branch. Delete it there:
+With `CODE_DIR=.` the card is on the task branch. Delete it there. A `hotfix/*`
+branch comes from `main` and has no card: its card is deleted on `dev` after the
+merge (end of step 6).
 
 ```bash
 git rm <TASKS_DIR>/<slug>.md
@@ -59,12 +62,12 @@ open `## ADR candidates` into the report (step 6): the owner decides on them.
 
 ### 4. Update the branch
 
-Rebase onto the target. In the contribution profile the target is
-`upstream/<UPSTREAM_BRANCH>`:
+Rebase onto the target. In `MERGE_MODE=pr` rebase onto the remote state:
+`origin/<target>`, in the contribution profile `upstream/<UPSTREAM_BRANCH>`.
 
 ```bash
 git -C <CODE_DIR> fetch --all --prune
-git -C <CODE_DIR> rebase <target>
+git -C <CODE_DIR> rebase <target or its remote ref>
 ```
 
 On conflict – stop and report:
@@ -89,9 +92,13 @@ git -C <CODE_DIR> branch -d <branch>
 pull request. People merge it on the hosting.
 
 ```bash
-git -C <CODE_DIR> push -u origin <branch>
+git -C <CODE_DIR> push -u --force-with-lease origin <branch>
 gh pr create --base <target> --head <branch> --fill
 ```
+
+`--force-with-lease` matters on a repeated `/close` after review changes: the branch
+was rebased and must replace its pushed version. If the pull request already exists,
+`gh pr create` fails – report its URL (`gh pr view --json url`) instead.
 
 - Contribution profile: the pull request goes to the upstream repository:
   `gh pr create --repo <UPSTREAM_REPO> --base <UPSTREAM_BRANCH>
@@ -111,12 +118,17 @@ Task closed: <slug>
   ADR candidates: <list or "none"> – record with /record if needed
 ```
 
-Dev model, `hotfix/*` merged into `main` – add:
+Dev model, `hotfix/*` merged into `main` locally: rebase `dev` onto `main`, then
+delete the card on `dev` (with `CODE_DIR=.`), because the card was committed there:
 
-```text
-Hotfix merged into main. Rebase dev:
-  git -C <CODE_DIR> checkout dev && git -C <CODE_DIR> rebase main
+```bash
+git checkout dev && git rebase main
+git rm <TASKS_DIR>/<slug>.md
+git commit -m "chore: close task <slug>" -m "Closes-Task: <slug>"
 ```
+
+Rebasing `dev` is allowed here only in `MERGE_MODE=local` and only when `dev` is not
+pushed ahead of the remote; otherwise report the two commands to the owner.
 
 ## Constraints
 

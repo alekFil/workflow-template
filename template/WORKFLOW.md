@@ -138,6 +138,9 @@ Format: `type: description`, trailer `Task: <slug>` on implementation commits.
 
 ## Project documentation
 
+Paths for the `project` profile. Devmeta profiles move or drop some of them – see
+Profiles below and `.claude/workflow.conf`.
+
 | File | Purpose |
 | --- | --- |
 | `CLAUDE.md` | Instructions for Claude |

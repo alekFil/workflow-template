@@ -44,6 +44,7 @@ NON_GIT=$(find . -mindepth 1 -maxdepth 1 -not -name ".git" | wc -l)
 if [ "$NON_GIT" -gt 0 ]; then
     echo -e "${YELLOW}Warning:${NC} directory is not empty."
     echo "  Will be overwritten: CLAUDE.md, WORKFLOW.md, .claude/, .context/"
+    echo "  Kept if they exist: docs/product.md, docs/decisions/"
     echo "  .gitignore will be appended (not overwritten)."
     echo ""
     read -p "Continue? [y/N]: " OVERWRITE_CONFIRM <"$TTY"
@@ -231,42 +232,58 @@ else
     fi
 fi
 
-cp -a "$TEMPLATE_DIR/." .
-
-# Process .gitignore: append, do not overwrite
-TEMPLATE_GITIGNORE=$(cat .gitignore)
-if [ -n "$EXISTING_GITIGNORE" ]; then
-    echo "$EXISTING_GITIGNORE" > .gitignore
-    echo "" >> .gitignore
-    echo "# workflow-template:start" >> .gitignore
-    while IFS= read -r line; do
-        if [ -n "$line" ] && [[ "$line" != \#* ]] && ! grep -qxF "$line" .gitignore; then
-            echo "$line" >> .gitignore
-        fi
-    done <<< "$TEMPLATE_GITIGNORE"
-    echo "# workflow-template:end" >> .gitignore
+# Workflow files are replaced; project documents in docs/ are never overwritten.
+for item in "$TEMPLATE_DIR"/* "$TEMPLATE_DIR"/.[!.]*; do
+    [ -e "$item" ] || continue
+    [ "$(basename "$item")" = "docs" ] && continue
+    cp -a "$item" .
+done
+if [ -d "$TEMPLATE_DIR/docs" ]; then
+    mkdir -p docs
+    cp -Rn "$TEMPLATE_DIR/docs/." docs/
 fi
 
-# Fill placeholders in all .md files
+# Process .gitignore: append the template lines inside markers, so uninstall.sh can
+# remove exactly them
+TEMPLATE_GITIGNORE=$(cat .gitignore)
+{
+    [ -n "$EXISTING_GITIGNORE" ] && { echo "$EXISTING_GITIGNORE"; echo ""; }
+    echo "# workflow-template:start"
+    while IFS= read -r line; do
+        if [ -n "$line" ] && [[ "$line" != \#* ]] && ! grep -qxF -- "$line" <<< "$EXISTING_GITIGNORE"; then
+            echo "$line"
+        fi
+    done <<< "$TEMPLATE_GITIGNORE"
+    [ "$PROFILE" != "project" ] && echo "code/"
+    echo "# workflow-template:end"
+} > .gitignore.new
+mv .gitignore.new .gitignore
+
+# Fill placeholders. Values are escaped for sed; "-i.bak" works with GNU and BSD sed.
+sed_escape() { printf '%s' "$1" | sed -e 's/[&|\\]/\\&/g'; }
+sed_inplace() {
+    local expr="$1"; shift
+    local f
+    for f in "$@"; do
+        sed -i.bak -e "$expr" "$f" && rm -f "$f.bak"
+    done
+}
 echo "Filling placeholders..."
-find . -name "*.md" -not -path "./.git/*" \
-    -exec sed -i "s|{PROJECT_NAME}|$PROJECT_NAME|g" {} +
-find . -name "*.md" -not -path "./.git/*" \
-    -exec sed -i "s|{COMMUNICATION_LANGUAGE}|$COMM_LANG|g" {} +
-find . -name "*.md" -not -path "./.git/*" \
-    -exec sed -i "s|{CONTEXT_LANGUAGE}|$CONTEXT_LANG|g" {} +
-find . -name "*.md" -not -path "./.git/*" \
-    -exec sed -i "s|{CODE_COMMENTS_LANGUAGE}|$CODE_LANG|g" {} +
-sed -i -e "s|{BRANCH_MODEL}|$BRANCH_MODEL|" -e "s|{MERGE_MODE}|$MERGE_MODE|" \
-    .claude/workflow.conf
+MD_FILES=()
+while IFS= read -r -d '' f; do MD_FILES+=("$f"); done \
+    < <(find . -name "*.md" -not -path "./.git/*" -not -path "./code/*" -print0)
+sed_inplace "s|{PROJECT_NAME}|$(sed_escape "$PROJECT_NAME")|g" "${MD_FILES[@]}"
+sed_inplace "s|{COMMUNICATION_LANGUAGE}|$(sed_escape "$COMM_LANG")|g" "${MD_FILES[@]}"
+sed_inplace "s|{CONTEXT_LANGUAGE}|$(sed_escape "$CONTEXT_LANG")|g" "${MD_FILES[@]}"
+sed_inplace "s|{CODE_COMMENTS_LANGUAGE}|$(sed_escape "$CODE_LANG")|g" "${MD_FILES[@]}"
+sed_inplace "s|{BRANCH_MODEL}|$BRANCH_MODEL|;s|{MERGE_MODE}|$MERGE_MODE|" .claude/workflow.conf
 
 # Profile settings
-set_conf() { sed -i "s|^$1=.*|$1=$2|" .claude/workflow.conf; }
+set_conf() { sed_inplace "s|^$1=.*|$1=$(sed_escape "$2")|" .claude/workflow.conf; }
 set_conf PROFILE "$PROFILE"
 if [ "$PROFILE" != "project" ]; then
     set_conf CODE_DIR code
     set_conf CODE_REPO "${CODE_REPO:-}"
-    grep -qxF "code/" .gitignore || printf 'code/\n' >> .gitignore
 fi
 if [ "$PROFILE" = "own-oss" ]; then
     # Public ADRs live in the code repository; the product file stays private here.

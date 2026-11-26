@@ -23,9 +23,12 @@ Not the same as `security-review` – that skill is separate and not invoked her
 
 ### 1. Determine scope from `$ARGUMENTS`
 
+All git commands run in the code repository: `git -C <CODE_DIR>`
+(`.claude/workflow.conf`). In devmeta profiles the root repository ignores `code/`.
+
 | Argument | Scope |
 | --- | --- |
-| (empty) | `git -C <CODE_DIR> diff $(git -C <CODE_DIR> merge-base HEAD <integration branch>)..HEAD` – task branch vs branch point (`.claude/rules/branching.md`) |
+| (empty) | `git diff $(git merge-base HEAD <integration branch>)..HEAD` – task branch vs branch point (`.claude/rules/branching.md`) |
 | `<path>` | `git diff -- <path>` – targeted file or directory |
 | `--staged` | `git diff --staged` – only staged changes |
 | `--all` | all tracked files (`git ls-files`), minus patterns in optional `.polishignore` – see step 1a |

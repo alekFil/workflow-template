@@ -24,8 +24,9 @@ Settings – `.claude/workflow.conf`; cards – `.claude/rules/artifacts.md`; br
 
 1. **Card.** Find the current task card. If there is none, create
    `<TASKS_DIR>/<slug>.md` from the discussion.
-2. **Branch.** In the code repository, if not on `feature/<slug>` – create it from
-   the integration branch.
+2. **Branch.** In the code repository, if not on the task branch of the card
+   (`feature/<slug>`, `hotfix/<slug>` or the card's `branch:`) – create
+   `feature/<slug>` from the integration branch (`.claude/rules/branching.md`).
 3. **Plan.** If the card has no `## Plan`, write it from the discussion in the
    Architect format (`.claude/skills/architect/SKILL.md`), set `status: in-progress`
    and commit it: `docs: plan <slug>`.

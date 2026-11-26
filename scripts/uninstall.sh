@@ -21,7 +21,6 @@ fi
 TO_DELETE=()
 [ -d ".claude" ]     && TO_DELETE+=(".claude/")
 [ -d ".context" ]    && TO_DELETE+=(".context/")
-[ -d "memory" ]      && TO_DELETE+=("memory/")
 [ -f "CLAUDE.md" ]   && TO_DELETE+=("CLAUDE.md")
 [ -f "WORKFLOW.md" ] && TO_DELETE+=("WORKFLOW.md")
 
@@ -58,12 +57,12 @@ done
 
 # Clean workflow-template block from .gitignore
 if [ -f ".gitignore" ]; then
-    sed -i '/^# workflow-template:start$/,/^# workflow-template:end$/d' .gitignore
+    sed -i.bak '/^# workflow-template:start$/,/^# workflow-template:end$/d' .gitignore && rm -f .gitignore.bak
 fi
 
 # Clean workflow-template block from .git/info/exclude
 if [ -f ".git/info/exclude" ]; then
-    sed -i '/^# workflow-template:start$/,/^# workflow-template:end$/d' .git/info/exclude
+    sed -i.bak '/^# workflow-template:start$/,/^# workflow-template:end$/d' .git/info/exclude && rm -f .git/info/exclude.bak
 fi
 
 echo -e "${GREEN}Done.${NC} Assistant files removed."

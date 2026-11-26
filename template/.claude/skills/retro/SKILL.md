@@ -57,6 +57,9 @@ Read:
 
 ### 3. Present draft
 
+Write the draft, the file and the prompts in the communication language from
+`CLAUDE.md`. The Russian headings and prompts below are an example.
+
 Output the structured analysis:
 
 ```text
