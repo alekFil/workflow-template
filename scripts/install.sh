@@ -2,6 +2,12 @@
 set -e
 
 REPO="https://github.com/alekFil/workflow-template"
+# Template source: a branch or tag of $REPO (WT_REF), or a local clone (WT_SOURCE).
+# Examples:
+#   curl -fsSL .../dev/scripts/install.sh | WT_REF=dev bash
+#   WT_SOURCE=~/projects/workflow-template bash ~/projects/workflow-template/scripts/install.sh
+WT_REF="${WT_REF:-main}"
+WT_SOURCE="${WT_SOURCE:-}"
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -17,7 +23,9 @@ else
 fi
 
 # Check dependencies
-for cmd in git curl tar; do
+DEPS="git"
+[ -z "$WT_SOURCE" ] && DEPS="git curl tar"
+for cmd in $DEPS; do
     if ! command -v "$cmd" &>/dev/null; then
         echo -e "${RED}Error:${NC} $cmd is required but not found."
         exit 1
@@ -130,31 +138,50 @@ echo ""
 EXISTING_GITIGNORE=""
 [ -f ".gitignore" ] && EXISTING_GITIGNORE=$(cat .gitignore)
 
-# Download template/ from repo
-TMPFILE=$(mktemp /tmp/workflow-template-XXXXXX.tar.gz)
-trap 'rm -f "$TMPFILE"' EXIT
+# Copy template/ into the project: from a local clone or from a downloaded archive
+TMPDIR_WT=$(mktemp -d /tmp/workflow-template-XXXXXX)
+trap 'rm -rf "$TMPDIR_WT"' EXIT
 
-echo "Downloading template..."
-MAX_ATTEMPTS=3
-RETRY_DELAY=5
-DOWNLOAD_OK=false
-for attempt in $(seq 1 $MAX_ATTEMPTS); do
-    if curl -fsSL "${REPO}/archive/refs/heads/main.tar.gz" -o "$TMPFILE"; then
-        DOWNLOAD_OK=true
-        break
+if [ -n "$WT_SOURCE" ]; then
+    if [ ! -d "$WT_SOURCE/template" ]; then
+        echo -e "${RED}Error:${NC} $WT_SOURCE/template not found."
+        exit 1
     fi
-    if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
-        echo -e "${YELLOW}Warning:${NC} download failed, retrying in ${RETRY_DELAY}s... (${attempt}/${MAX_ATTEMPTS})"
-        sleep "$RETRY_DELAY"
-    fi
-done
+    echo "Copying template from $WT_SOURCE..."
+    TEMPLATE_DIR="$WT_SOURCE/template"
+else
+    echo "Downloading template ($WT_REF)..."
+    MAX_ATTEMPTS=3
+    RETRY_DELAY=5
+    DOWNLOAD_OK=false
+    for attempt in $(seq 1 $MAX_ATTEMPTS); do
+        # archive/<ref> resolves both branches and tags
+        if curl -fsSL "${REPO}/archive/${WT_REF}.tar.gz" -o "$TMPDIR_WT/src.tar.gz"; then
+            DOWNLOAD_OK=true
+            break
+        fi
+        if [ "$attempt" -lt "$MAX_ATTEMPTS" ]; then
+            echo -e "${YELLOW}Warning:${NC} download failed, retrying in ${RETRY_DELAY}s... (${attempt}/${MAX_ATTEMPTS})"
+            sleep "$RETRY_DELAY"
+        fi
+    done
 
-if [ "$DOWNLOAD_OK" = false ]; then
-    echo -e "${RED}Error:${NC} failed to download template after ${MAX_ATTEMPTS} attempts."
-    exit 1
+    if [ "$DOWNLOAD_OK" = false ]; then
+        echo -e "${RED}Error:${NC} failed to download template ($WT_REF) after ${MAX_ATTEMPTS} attempts."
+        exit 1
+    fi
+
+    # The top-level folder name depends on the ref (GitHub strips "v" from tags),
+    # so extract everything and locate template/ instead of guessing the name.
+    tar xzf "$TMPDIR_WT/src.tar.gz" -C "$TMPDIR_WT"
+    TEMPLATE_DIR=$(find "$TMPDIR_WT" -mindepth 2 -maxdepth 2 -type d -name template | head -1)
+    if [ -z "$TEMPLATE_DIR" ]; then
+        echo -e "${RED}Error:${NC} template/ not found in the archive."
+        exit 1
+    fi
 fi
 
-tar xz --strip-components=2 -f "$TMPFILE" "workflow-template-main/template"
+cp -a "$TEMPLATE_DIR/." .
 
 # Process .gitignore: append, do not overwrite
 TEMPLATE_GITIGNORE=$(cat .gitignore)

@@ -32,6 +32,22 @@ curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scri
 
 The script will interactively ask for a project name and remote URL, download the template, and optionally create an initial commit.
 
+### Install another version
+
+By default the template comes from `main`. `WT_REF` selects another branch or tag,
+`WT_SOURCE` installs from a local clone without downloading:
+
+```bash
+# development version from dev (take install.sh from the same branch)
+curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/dev/scripts/install.sh | WT_REF=dev bash
+
+# the workflow before the 2026-11 redesign
+curl -fsSL https://raw.githubusercontent.com/alekFil/workflow-template/main/scripts/install.sh | WT_REF=v1 bash
+
+# from a local clone, e.g. to test changes before push
+WT_SOURCE=~/projects/workflow-template bash ~/projects/workflow-template/scripts/install.sh
+```
+
 ---
 
 ## Uninstall
