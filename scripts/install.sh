@@ -89,11 +89,25 @@ echo ""
 DO_COMMIT="n"
 read -p "Create initial commit? [y/N]: " DO_COMMIT <"$TTY"
 
-DO_DEV="n"
-DEV_QUESTION_ASKED=false
-if [[ "$DO_COMMIT" == "y" || "$DO_COMMIT" == "Y" ]] || git rev-parse HEAD &>/dev/null 2>&1; then
-    read -p "Create dev branch? [y/N]: " DO_DEV <"$TTY"
-    DEV_QUESTION_ASKED=true
+# --- Branches ---
+echo ""
+echo "Branch model:"
+echo "  trunk – main + feature/* (simplest; good for working alone with the agent)"
+echo "  dev   – main + dev + feature/* + hotfix/* (releases: dev → main manually)"
+read -p "Branch model [trunk/dev] (default: trunk): " BRANCH_MODEL <"$TTY"
+BRANCH_MODEL=${BRANCH_MODEL:-trunk}
+if [[ "$BRANCH_MODEL" != "trunk" && "$BRANCH_MODEL" != "dev" ]]; then
+    echo -e "${RED}Error:${NC} branch model must be trunk or dev."
+    exit 1
+fi
+echo "Merge mode:"
+echo "  local – /close merges the task branch on this machine (ff-only, no push)"
+echo "  pr    – /close pushes the task branch and opens a pull request (team work)"
+read -p "Merge mode [local/pr] (default: local): " MERGE_MODE <"$TTY"
+MERGE_MODE=${MERGE_MODE:-local}
+if [[ "$MERGE_MODE" != "local" && "$MERGE_MODE" != "pr" ]]; then
+    echo -e "${RED}Error:${NC} merge mode must be local or pr."
+    exit 1
 fi
 
 echo ""
@@ -118,13 +132,7 @@ if [[ "$DO_COMMIT" == "y" || "$DO_COMMIT" == "Y" ]]; then
 else
     echo "  Commit:    skip"
 fi
-if [ "$DEV_QUESTION_ASKED" = true ]; then
-    if [[ "$DO_DEV" == "y" || "$DO_DEV" == "Y" ]]; then
-        echo "  Dev branch: create"
-    else
-        echo "  Dev branch: skip"
-    fi
-fi
+echo "  Branches:  $BRANCH_MODEL model, $MERGE_MODE merge"
 echo ""
 read -p "Continue? [y/N]: " CONFIRM <"$TTY"
 if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
@@ -207,6 +215,8 @@ find . -name "*.md" -not -path "./.git/*" \
     -exec sed -i "s|{CONTEXT_LANGUAGE}|$CONTEXT_LANG|g" {} +
 find . -name "*.md" -not -path "./.git/*" \
     -exec sed -i "s|{CODE_COMMENTS_LANGUAGE}|$CODE_LANG|g" {} +
+sed -i -e "s|{BRANCH_MODEL}|$BRANCH_MODEL|" -e "s|{MERGE_MODE}|$MERGE_MODE|" \
+    .claude/workflow.conf
 
 # Hide assistant files via .git/info/exclude
 if [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
@@ -246,9 +256,16 @@ if [[ "$DO_COMMIT" == "y" || "$DO_COMMIT" == "Y" ]]; then
     git commit -m "chore: init from workflow-template"
 fi
 
-# Create dev branch
-if [[ "$DO_DEV" == "y" || "$DO_DEV" == "Y" ]]; then
-    git checkout -b dev
+# Dev model: create dev from the current branch once a commit exists
+if [ "$BRANCH_MODEL" = "dev" ]; then
+    if git show-ref --verify --quiet refs/heads/dev; then
+        echo "Branch dev already exists – kept as is."
+    elif git rev-parse HEAD &>/dev/null; then
+        git checkout -b dev
+    else
+        echo -e "${YELLOW}Note:${NC} no commits yet – create dev after the first commit:"
+        echo "  git checkout -b dev"
+    fi
 fi
 
 echo ""
