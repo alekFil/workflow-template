@@ -1,16 +1,15 @@
 # {PROJECT_NAME} – CLAUDE.md
 
-Project context for Claude Code.
-Read this file first. Details – follow the links below.
+Project context for Claude Code. Read this file first; details follow the links.
 
 **Language:**
 
 - Communication: {COMMUNICATION_LANGUAGE}
 - `.context/` files: {CONTEXT_LANGUAGE}
 - Code comments: {CODE_COMMENTS_LANGUAGE}
-- Workflow docs (`.claude/`, skills, commands): English. Exception:
-  `.claude/technical-text-style.md` and `.claude/writing-style.md` are in Russian,
-  because their rules list Russian phrasing
+- Workflow docs (`.claude/`, skills, rules): English. Exception:
+  `.claude/rules/technical-text-style.md` and `.claude/skills/writing-style/SKILL.md`
+  are in Russian, because their rules list Russian phrasing
 
 ## About this project
 
@@ -29,132 +28,42 @@ Full architecture: `.context/blueprint.md`
 
 **Repository:** {REPO_URL}
 
----
-
 ## Navigation
 
 | Need | Where to look |
 | --- | --- |
 | Command reference (for owner) | `WORKFLOW.md` |
-| Documentation map | `.claude/index.md` |
 | Project architecture | `.context/blueprint.md` |
 | What's done | `.context/status.md` |
 | What to do next | `.context/to-do.md` |
 | Current task | `.context/plan.md` |
 | Architecture decisions | `.context/decisions.md` |
+| Workflow rules | `.claude/rules/` |
+| Workflow skills | `.claude/skills/` |
 
-At the start of each session read: `.context/blueprint.md` → `.context/to-do.md` → `.context/status.md`.
-Before implementation also read: `.context/plan.md`.
+At the start of each session read: `.context/blueprint.md` → `.context/to-do.md` →
+`.context/status.md`. Before implementation also read `.context/plan.md`.
 
----
+## Modes
 
-## Your roles
+The owner switches modes with skills. Each skill holds its full instructions.
 
-You work in several modes depending on the conversation context.
-Switching happens via slash commands from the project owner (see below).
+- `/organize` – workflow organization: `CLAUDE.md`, `WORKFLOW.md`, skills, rules
+- `/architect` – architecture discussion and the task plan, no code
+- `/dev` – implementation of the plan on a feature branch
 
-### Organizer mode
+The full command list with descriptions – `WORKFLOW.md`.
 
-Triggered by **`/organize`**.
+## Workflow rules
 
-In this mode you:
+Rules in `.claude/rules/` load automatically:
 
-- Discuss workflow organization approaches
-- Ask clarifying questions before proposing solutions
-- Edit: `CLAUDE.md`, `WORKFLOW.md`, `.claude/index.md`, `.claude/skills/*.md`, `.claudeignore`, `.gitignore`
-- Create discussions and research documents in `.context/discussions/`
-
-### Architect mode
-
-Triggered by **`/architect`** (with any continuation or none).
-
-In this mode you:
-
-- Discuss architecture and technical decisions
-- Ask clarifying questions before proposing solutions
-- Record decisions in `.context/decisions.md`
-- Write a plan in `.context/plan.md` at the end of the discussion (format below)
-- Do not write code – only design and plan
-
-**`.context/plan.md` format:**
-
-````markdown
-## Task: {verb + noun, specific}
-
-### Context
-{what this component is, why it's needed}
-Depends on: {list of already-implemented components or "–"}
-
-### What to implement
-1. {atomic unit of work}
-2. {atomic unit of work}
-
-### Files
-Create:
-- {path}
-
-Edit:
-- {path} – {what to change}
-
-### Constraints
-- Obvious bug or tech debt directly on the path: document in "Changes along the way" and continue. If it's an architectural decision – also add to decisions.md.
-- Non-obvious change or affects architecture: stop. Describe the problem and options, wait for owner's choice.
-- {explicit prohibition}
-
-### Verification
-- {automatable criterion – command or specific result}
-
-### Changes along the way
-- {what was changed outside scope} – {why}
-````
-
-**Good plan rules:**
-
-- One plan – one coherent task. Touches more than three components – suggest splitting.
-- Explicit dependencies. If a task depends on something unimplemented – mark as blocker.
-- Constraints over wishes. One hard prohibition beats three soft "preferably".
-- Verification must be automatable. "pytest passes" – good. "code is readable" – bad.
-
-### Developer mode
-
-Triggered by **`/dev`**.
-
-In this mode you:
-
-- Create a `feature/<task-name>` branch from `dev` (if not already on a feature branch)
-- Read `.context/plan.md` and implement it
-- Stay within the plan scope – do not expand independently
-- If you encounter uncertainty – stop and ask
-- Write tests for new code
-- After completion report what was done and what remains
-
-**Developer mode main rule:**
-If a problem outside the plan scope is found during implementation – two paths:
-
-- **Obvious bug or tech debt directly on the path** → fix it, document in `### Changes along the way` in `plan.md` (what and why). If it's an architectural decision – also add ADR to `decisions.md`.
-- **Non-obvious change or affects architecture** → stop. Describe the problem and options, wait for owner's choice.
-
----
-
-## Slash commands
-
-| Command | Action |
-| --- | --- |
-| `/organize` | Switch to Organizer mode |
-| `/architect` | Switch to Architect mode |
-| `/next` | Architect mode: first incomplete item from `.context/to-do.md` |
-| `/record` | Add ADR to `.context/decisions.md` |
-| `/dev` | Switch to Developer mode – implement `.context/plan.md` |
-| `/go` | Whole task without stops: plan, dev, polish, verify, commit, close |
-| `/polish` | Clean up generated code – built-in `simplify` + project rules |
-| `/close` | Merge feature branch, close the task |
-| `/report` | Archive and write new `.context/status.md` |
-| `/sync` | Compare code with documentation, suggest changes |
-| `/summary` | After a task or release: report, sync, commit, close without stops |
-| `/retro` | Retrospective: analyze history → write discussion → propose actions |
-| `/commit` | Show diff → confirm → commit |
-
----
+- `artifacts.md` – classes of `.context/` artifacts and their lifecycle
+- `adr-discipline.md` – what is an ADR and what is a commit message
+- `branching.md` – branch model and merges
+- `skill-boundaries.md` – a skill does not run its neighbor automatically
+- `text-conventions.md`, `markdown-conventions.md`, `technical-text-style.md` – text
+  and markup
 
 ## Key architecture rules
 
@@ -167,19 +76,6 @@ If a problem outside the plan scope is found during implementation – two paths
 {Do not store in process memory.}
 
 {Add rules specific to your project.}
-
----
-
-## Branching conventions
-
-- Model: `main` / `dev` / `feature/<name>` / `hotfix/<name>`
-- Merges only via ff-only – rebase onto target branch before merging
-- `feature/*` → `dev` (automatically via `/close`)
-- `hotfix/*` → `main` (automatically via `/close`), then `dev` is rebased manually
-- `dev` → `main` – manually only, release decision
-- CC never does `git push` without explicit request
-
----
 
 ## Environment and commands
 
@@ -194,95 +90,12 @@ If a problem outside the plan scope is found during implementation – two paths
 {| `npm install` | Install dependencies |}
 {| `npm test` | Run tests |}
 
----
-
 ## Code conventions
-
-- The letter «ё» is not used in Russian text: «еще», «все», «берет».
-- No em dash (U+2014) – only en dash (U+2013). The rule covers the whole repository.
-  The only exception is `.claude/skills/project/rules/dash-conventions.md`, which
-  quotes the forbidden character.
 
 {CODE_CONVENTIONS}
 {Example:}
 {- Type hints everywhere}
 {- Commits: `type: description` – types: feat, fix, refactor, docs, test, chore}
-
----
-
-## Markdown conventions
-
-- List markers: only `-` (not `*` or `+`)
-- Code blocks: always specify language – `python`, `bash`, `yaml`, `json`, `text` for plain text
-- Empty line before and after headings
-- Empty line before lists (when preceded by text)
-- Dividers `---`: use sparingly, only between major sections; prefer heading hierarchy
-- A line of text is at most 88 characters. Paragraphs and list items wrap at word
-  boundaries; a list item continues with an indent. Tables, code blocks and headings
-  do not wrap. The rule applies to every new and edited paragraph; old text is wrapped
-  when its paragraph is edited
-
-Requirements for the text itself (not the markup) – `.claude/technical-text-style.md`.
-They apply to all Russian text in the repository and to replies to the owner in chat.
-`.claude/writing-style.md` applies only when the owner asks for it explicitly.
-
----
-
-## Artifact scope
-
-Three classes of `.context/` artifacts by lifecycle:
-
-- **Project-wide** – live on all branches, sync through merges: `blueprint.md`, `status.md`, `to-do.md`, `decisions.md`, `discussions/`, `history/decisions/`, `history/retros/`, plus `.claude/`, `CLAUDE.md`, `WORKFLOW.md`.
-- **Task-local** – exist only on `feature/*`, deleted by `/close` before merge: `plan.md`.
-- **Private** – not in git, per-developer only: `notes/`.
-
-If in doubt about a new artifact – decide its class first, then place it. Presence of `plan.md` on `main`/`dev` is a scope violation.
-
----
-
-## Skill boundaries
-
-Each command/skill completes strictly within its own scope. Suggesting a next step in text is allowed; executing it automatically is not.
-
-- **Allowed:** at the end of `/report`, print `Status updated → status.md`. At the end of `/sync`, print `Done. Commit? (/commit)`. These are text suggestions – the developer decides whether to invoke.
-- **Not allowed:** `/dev` proposing a commit message and asking for confirmation to commit. `/architect` writing code alongside the plan. `/close` running `/commit` on uncommitted changes automatically.
-
-Commit actions that are part of a skill's own algorithm (e.g. `/close` step "Clean plan.md") are internal mechanics, not cross-skill bleed – they stay.
-
-**Exception – `/go`.** The owner's explicit permission to chain `/commit` → `/dev` →
-`/polish` → `/commit` → `/close` in one run (`.claude/commands/go.md`). Its
-hard stops (owner-only steps, conflicts with ADRs, failing checks) still apply.
-
-**Exception – `/summary`.** The owner's explicit permission to chain `/report` →
-`/sync` (every recommended edit applied without the agreement step) → `/commit` →
-`/close` in one run (`.claude/commands/summary.md`). Same hard stops as `/go`.
-
-Enforcement is currently soft (rule in skill text, discipline by the model).
-
----
-
-## ADR discipline
-
-Two levels of artifacts:
-
-- **ADR** – `.context/decisions.md`, curated architectural decisions. Passes a 4-point checklist.
-- **Commit messages** – everything else: tactical fixes, renames, cleanup. No separate operational file.
-
-**Checklist for `/record` (all four must be "yes"; otherwise write a commit with a `Why:` section):**
-
-1. Alternatives considered with substantive analysis. For "do / don't do" decisions – reason why this option over the opposite.
-2. Explicit trade-off between alternatives.
-3. Decision shapes product or process behavior over ≥ 6 months.
-4. A reader six months from now, without context, will benefit from knowing *why*, not *what*.
-
-**Archival.** Superseded and rejected ADRs live in `.context/history/decisions/<year>.md` (year = year the ADR was written). Triggers:
-
-- **X (reactive):** `/record` moves the replaced ADR to archive at write time.
-- **Y (periodic):** `/sync` catches orphan-rejected ADRs without explicit replacement.
-
-**Reference convention:** `ADR-NNN (archived, see history/decisions/YYYY.md)`.
-
----
 
 ## Environment variables
 
@@ -291,18 +104,12 @@ Two levels of artifacts:
 {- `DATABASE_URL` – database connection string}
 {- `SECRET_KEY` – application secret key}
 
----
-
 ## Components
 
-- `.claude/` – CC tooling (index, commands, meta-skills, project rules)
-- `.context/` – workflow artifacts (blueprint, plan, to-do, status, decisions, discussions, history/decisions, history/retros)
-- `{PROJECT_LAYOUT}` – project-specific areas (source, tests, docs, infrastructure). Fill in during initial setup with a couple of top-level lines.
+- `.claude/` – Claude Code tooling: skills, rules
+- `.context/` – workflow artifacts: blueprint, plan, to-do, status, decisions,
+  discussions, history
+- `{PROJECT_LAYOUT}` – project-specific areas (source, tests, docs, infrastructure).
+  Fill in during initial setup with a couple of top-level lines.
 
-Physical file tree – see `.context/status.md` (auto-generated by `/report`).
-
----
-
-## Current state
-
-Current state – in `.context/status.md`.
+Physical file tree – `.context/status.md` (generated by `/report`).

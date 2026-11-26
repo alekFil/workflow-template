@@ -18,7 +18,7 @@
 ### Приоритет 2: Управление decisions.md
 
 - [x] Расширить `cc-architect-sync.md`: добавить шаг проверки ADR со статусом "Заменено" и предложения архивировать в `.context/history/decisions/` (ADR-026, реализовано в рамках дисциплины ADR)
-- [x] То же для `template/.claude/skills/meta/cc-architect-sync.md` (ADR-026)
+- [x] То же для `template/.claude/skills/sync/SKILL.md` (ADR-026)
 - [x] Создать `.context/history/decisions/` – теперь директория с реальным содержимым (ADR-026)
 - [ ] Тест: проверить что развертывание через install.sh работает end-to-end
 
@@ -30,8 +30,8 @@
 
 ### Приоритет 4: Дисциплина команд – устранить `/dev` → авто-commit
 
-- [x] Уточнить в `.claude/commands/dev.md` (оба слоя): по завершении – только отчет (замещено ADR-031 в рамках Skill boundaries)
-- [x] Проверить симметрично `.claude/commands/architect.md` и другие команды на зоны сползания (замещено ADR-031, ревизия провела: единственное явное нарушение – dev.md; `cc-code-polish.md` уже реализует правило)
+- [x] Уточнить в `.claude/skills/dev/SKILL.md` (оба слоя): по завершении – только отчет (замещено ADR-031 в рамках Skill boundaries)
+- [x] Проверить симметрично `.claude/skills/architect/SKILL.md` и другие команды на зоны сползания (замещено ADR-031, ревизия провела: единственное явное нарушение – dev.md; `cc-code-polish.md` уже реализует правило)
 
 ### Приоритет 5: Hook-based enforcement (Уровень 1 + Уровень 3)
 

@@ -40,7 +40,7 @@
 | ADR-018 | Мейнтейнерский слой переведен на английский; слэш-команды добавлены в `.claude/commands/` |
 | ADR-019 | `/retro` добавлен как регулярный инструмент рабочего процесса |
 | ADR-020 | Явная языковая настройка в установщике: 3 плейсхолдера, вопрос [one/multi] |
-| ADR-023 | Команда `/polish` – пайплайн вычистки; свой skill-обертка над встроенным `simplify`; точка расширения `.claude/skills/project/rules/` |
+| ADR-023 | Команда `/polish` – пайплайн вычистки; свой skill-обертка над встроенным `simplify`; точка расширения `.claude/rules/` |
 | ADR-024 | Режим `/polish --all` – полный прогон по проекту, только project-rules |
 | ADR-025 | Отмена правила «bold как заголовок» (частично заменяет ADR-024 п.5); п. 4 заменен ADR-033 |
 | ADR-026 | Дисциплина ADR: 2 уровня (ADR + commit-messages), 4-пункт чек-лист, архивация через триггеры X (в `/record`) и Y (в `/sync`) |
@@ -74,7 +74,7 @@
 - `CONTRIBUTION.md` – руководство мейнтейнера
 - `SETUP.md` – инструкция по развертыванию шаблона
 - `.claude/index.md` – навигатор CC
-- `.claude/technical-text-style.md`, `.claude/writing-style.md` – правила русского
+- `.claude/rules/technical-text-style.md`, `.claude/skills/writing-style/SKILL.md` – правила русского
   текста, на русском (ADR-033)
 - `.claude/commands/` – 11 файлов слэш-команд:
   - `architect.md` – разделы «Branch check» (ADR-030) и «After writing plan.md» (ADR-032)
@@ -88,7 +88,7 @@
   - `cc-retrospective.md` – пишет в `.context/history/retros/YYYY-MM-DD.md` (ADR-029)
   - `cc-code-polish.md` – пайплайн /polish (ADR-023, ADR-024); уже реализует Skill boundaries
   - `cc-status-report.md` – git-pointer вместо file-архива (ADR-027)
-- `.claude/skills/project/rules/` – точка расширения `/polish` (ADR-023): `markdown-conventions.md` (с проверкой длины строки), `no-placeholder-leaks.md`,
+- `.claude/rules/` – точка расширения `/polish` (ADR-023): `markdown-conventions.md` (с проверкой длины строки), `no-placeholder-leaks.md`,
   `dash-conventions.md` (ADR-033)
 - `.context/` – рабочая документация мейнтейнера: `blueprint.md`, `status.md`, `to-do.md`, `decisions.md`
 - `.context/discussions/` – `.gitkeep`-стаб для будущих human-team-обсуждений (ADR-029)
@@ -106,7 +106,7 @@
 - `template/CLAUDE.md` – CLAUDE.md для нового проекта (с плейсхолдерами); разделы «Components» с `{PROJECT_LAYOUT}` (ADR-028), «Artifact scope» (ADR-030), «Skill boundaries» (ADR-031), «ADR discipline» (ADR-026), «Code conventions» (ё и тире перед `{CODE_CONVENTIONS}`), «Markdown conventions» с длиной строки (ADR-033)
 - `template/WORKFLOW.md` – шпаргалка рабочего процесса; таблица плейсхолдеров, Typical workday с описанием feature-ветки перед `plan.md`
 - `template/.claude/index.md` – навигатор CC
-- `template/.claude/technical-text-style.md`, `writing-style.md` – правила русского
+- `template/.claude/rules/technical-text-style.md`, `writing-style.md` – правила русского
   текста (ADR-033)
 - `template/.claude/commands/` – 11 файлов слэш-команд:
   - `architect.md` – секции «Branch check» и «After writing plan.md»
@@ -116,7 +116,7 @@
   - `cc-commit.md` – 7 шагов, шаг 3 Include plan.md
   - `cc-close-task.md` – шаг 3 clean plan.md
   - остальные – синхронно
-- `template/.claude/skills/project/rules/` – `README.md` + пример `no-dead-code.md` +
+- `template/.claude/rules/` – `README.md` + пример `no-dead-code.md` +
   `dash-conventions.md`, `markdown-conventions.md` (ADR-033)
 - `template/.context/` – документация для нового проекта: `blueprint.md`, `status.md`, `to-do.md`, `decisions.md` (**без `plan.md`** – ADR-030)
 - `template/.context/notes/`, `discussions/`, `history/` – пустые директории с `.gitkeep`
@@ -181,14 +181,14 @@ CLAUDE.md ← .claude/commands/ (слэш-команды → режимы/ски
 CLAUDE.md ← .claude/index.md
 CLAUDE.md ← .claude/skills/meta/
 CLAUDE.md → раздел «Components» → .context/status.md (физическое дерево, ADR-028)
-CLAUDE.md → раздел «Artifact scope» → .claude/commands/architect.md (branch check),
-             .claude/skills/meta/cc-close-task.md (clean plan.md),
-             .claude/skills/meta/cc-architect-sync.md (plan.md violation flag)
-CLAUDE.md → раздел «Skill boundaries» → .claude/commands/dev.md (усиленный запрет),
+CLAUDE.md → раздел «Artifact scope» → .claude/skills/architect/SKILL.md (branch check),
+             .claude/skills/close/SKILL.md (clean plan.md),
+             .claude/skills/sync/SKILL.md (plan.md violation flag)
+CLAUDE.md → раздел «Skill boundaries» → .claude/skills/dev/SKILL.md (усиленный запрет),
              cc-code-polish.md (уже реализует по конвенции)
-CLAUDE.md → раздел «ADR discipline» → .claude/commands/record.md (чек-лист, X-триггер)
-CLAUDE.md → разделы «Code conventions», «Markdown conventions» → .claude/technical-text-style.md,
-             .claude/skills/project/rules/dash-conventions.md, markdown-conventions.md (ADR-033)
+CLAUDE.md → раздел «ADR discipline» → .claude/skills/record/SKILL.md (чек-лист, X-триггер)
+CLAUDE.md → разделы «Code conventions», «Markdown conventions» → .claude/rules/technical-text-style.md,
+             .claude/rules/dash-conventions.md, markdown-conventions.md (ADR-033)
 
 README.md → SETUP.md (инструкция), CONTRIBUTION.md (для контрибьюторов), CLAUDE.md (для концепций)
 
@@ -198,15 +198,15 @@ template/WORKFLOW.md → template/CLAUDE.md, template/.context/*.md
 scripts/install.sh → template/ (tar.gz из main; 4 плейсхолдера; retry x3)
 scripts/uninstall.sh → .claude/, .context/, CLAUDE.md, WORKFLOW.md, .gitignore, .git/info/exclude
 
-.claude/commands/polish.md → .claude/skills/meta/cc-code-polish.md → .claude/skills/project/rules/*.md
-.claude/commands/retro.md → .claude/skills/meta/cc-retrospective.md → .context/history/retros/
-.claude/commands/record.md → .context/decisions.md (checklist gating + X-триггер архивации в history/decisions/)
-.claude/commands/architect.md → branch check перед созданием .context/plan.md;
+.claude/skills/polish/SKILL.md → .claude/skills/polish/SKILL.md → .claude/rules/*.md
+.claude/skills/retro/SKILL.md → .claude/skills/retro/SKILL.md → .context/history/retros/
+.claude/skills/record/SKILL.md → .context/decisions.md (checklist gating + X-триггер архивации в history/decisions/)
+.claude/skills/architect/SKILL.md → branch check перед созданием .context/plan.md;
                                  «After writing plan.md» напоминание про /commit (ADR-032)
-.claude/skills/meta/cc-commit.md → step 3 Include untracked plan.md с дефолтом Y (ADR-032)
-.claude/skills/meta/cc-close-task.md → chore: clean plan.md → удаление .context/plan.md перед rebase
-.claude/skills/meta/cc-architect-sync.md → Y-триггер orphan-archival ADR; violation flag на plan.md
-.claude/skills/meta/cc-status-report.md → .context/status.md с git-pointer (ADR-027)
+.claude/skills/commit/SKILL.md → step 3 Include untracked plan.md с дефолтом Y (ADR-032)
+.claude/skills/close/SKILL.md → chore: clean plan.md → удаление .context/plan.md перед rebase
+.claude/skills/sync/SKILL.md → Y-триггер orphan-archival ADR; violation flag на plan.md
+.claude/skills/report/SKILL.md → .context/status.md с git-pointer (ADR-027)
 ```
 
 ---
@@ -222,7 +222,7 @@ scripts/uninstall.sh → .claude/, .context/, CLAUDE.md, WORKFLOW.md, .gitignore
 - `/retro` реализован в обоих слоях (ADR-019)
 - Явная языковая настройка при установке (ADR-020)
 - Retry-логика скачивания в `install.sh` – устойчивость к транзиентным сбоям GitHub
-- **`/polish` – пайплайн вычистки сгенерированного кода** (ADR-023): `cc-code-polish` skill-обертка над встроенным `simplify`; точка расширения `.claude/skills/project/rules/`
+- **`/polish` – пайплайн вычистки сгенерированного кода** (ADR-023): `cc-code-polish` skill-обертка над встроенным `simplify`; точка расширения `.claude/rules/`
 - **Режим `/polish --all`** (ADR-024): полный прогон по всем tracked-файлам; project-rules only; наполнены первые правила `markdown-conventions.md` и `no-placeholder-leaks.md`
 - **Дисциплина ADR** (ADR-026): 4-пункт чек-лист в `/record`, механика архивации, переклассификация 25 → 14 активных + 4 архивных; синхронизирована в оба слоя
 - **File-архив `status.md` убран** (ADR-027): 14 архивных файлов удалены; `/report` пишет git-указатель на предыдущую версию

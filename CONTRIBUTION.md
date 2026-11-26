@@ -33,11 +33,12 @@ If a skill or process improvement appeared in a working project:
 
 1. Open a session with this repo
 2. Transfer the change manually:
-   - Skill → `.claude/skills/meta/` and/or `template/.claude/skills/meta/`
+   - Skill → `.claude/skills/<name>/` and/or `template/.claude/skills/<name>/`
+   - Rule → `.claude/rules/` and/or `template/.claude/rules/`
    - `CLAUDE.md` improvement → `template/CLAUDE.md`
 3. `/commit`
 
-`.claude/skills/meta/` and `template/.claude/skills/meta/` – independent copies.
+Skills and rules of the two layers are independent copies.
 The decision to sync between them is always intentional.
 
 ---
