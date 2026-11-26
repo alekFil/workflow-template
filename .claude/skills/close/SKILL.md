@@ -1,88 +1,125 @@
 ---
 name: close
-description: "Close the current task: clean task-local artifacts, rebase, merge into the target branch, delete the branch. Only on the owner's explicit /close."
+description: "Close the current task: delete its card with a Closes-Task commit, then merge the branch locally or push it and open a pull request, as the branch rules say. Only on the owner's explicit /close."
 disable-model-invocation: true
 ---
 
 # Close task
 
+Settings – `.claude/workflow.conf`. Branch model and merge mode –
+`.claude/rules/branching.md`. Task cards – `.claude/rules/artifacts.md`.
+Missing keys mean `BRANCH_MODEL=dev`, `MERGE_MODE=local`.
+
+The **code repository** is `CODE_DIR`; run its git commands as `git -C <CODE_DIR>`.
+The **context repository** is the root. With `CODE_DIR=.` they are the same.
+
 ## Algorithm
 
-### 1. Check the current branch
+### 1. Check the branch
+
+In the code repository:
 
 ```bash
-git branch --show-current
+git -C <CODE_DIR> branch --show-current
 ```
 
-- If `feature/*` – target branch: `dev`
-- If `hotfix/*` – target branch: `main`
-- If `main` or `dev` – report: "Cannot close task – you are on a protected branch. Switch to feature/* or hotfix/*."
+- `feature/<slug>` – target: the integration branch (`main` in the trunk model,
+  `dev` in the dev model).
+- `hotfix/<slug>` – dev model only; target: `main`.
+- Any other branch – report: "Cannot close – not on a task branch." Stop.
 
-### 2. Make sure there is nothing to commit
+The slug names the task card `<TASKS_DIR>/<slug>.md`.
+
+### 2. Nothing left to commit
+
+Run `git status` in both repositories. If there are uncommitted changes – suggest
+`/commit` first. Stop.
+
+### 3. Delete the task card
+
+With `CODE_DIR=.` the card is on the task branch. Delete it there:
 
 ```bash
-git status
+git rm <TASKS_DIR>/<slug>.md
+git commit -m "chore: close task <slug>" -m "Closes-Task: <slug>"
 ```
 
-If there are uncommitted changes – suggest running `/commit` first.
-
-### 3. Clean `plan.md` (task-local artifact, ADR-030)
-
-`.context/plan.md` is a task-local artifact – it lives only on `feature/*` and must not reach `main`/`dev`. Before rebase, remove it with a dedicated commit:
+In devmeta profiles the card is in the context repository on `main`. Delete it there,
+and list the code branch and its commits in the message body:
 
 ```bash
-if [ -f .context/plan.md ]; then
-  git rm .context/plan.md
-  git commit -m "chore: clean plan.md"
-fi
+git rm <TASKS_DIR>/<slug>.md
+git commit -m "chore: close task <slug>" \
+  -m "Code: <branch>, <short hashes of the task commits in CODE_DIR>" \
+  -m "Closes-Task: <slug>"
 ```
 
-The commit isolates the cleanup step – readable history, one file per commit. If `.context/plan.md` is absent already (e.g., the task was closed earlier without cleanup, or the task never had a plan) – skip this step silently.
+If the card was never created – skip this step silently. Before deleting, move any
+open `## ADR candidates` into the report (step 6): the owner decides on them.
 
-### 4. Rebase onto the target branch
+### 4. Update the branch
+
+Rebase onto the target. In the contribution profile the target is
+`upstream/<UPSTREAM_BRANCH>`:
 
 ```bash
-git fetch origin
-git rebase <target branch>
+git -C <CODE_DIR> fetch --all --prune
+git -C <CODE_DIR> rebase <target>
 ```
 
-If conflicts arise – stop and report:
+On conflict – stop and report:
 
 ```text
 Conflict during rebase. Resolve manually, then:
-  git rebase --continue
+  git -C <CODE_DIR> rebase --continue
 After that repeat /close.
 ```
 
-### 5. Merge into the target branch (ff-only)
+### 5. Integrate
+
+**`MERGE_MODE=local`:**
 
 ```bash
-git checkout <target branch>
-git merge --ff-only <feature/hotfix branch>
+git -C <CODE_DIR> checkout <target>
+git -C <CODE_DIR> merge --ff-only <branch>
+git -C <CODE_DIR> branch -d <branch>
 ```
 
-### 6. Delete the feature/hotfix branch
+**`MERGE_MODE=pr`:** push only the task branch, never `main` or `dev`, and open a
+pull request. People merge it on the hosting.
 
 ```bash
-git branch -d <feature/hotfix branch>
+git -C <CODE_DIR> push -u origin <branch>
+gh pr create --base <target> --head <branch> --fill
 ```
 
-### 7. Report the result
+- Contribution profile: the pull request goes to the upstream repository:
+  `gh pr create --repo <UPSTREAM_REPO> --base <UPSTREAM_BRANCH>
+  --head <fork owner>:<branch>`.
+  Title and body follow the upstream `CONTRIBUTING`; no workflow references.
+- No `gh` – print the compare URL of the hosting instead.
+- Keep the local branch: after the merge on the hosting, the owner runs
+  `git -C <CODE_DIR> checkout <target> && git -C <CODE_DIR> pull --ff-only` and
+  deletes it.
+
+### 6. Report
 
 ```text
-Task closed: <branch> → <target branch>
+Task closed: <slug>
+  Code: <branch> → <target> (merged locally | pull request <url>)
+  Card: deleted, Closes-Task commit <hash>
+  ADR candidates: <list or "none"> – record with /record if needed
 ```
 
-If it was `hotfix/*` – add a reminder:
+Dev model, `hotfix/*` merged into `main` – add:
 
 ```text
-Hotfix merged into main. Don't forget to rebase dev:
-  git checkout dev && git rebase main
+Hotfix merged into main. Rebase dev:
+  git -C <CODE_DIR> checkout dev && git -C <CODE_DIR> rebase main
 ```
-
----
 
 ## Constraints
 
-- Do not do `git push` without explicit request
-- Do not merge `dev → main` – that is a release decision, done manually
+- Push only in `MERGE_MODE=pr`, only the task branch
+- Never merge `dev` → `main`: that is a release decision of the owner
+- Never push the context repository: the owner does it

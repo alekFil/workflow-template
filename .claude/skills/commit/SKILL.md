@@ -1,57 +1,49 @@
 ---
 name: commit
-description: "Commit changes: show the diff, wait for confirmation, split by type, add the task reference. Only on the owner's explicit /commit."
+description: "Commit changes: show the diff, wait for confirmation, split by type, add the task trailer. Only on the owner's explicit /commit."
 disable-model-invocation: true
 ---
 
 # Commit changes
 
+Settings – `.claude/workflow.conf`, current task – `.claude/rules/artifacts.md`.
+
+## Two repositories
+
+- **Code repository** – `CODE_DIR`.
+- **Context repository** – the root, where `.claude/` lives.
+
+With `CODE_DIR=.` they are the same repository. In devmeta profiles (`CODE_DIR=code`)
+commit each one separately: `git -C code ...` for code, `git ...` for context. Never
+add workflow files (`CLAUDE.md`, `.claude/`, `.context/`, `docs/` of the context
+repository) to the code repository.
+
 ## Algorithm
 
-### 1. Make sure plan.md is up to date
+### 1. Make sure the task card is up to date
 
-Check: all changes outside the plan scope are documented in `### Changes along the way` in `.context/plan.md`.
-If that section is absent – the implementation matches the plan exactly.
+All changes outside the plan scope are documented in `### Changes along the way` of
+the current card. If that section is empty – the implementation matches the plan.
 
 ### 2. Check there is something to commit
 
-```bash
-git status
-```
+Run `git status` in each repository. If both are clean – report: "Nothing to
+commit, working directory is clean."
 
-If the working directory is clean – report: "Nothing to commit, working directory is clean."
-
-### 3. Include untracked/modified plan.md (ADR-032)
-
-`.context/plan.md` is a design artifact – it should land in the feature branch alongside the implementation so reviewers see it. If `.context/plan.md` appears as untracked or modified in `git status` – ask:
+### 3. Show the list of changes and ask for confirmation
 
 ```text
-Detected untracked/modified .context/plan.md – design artifact for the current task.
-Include in this commit? [Y/n] (default: Y)
-```
-
-- On `Y` or empty response – `git add .context/plan.md`, then continue to step 4.
-- On `n` – skip, continue to step 4.
-
-If `.context/plan.md` is absent from `git status` (already committed or doesn't exist) – skip this step silently.
-
-### 4. Show the list of changes and ask for confirmation
-
-```bash
-git diff --stat
-```
-
-```text
-Will commit:
-  M  .context/blueprint.md
+Will commit (code):
   A  src/model/trainer.py
+Will commit (context):
+  M  .context/tasks/add-trainer.md
 
 Confirm or clarify what to include.
 ```
 
-Wait for explicit confirmation before proceeding.
+With one repository – one list. Wait for explicit confirmation.
 
-### 5. Determine commit type and order
+### 4. Determine commit type and order
 
 | Prefix | When to use |
 | --- | --- |
@@ -62,52 +54,37 @@ Wait for explicit confirmation before proceeding.
 | `test:` | adding or changing tests |
 | `chore:` | infrastructure, configuration, dependencies |
 
-If changes are mixed – split into multiple commits.
+If changes are mixed – split into multiple commits. The task card goes first
+(`docs: plan <slug>`), then the implementation.
 
-**Commit order when closing a task:**
+In a contribution profile the code repository follows the upstream commit
+conventions (`CONTRIBUTING`, recent `git log`) instead of this table.
 
-1. First `.context/plan.md` (if changed)
-2. Then all implementation commits
+### 5. Task trailer
 
-**Task reference in commits:**
-Each implementation commit (of any type) must contain a reference to the task from the plan.
-Format – second line of the message:
+With `CODE_DIR=.` every implementation commit carries the trailer `Task: <slug>`:
 
 ```text
 feat: short description of what was done
 
-Implements: .context/plan.md – "{task name from ## Task:}"
+Why: one or two sentences, when the reason is not obvious.
+
+Task: add-trainer
 ```
 
-### 6. Execute the commit
+In devmeta profiles code commits carry no workflow trailers: the public history
+stays clean.
 
-```bash
-git add {agreed files}
-git commit -m "{prefix}: {what was done, one line, present tense}
+**`Why:` section** – for fixes and non-obvious changes: the constraint, incident or
+trade-off behind the choice. This is where operational context lives; most tactical
+decisions do not belong in ADRs (`.claude/rules/adr-discipline.md`). Skip it for
+cosmetic changes.
 
-Implements: .context/plan.md – \"{task name}\""
-```
-
-**"Why:" section for non-trivial fixes.**
-For fixes and non-obvious changes, include a short "Why:" section after the reference line – one or two sentences on the reason behind the choice (constraint, incident, trade-off). This is where operational context lives – most tactical decisions no longer belong in `decisions.md` (see ADR discipline in `CLAUDE.md`).
-Skip the section for cosmetic changes and refactors without meaningful "why".
-
-```text
-fix: retry template download on transient 5xx
-
-Implements: .context/plan.md – "Robust install.sh"
-
-Why: `curl … | tar xz` masked network failures as "unexpected end of file".
-3 attempts × 5s delay chosen over `--retry-all-errors` for curl <7.71 compatibility.
-```
-
-### 7. Report the result
+### 6. Execute and report
 
 ```text
 Committed: {commit message}
 ```
-
----
 
 ## Intermediate commits
 
@@ -118,9 +95,7 @@ After creating or modifying files within a task, offer:
 - **"now"** – commit immediately
 - **"group"** or silence – accumulate, commit in the final commit
 
----
-
 ## Constraints
 
-- Do not do `git push` without explicit request
+- Do not `git push` unless the branch rules allow it (`.claude/rules/branching.md`)
 - Always wait for confirmation before committing

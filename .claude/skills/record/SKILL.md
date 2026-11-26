@@ -1,47 +1,52 @@
 ---
 name: record
-description: "Record an architecture decision (ADR) after the 4-point checklist. Only on the owner's explicit /record – never on the agent's own initiative."
+description: "Record an architecture decision (ADR) as a file in the decisions directory, after the 4-point checklist. Only on the owner's explicit /record – never on the agent's own initiative."
 disable-model-invocation: true
 argument-hint: "[decision]"
 ---
 
 # /record
 
-Add a new ADR to `.context/decisions.md`.
+Add a new ADR. Discipline, checklist and file format –
+`.claude/rules/adr-discipline.md`. Settings – `.claude/workflow.conf`.
+
+$ARGUMENTS
+
+## Step 0 – Is this project keeping ADRs?
+
+If `DECISIONS_DIR=none` – reply that ADRs are not kept in this project (contribution
+to someone else's repository) and suggest a private note in `.context/notes/`
+instead. Stop.
 
 ## Step 1 – Checklist (gatekeeper)
 
-Before writing an ADR, answer "yes" to all four points. If any is "no" – this is a commit, not an ADR. Reply with the failed point(s) and suggest a commit message with a "Why:" section instead.
+Answer the four points of the checklist. If any is "no" – this is a commit, not an
+ADR. Reply with the failed point(s) and suggest a commit message with a `Why:`
+section instead. Stop.
 
-1. **Alternatives considered with substantive analysis.** For "do / don't do" decisions – reason why this option was chosen over the opposite (analysis of both sides, not a declaration).
-2. **Explicit trade-off between alternatives.** If one alternative is strictly better – it's a commit, not an ADR.
-3. **Decision shapes product or process behavior over a long horizon** (≥ 6 months).
-4. **A reader six months from now, without context, will benefit from knowing *why*, not *what*.**
+## Step 2 – Write the ADR
 
-## Step 2 – Handle replacement (trigger X)
+1. Pick the ID: today's date and a short slug – `YYYY-MM-DD-<slug>`. Check that the
+   file does not exist.
+2. Write `<DECISIONS_DIR>/<id>.md` in the format of the rule: frontmatter (`title`,
+   `status: accepted`, `date`), sections Context, Decision, Alternatives,
+   Consequences. Headings and text in the `.context/` language from `CLAUDE.md`.
+3. If the ADR came from `## ADR candidates` of a task card – remove it from there.
 
-If the new ADR replaces an existing one:
+## Step 3 – Handle replacement
 
-- Move the replaced ADR to `.context/history/decisions/<year>.md` (year = year the replaced ADR was written).
-- Add a marker at the top of the moved ADR: `> Заменено ADR-N (YYYY-MM-DD) – см. .context/decisions.md`.
-- Update references to the replaced ADR in the remaining active ADRs to the form: `ADR-NNN (archived, see history/decisions/YYYY.md)`.
+If the new ADR replaces existing ones, in each replaced file:
 
-## Step 3 – Write the ADR
+- set `status: superseded` (or `rejected`);
+- add `superseded-by: <new id>`.
 
-Use the next sequential number after the last ADR in `.context/decisions.md`.
+The replaced ADR stays in place. Do not move it.
 
-Format:
+## Step 4 – Regenerate the index
 
-```markdown
-## ADR-{N}: {Title}
-
-**Статус:** Принято
-
-**Контекст:** {what prompted the decision – problem or situation}
-
-**Решение:** {what was decided and why}
-
-**Последствия:** {what changes as a result}
+```bash
+.claude/scripts/workflow.sh adr-index
 ```
 
-Prepend the new ADR at the top of the file, above the existing entries.
+Report the new file and the replaced ones. Do not commit
+(`.claude/rules/skill-boundaries.md`).

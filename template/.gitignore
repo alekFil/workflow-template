@@ -3,3 +3,4 @@
 .claude/chat_history/
 .env
 memory/
+.context/status.md

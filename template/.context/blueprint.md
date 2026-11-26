@@ -1,66 +1,35 @@
 # {PROJECT_NAME} – Blueprint
 
-> Living technical reference. Reflects the actual implementation, not plans.
+> How the system is built. Reflects the actual implementation, not plans.
+> Purpose and boundary – `docs/product.md`; decisions – `docs/decisions/`.
 > Updated via `/sync`.
-
----
 
 ## 1. System overview
 
-{PROJECT_DESCRIPTION_FULL}
-{Describe what the system does, who the user is, key principles.}
+{One paragraph: the main parts of the system and how they fit together.}
 
-**Key principles:**
+## 2. Components
 
-- {PRINCIPLE_1}
-- {PRINCIPLE_2}
-
----
-
-## 2. Key architectural decisions
-
-All decisions with rationale – in `.context/decisions.md`.
-
-| ADR | Summary |
-| --- | --- |
-| ADR-001 | {FIRST_KEY_DECISION} |
-
----
-
-## 3. Components
-
-### 3.1 {COMPONENT_1}
+### 2.1 {COMPONENT_1}
 
 {Component description, its responsibilities, key classes/modules.}
 
-### 3.2 {COMPONENT_2}
+### 2.2 {COMPONENT_2}
 
 {Component description.}
 
----
+## 3. Data flows
 
-## 4. Data flows
-
-### 4.1 {MAIN_FLOW}
+### 3.1 {MAIN_FLOW}
 
 ```text
 {Describe the main data flow through the system.}
 ```
 
----
-
-## 5. Data models
+## 4. Data models
 
 {Describe key models: data structures, DB schemas, Pydantic models, etc.}
 
----
-
-## 6. Infrastructure
+## 5. Infrastructure
 
 {Docker Compose, environment variables, dependencies, deployment.}
-
----
-
-## 7. Implemented scenarios / features
-
-{List implemented key scenarios with brief descriptions.}

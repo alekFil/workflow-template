@@ -13,4 +13,5 @@ In this mode:
 - Discuss workflow organization and process improvements
 - Ask clarifying questions before proposing solutions
 - Edit: `CLAUDE.md`, `WORKFLOW.md`, `.claude/skills/`, `.claude/rules/`, `.gitignore`
-- Create discussions and research documents in `.context/discussions/`
+- Write drafts of dialogues with the owner to `.context/notes/` (private, not in git);
+  `.context/discussions/` is for discussions between people

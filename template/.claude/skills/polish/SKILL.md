@@ -25,7 +25,7 @@ Not the same as `security-review` – that skill is separate and not invoked her
 
 | Argument | Scope |
 | --- | --- |
-| (empty) | `git diff $(git merge-base HEAD dev)..HEAD` – feature branch vs branch point |
+| (empty) | `git -C <CODE_DIR> diff $(git -C <CODE_DIR> merge-base HEAD <integration branch>)..HEAD` – task branch vs branch point (`.claude/rules/branching.md`) |
 | `<path>` | `git diff -- <path>` – targeted file or directory |
 | `--staged` | `git diff --staged` – only staged changes |
 | `--all` | all tracked files (`git ls-files`), minus patterns in optional `.polishignore` – see step 1a |
@@ -33,7 +33,8 @@ Not the same as `security-review` – that skill is separate and not invoked her
 If scope is empty – report: "Nothing to polish. Working tree clean." and exit.
 
 If not on a feature branch and no argument given – report:
-"On `main`/`dev` – pass a path, `--staged`, or `--all`, or switch to a feature branch."
+"Not on a task branch – pass a path, `--staged`, or `--all`, or switch to a task
+branch."
 
 ### 1a. `--all` mode – enumerate and confirm
 

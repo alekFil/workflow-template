@@ -19,8 +19,8 @@ Two independent layers:
 
 ## Typical work cycle
 
-1. `/next` – pick a task from `.context/to-do.md`
-2. `/architect` – design, write a plan in `.context/plan.md`
+1. `/next` – pick a task card from `.context/tasks/`
+2. `/architect` – design, write the plan into the task card
 3. `/dev` – implement the plan
 4. `/commit` – commit changes
 5. `/close` – merge into `dev`
@@ -53,4 +53,4 @@ The decision to sync between them is always intentional.
 ## Versioning
 
 Skills are not explicitly versioned.
-Change history – in `git log` and `.context/decisions.md`.
+Change history – in `git log` and `docs/decisions/`.

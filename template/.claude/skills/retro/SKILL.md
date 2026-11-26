@@ -11,7 +11,7 @@ Analyzes project history: decisions, completed work, git commits.
 Produces a structured retrospective discussion and proposes concrete actions.
 
 Hybrid mode: CC builds the analysis, presents a draft, incorporates user corrections,
-then writes the result and proposes updates to `to-do.md` and `decisions.md`.
+then writes the result and proposes new task cards and ADR candidates.
 
 ---
 
@@ -21,10 +21,13 @@ then writes the result and proposes updates to `to-do.md` and `decisions.md`.
 
 Read:
 
-- `.context/decisions.md` – architectural decisions and rationale
+- `<DECISIONS_DIR>/README.md` and the ADR files it lists (`.claude/workflow.conf`) –
+  decisions and rationale
 - `.context/status.md` – current implementation snapshot
-- `.context/history/retros/*.md` – previous retrospectives (for continuity across sessions)
-- `.context/to-do.md` – task queue: completed vs pending
+- `.context/history/retros/*.md` – previous retrospectives (for continuity across
+  sessions)
+- `.claude/scripts/workflow.sh tasks --all` – open and rejected task cards
+- `.claude/scripts/workflow.sh done` – closed tasks
 - `git log --oneline -50` – recent commit history
 
 ### 2. Analyze across four dimensions
@@ -49,8 +52,8 @@ Read:
 
 **Proposed actions:**
 
-- Concrete items for `to-do.md`
-- Learnings worth recording as ADRs
+- New task cards
+- ADR candidates – the owner records them with `/record`
 
 ### 3. Present draft
 
@@ -69,8 +72,8 @@ Output the structured analysis:
 - ...
 
 ### Предлагаемые действия
-- to-do: ...
-- ADR: ...
+- задача: ...
+- кандидат в ADR: ...
 ```
 
 Then ask:
@@ -99,33 +102,28 @@ Create `.context/history/retros/YYYY-MM-DD.md` (use today's date):
 
 Report: "Записано в `.context/history/retros/YYYY-MM-DD.md`"
 
-### 6. Propose to-do updates
+### 6. Propose task cards
 
-For each proposed action item – ask for confirmation separately, then apply:
+For each proposed action item – ask for confirmation separately, then create the
+card as `.claude/skills/task/SKILL.md` describes:
 
 ```text
-Добавить в to-do.md:
+Новая задача:
 - {action item}
 Добавить? (да / пропустить)
 ```
 
-### 7. Propose ADR entries
+### 7. List ADR candidates
 
-If the retrospective surfaced learnings that merit architectural decisions,
-propose each separately:
-
-```text
-Добавить ADR:
-{title and brief rationale}
-Добавить? (да / пропустить)
-```
-
-If confirmed – add directly to `.context/decisions.md`.
+If the retrospective surfaced learnings that may merit architectural decisions,
+list them in the final reply with a short rationale. Do not write ADRs: the owner
+records them with `/record` (`.claude/rules/adr-discipline.md`).
 
 ---
 
 ## Constraints
 
 - Do not modify any files without explicit user confirmation
-- Retrospective file name format: `.context/history/retros/YYYY-MM-DD.md` (no `retro-` prefix – the directory conveys the type)
-- Each to-do item and each ADR – confirmed individually, not in bulk
+- Retrospective file name format: `.context/history/retros/YYYY-MM-DD.md` (no
+  `retro-` prefix – the directory conveys the type)
+- Each task card – confirmed individually, not in bulk

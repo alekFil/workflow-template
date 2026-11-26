@@ -14,4 +14,5 @@ In this mode:
 - Ask clarifying questions before proposing solutions
 - Edit: `CLAUDE.md`, `CONTRIBUTION.md`, `template/CLAUDE.md`, `template/WORKFLOW.md`,
   skills and rules of both layers (`.claude/`, `template/.claude/`)
-- Create discussions in `.context/discussions/`
+- Write drafts of dialogues with the owner to `.context/notes/` (private, not in git);
+  `.context/discussions/` is for discussions between people
