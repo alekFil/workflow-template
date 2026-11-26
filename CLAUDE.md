@@ -77,7 +77,8 @@ Rules in `.claude/rules/` load automatically:
 
 - `artifacts.md` – where documents live, task cards, conflict-free shared text
 - `adr-discipline.md` – what is an ADR and what is a commit message
-- `branching.md` – branch model and merges
+- `branching.md` – branch model and merge mode
+- `profiles.md` – where code and context live: project, own OSS, contribution
 - `skill-boundaries.md` – a skill does not run its neighbor automatically
 - `text-conventions.md`, `markdown-conventions.md`, `technical-text-style.md` – text
   and markup

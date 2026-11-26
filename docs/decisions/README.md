@@ -11,6 +11,7 @@ One file per decision: `YYYY-MM-DD-<slug>.md`. New decisions – `/record`.
 | 2026-11-26 | [Скиллы в официальном формате Claude Code, правила в `.claude/rules/`](2026-11-26-skills-official-format.md) | ADR-036 |
 | 2026-11-26 | [Общий текст без конфликтов: ADR по файлам, карточки задач, status вне git](2026-11-26-shared-text-without-conflicts.md) | – |
 | 2026-11-26 | [docs/product.md: смысл продукта отдельно от устройства](2026-11-26-product-file.md) | – |
+| 2026-11-26 | [Профили devmeta: приватный контекст для своего OSS и для вклада в чужой](2026-11-26-devmeta-profiles.md) | – |
 | 2026-11-26 | [Модель ветвления и режим слияния выбираются при установке](2026-11-26-branching-presets.md) | – |
 | 2026-11-22 | [Команда `/summary` – итог задачи или релиза без остановок](2026-11-22-summary-command.md) | ADR-035 |
 | 2026-11-22 | [Команда `/go` – вся задача без остановок](2026-11-22-go-command.md) | ADR-034 |

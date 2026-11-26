@@ -5,6 +5,8 @@
 #   workflow.sh tasks       list open task cards (in-progress first, then by priority)
 #   workflow.sh tasks --all also list rejected cards
 #   workflow.sh done        list closed tasks from "Closes-Task:" commit trailers
+#   workflow.sh bootstrap   devmeta profiles: clone the code repository into
+#                           CODE_DIR, add the upstream remote, install the leak guard
 #
 # Settings come from .claude/workflow.conf (shell syntax) at the repository root.
 # Generated files are never edited by hand: on a merge conflict, rerun the command.
@@ -13,6 +15,10 @@ set -euo pipefail
 ROOT=$(git rev-parse --show-toplevel)
 cd "$ROOT"
 
+PROFILE="project"
+CODE_DIR="."
+CODE_REPO=""
+UPSTREAM_REPO=""
 DECISIONS_DIR="docs/decisions"
 TASKS_DIR=".context/tasks"
 # shellcheck disable=SC1091
@@ -121,12 +127,49 @@ done_tasks() {
         | awk 'NF >= 3'
 }
 
+bootstrap() {
+    if [ "$CODE_DIR" = "." ]; then
+        echo "Profile \"$PROFILE\" keeps code in this repository – nothing to do."
+        return 0
+    fi
+    if [ ! -d "$CODE_DIR/.git" ]; then
+        if [ -z "$CODE_REPO" ]; then
+            echo "CODE_REPO is empty in .claude/workflow.conf – clone the code into $CODE_DIR manually."
+            return 1
+        fi
+        git clone "$CODE_REPO" "$CODE_DIR"
+    fi
+    if [ -n "$UPSTREAM_REPO" ] && ! git -C "$CODE_DIR" remote get-url upstream &>/dev/null; then
+        git -C "$CODE_DIR" remote add upstream "$UPSTREAM_REPO"
+        git -C "$CODE_DIR" fetch upstream
+    fi
+    # The code repository must never receive workflow files. The hook lives in
+    # .git/hooks of the code repository, so it is not committed and not pushed.
+    local hook="$CODE_DIR/.git/hooks/pre-commit"
+    cat > "$hook" <<'HOOK'
+#!/bin/bash
+# Installed by .claude/scripts/workflow.sh bootstrap (workflow-template devmeta).
+# Blocks workflow files from entering this code repository.
+# Override for a deliberate change: WT_ALLOW_WORKFLOW_FILES=1 git commit ...
+[ "${WT_ALLOW_WORKFLOW_FILES:-}" = "1" ] && exit 0
+leaked=$(git diff --cached --name-only | grep -E '^(CLAUDE\.md|WORKFLOW\.md|\.claude/|\.context/)' || true)
+if [ -n "$leaked" ]; then
+    echo "pre-commit: workflow files must stay in the devmeta repository:"
+    echo "$leaked" | sed 's/^/  /'
+    exit 1
+fi
+HOOK
+    chmod +x "$hook"
+    echo "Code repository ready → $CODE_DIR (leak guard: $hook)"
+}
+
 case "${1:-}" in
     adr-index) adr_index ;;
     tasks) tasks "${2:-}" ;;
     done) done_tasks ;;
+    bootstrap) bootstrap ;;
     *)
-        sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
+        sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'
         exit 1
         ;;
 esac

@@ -67,4 +67,5 @@ if [ -f ".git/info/exclude" ]; then
 fi
 
 echo -e "${GREEN}Done.${NC} Assistant files removed."
+[ -d "docs" ] && echo "Project documents in docs/ (product.md, decisions/) are kept – remove them manually if needed."
 echo "Changes are not committed – stage and commit manually if needed."

@@ -58,13 +58,42 @@ echo -e "${BLUE}workflow-template – initializing new project${NC}"
 echo ""
 
 # Collect data
+echo "Profile:"
+echo "  project      – code and workflow context in this repository"
+echo "  own-oss      – this is a private devmeta repository; your public code repository"
+echo "                 is cloned into code/ and receives no workflow files"
+echo "  contribution – private devmeta repository for a contribution to someone else's"
+echo "                 project; your fork is cloned into code/"
+read -p "Profile [project/own-oss/contribution] (default: project): " PROFILE <"$TTY"
+PROFILE=${PROFILE:-project}
+case "$PROFILE" in
+    project|own-oss|contribution) ;;
+    *) echo -e "${RED}Error:${NC} unknown profile: $PROFILE"; exit 1 ;;
+esac
+
 read -p "Project name: " PROJECT_NAME <"$TTY"
 if [ -z "$PROJECT_NAME" ]; then
     echo -e "${RED}Error:${NC} project name cannot be empty."
     exit 1
 fi
 
-read -p "Remote URL (Enter – configure later): " REMOTE_URL <"$TTY"
+if [ "$PROFILE" = "project" ]; then
+    read -p "Remote URL (Enter – configure later): " REMOTE_URL <"$TTY"
+else
+    read -p "Remote URL of this private devmeta repository (Enter – configure later): " REMOTE_URL <"$TTY"
+    if [ "$PROFILE" = "own-oss" ]; then
+        read -p "Clone URL of your public code repository (Enter – clone into code/ later): " CODE_REPO <"$TTY"
+    else
+        read -p "Clone URL of your fork (Enter – clone into code/ later): " CODE_REPO <"$TTY"
+        read -p "URL of the original (upstream) repository: " UPSTREAM_REPO <"$TTY"
+        if [ -z "$UPSTREAM_REPO" ]; then
+            echo -e "${RED}Error:${NC} the contribution profile needs the upstream repository."
+            exit 1
+        fi
+        read -p "Upstream default branch (default: main): " UPSTREAM_BRANCH <"$TTY"
+        UPSTREAM_BRANCH=${UPSTREAM_BRANCH:-main}
+    fi
+fi
 
 # --- Language ---
 echo ""
@@ -82,7 +111,9 @@ else
 fi
 
 echo ""
-read -p "Hide assistant files from repository? (CLAUDE.md, WORKFLOW.md, .claude/, .context/ → .git/info/exclude) [y/N]: " HIDE_FILES <"$TTY"
+if [ "$PROFILE" = "project" ]; then
+    read -p "Hide assistant files from repository? (CLAUDE.md, WORKFLOW.md, .claude/, .context/ → .git/info/exclude) [y/N]: " HIDE_FILES <"$TTY"
+fi
 read -p "Hide assistant from commit messages? [y/N]: " HIDE_COMMITS <"$TTY"
 
 echo ""
@@ -90,6 +121,11 @@ DO_COMMIT="n"
 read -p "Create initial commit? [y/N]: " DO_COMMIT <"$TTY"
 
 # --- Branches ---
+if [ "$PROFILE" = "contribution" ]; then
+    # Someone else's project: task branches from upstream, every task ends in a PR.
+    BRANCH_MODEL=trunk
+    MERGE_MODE=pr
+else
 echo ""
 echo "Branch model:"
 echo "  trunk – main + feature/* (simplest; good for working alone with the agent)"
@@ -109,9 +145,13 @@ if [[ "$MERGE_MODE" != "local" && "$MERGE_MODE" != "pr" ]]; then
     echo -e "${RED}Error:${NC} merge mode must be local or pr."
     exit 1
 fi
+fi
 
 echo ""
+echo "  Profile:        $PROFILE"
 echo "  Project:        $PROJECT_NAME"
+[ -n "${CODE_REPO:-}" ] && echo "  Code repo:      $CODE_REPO → code/"
+[ -n "${UPSTREAM_REPO:-}" ] && echo "  Upstream:       $UPSTREAM_REPO ($UPSTREAM_BRANCH)"
 [ -n "$REMOTE_URL" ] && echo "  Remote:         $REMOTE_URL"
 echo "  Communication:  $COMM_LANG"
 echo "  Context files:  $CONTEXT_LANG"
@@ -218,6 +258,27 @@ find . -name "*.md" -not -path "./.git/*" \
 sed -i -e "s|{BRANCH_MODEL}|$BRANCH_MODEL|" -e "s|{MERGE_MODE}|$MERGE_MODE|" \
     .claude/workflow.conf
 
+# Profile settings
+set_conf() { sed -i "s|^$1=.*|$1=$2|" .claude/workflow.conf; }
+set_conf PROFILE "$PROFILE"
+if [ "$PROFILE" != "project" ]; then
+    set_conf CODE_DIR code
+    set_conf CODE_REPO "${CODE_REPO:-}"
+    grep -qxF "code/" .gitignore || printf 'code/\n' >> .gitignore
+fi
+if [ "$PROFILE" = "own-oss" ]; then
+    # Public ADRs live in the code repository; the product file stays private here.
+    set_conf DECISIONS_DIR code/docs/decisions
+    rm -rf docs/decisions
+fi
+if [ "$PROFILE" = "contribution" ]; then
+    set_conf UPSTREAM_REPO "$UPSTREAM_REPO"
+    set_conf UPSTREAM_BRANCH "$UPSTREAM_BRANCH"
+    set_conf DECISIONS_DIR none
+    set_conf PRODUCT_FILE none
+    rm -rf docs
+fi
+
 # Hide assistant files via .git/info/exclude
 if [[ "$HIDE_FILES" == "y" || "$HIDE_FILES" == "Y" ]]; then
     mkdir -p .git/info
@@ -256,8 +317,19 @@ if [[ "$DO_COMMIT" == "y" || "$DO_COMMIT" == "Y" ]]; then
     git commit -m "chore: init from workflow-template"
 fi
 
-# Dev model: create dev from the current branch once a commit exists
-if [ "$BRANCH_MODEL" = "dev" ]; then
+# Devmeta profiles: clone the code repository and install the leak guard
+if [ "$PROFILE" != "project" ]; then
+    if [ -n "${CODE_REPO:-}" ]; then
+        bash .claude/scripts/workflow.sh bootstrap || \
+            echo -e "${YELLOW}Note:${NC} bootstrap failed – fix the URL in .claude/workflow.conf and run .claude/scripts/workflow.sh bootstrap"
+    else
+        echo -e "${YELLOW}Note:${NC} set CODE_REPO in .claude/workflow.conf, then run .claude/scripts/workflow.sh bootstrap"
+    fi
+fi
+
+# Dev model: create dev from the current branch once a commit exists.
+# Devmeta repositories keep a single main branch; dev belongs to the code repository.
+if [ "$BRANCH_MODEL" = "dev" ] && [ "$PROFILE" = "project" ]; then
     if git show-ref --verify --quiet refs/heads/dev; then
         echo "Branch dev already exists – kept as is."
     elif git rev-parse HEAD &>/dev/null; then
